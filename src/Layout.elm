@@ -107,7 +107,6 @@ viewLayout model =
     in
     [ div
         [ id "root"
-        , placeholderStyles 0
         , classList
             [ ( "root", True )
             , ( "root--" ++ classBuilder (routeName model.route), True )
@@ -125,7 +124,6 @@ viewHeader model =
         [ viewHeaderLinks model [ Route.Home_, Route.About ]
             |> nav
                 [ class "root__header__nav"
-                , placeholderStyles 1
                 ]
         ]
 
@@ -147,8 +145,7 @@ viewHeaderLinks model links =
 viewLink : Link -> Html msg
 viewLink model =
     a
-        [ placeholderStyles 2
-        , classList
+        [ classList
             [ ( "root__header__links", True )
             , ( "root__header__links--current-page"
               , isRoute model.routeReceived model.routeStatic
@@ -158,24 +155,3 @@ viewLink model =
         , tabindex 1
         ]
         [ text model.routeName ]
-
-
-placeholderStyles : Int -> Attribute msg
-placeholderStyles index =
-    let
-        listOfStyles : List (Attribute msg)
-        listOfStyles =
-            [ class "grid grid-rows-[auto,1fr] gap-8 h-full"
-            , class "flex justify-center gap-4 text-2xl bg-surface-1 shadow-inner"
-            , class "p-4 font-semibold md:p-8"
-            ]
-
-        arrayOfStyles : Array.Array (Attribute msg)
-        arrayOfStyles =
-            Array.fromList listOfStyles
-
-        getStyle : Maybe (Attribute msg)
-        getStyle =
-            Array.get index arrayOfStyles
-    in
-    Maybe.withDefault (class "error") getStyle
