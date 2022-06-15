@@ -91,9 +91,6 @@ a:not([class]) {
 :where(a) {
 	color: inherit;
 	text-decoration: none;
-	&:enter {
-		text-decoration: underline;
-	}
 }
 
 :where(a, button) {
