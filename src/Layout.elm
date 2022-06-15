@@ -1,10 +1,10 @@
 module Layout exposing (Model, initLayout, viewLayout)
 
-import Array
 import Gen.Route as Route exposing (Route)
-import Html exposing (Attribute, Html, a, div, header, main_, nav, text)
+import Html exposing (Attribute, Html, a, div, header, li, main_, nav, span, text, ul)
 import Html.Attributes exposing (class, classList, href, id, tabindex)
 import Regex
+import Utils.View exposing (materialIcon)
 
 
 
@@ -18,26 +18,11 @@ type alias Model msg =
     }
 
 
-type alias Link =
-    { routeStatic : Route
-    , routeReceived : Route
-    , routeName : String
-    }
-
-
 initLayout : Model msg
 initLayout =
     { route = Route.Home_
     , mainContent = []
     , mainAttrs = []
-    }
-
-
-defaultLink : Link
-defaultLink =
-    { routeStatic = Route.Home_
-    , routeReceived = Route.Home_
-    , routeName = ""
     }
 
 
@@ -120,38 +105,25 @@ viewLayout model =
 
 viewHeader : Model msg -> Html msg
 viewHeader model =
+    let
+        correctZero =
+            String.fromInt >> String.padLeft 2 '0'
+
+        links =
+            List.indexedMap
+                (\i route ->
+                    li [ class "" ]
+                        [ a [ href <| "#" ++ route ++ "Id", class "list__link" ]
+                            [ span [ class "text-secondary-30" ] [ text <| correctZero i ++ ". " ], text route ]
+                        ]
+                )
+                [ "about", "experience", "work", "contact" ]
+    in
     header [ class "root__header" ]
-        [ viewHeaderLinks model [ Route.Home_, Route.About ]
-            |> nav
-                [ class "root__header__nav"
-                ]
-        ]
-
-
-viewHeaderLinks : Model msg -> List Route -> List (Html msg)
-viewHeaderLinks model links =
-    List.map
-        (\staticRoute ->
-            viewLink
-                { defaultLink
-                    | routeName = routeName staticRoute
-                    , routeStatic = staticRoute
-                    , routeReceived = model.route
-                }
-        )
-        links
-
-
-viewLink : Link -> Html msg
-viewLink model =
-    a
-        [ classList
-            [ ( "root__header__links", True )
-            , ( "root__header__links--current-page"
-              , isRoute model.routeReceived model.routeStatic
-              )
+        [ materialIcon "text-secondary-30 font-light" "hive"
+        , nav []
+            [ links
+                ++ [ a [ href "#", class "list__resume" ] [ text "resume" ] ]
+                |> ul [ class "list" ]
             ]
-        , href <| Route.toHref model.routeStatic
-        , tabindex 1
         ]
-        [ text model.routeName ]
