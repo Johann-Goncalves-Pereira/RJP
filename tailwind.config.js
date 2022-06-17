@@ -27,6 +27,26 @@ module.exports = {
     borderRadius: {
       sm: "var(--rounded-sm)",
     },
+    fontFamily: {
+      mono: "var(--font-mono)",
+      serif: "var(--font-serif)",
+    },
+    fontWeight: {
+      100: 100,
+      200: 200,
+      300: 300,
+      400: 400,
+      500: 500,
+      600: 600,
+      700: 700,
+      800: 800,
+      900: 900,
+    },
+    extend: {
+      width: {
+        "gold-paragraph": "clamp(45ch,50vw,75ch)",
+      }
+    }
   },
   plugins: [],
   corePlugins: {

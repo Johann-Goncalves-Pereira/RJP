@@ -6,9 +6,10 @@ import Browser.Events exposing (onResize)
 import Components.Svg as SVG exposing (Logo(..))
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
-import Html exposing (Html, a, div, h1, h2, h5, header, li, nav, p, section, span, text, ul)
-import Html.Attributes exposing (class, href, id, rel, tabindex, target)
+import Html exposing (Html, a, button, div, h1, h2, h5, header, li, nav, p, section, span, text, ul)
+import Html.Attributes exposing (attribute, class, href, id, rel, tabindex, target)
 import Html.Attributes.Aria exposing (ariaLabel, ariaLabelledby)
+import Html.Events exposing (onCheck, onClick)
 import Layout exposing (initLayout)
 import Page
 import Request
@@ -37,12 +38,15 @@ page _ _ =
 
 type alias Model =
     { viewport : { w : Float, h : Float }
+    , showNav : Bool
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { viewport = { w = 0, h = 0 } }
+    ( { viewport = { w = 0, h = 0 }
+      , showNav = False
+      }
     , Task.perform GetViewport getViewport
     )
 
@@ -52,8 +56,11 @@ init =
 
 
 type Msg
-    = GetViewport Viewport
+    = -- Page
+      GetViewport Viewport
     | GetNewViewport ( Float, Float )
+      -- Item
+    | ShowNav Bool
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -86,6 +93,9 @@ update msg model =
             , Cmd.none
             )
 
+        ShowNav toggler_ ->
+            ( { model | showNav = not toggler_ }, Cmd.none )
+
 
 subs : Model -> Sub Msg
 subs _ =
@@ -104,13 +114,6 @@ view model =
             { initLayout
                 | route = Route.Home_
                 , headerContent = viewHeader model
-                , mainAttrs =
-                    [ if model.viewport.w <= 1024 then
-                        class "main"
-
-                      else
-                        class ""
-                    ]
                 , mainContent = viewPage model
             }
     }
@@ -127,13 +130,34 @@ viewHeader model =
                 (\i route ->
                     li []
                         [ a [ href <| "#" ++ route ++ "Id", class "list__link" ]
-                            [ span [ class "text-accent-700" ] [ text <| correctZero i ++ ". " ], text route ]
+                            [ span [ class "text-accent-600" ]
+                                [ text <| correctZero i ++ ". " ]
+                            , text route
+                            ]
                         ]
                 )
                 [ "about", "experience", "work", "contact" ]
+
+        checkNav =
+            if model.showNav then
+                { state = "check" }
+
+            else
+                { state = "uncheck" }
     in
     [ materialIcon "icon" "hive"
-    , nav []
+    , if model.viewport.w <= 1024 then
+        button
+            [ class <| "nav-toggler " ++ checkNav.state
+            , onClick <| ShowNav model.showNav
+            ]
+            [ materialIcon "nav-toggler__icon segment" "segment"
+            , materialIcon "nav-toggler__icon close" "close"
+            ]
+
+      else
+        text ""
+    , nav [ class <| "nav " ++ checkNav.state ]
         [ links
             ++ [ a [ href "#", class "list__resume" ] [ text "resume" ] ]
             |> ul [ class "list" ]
@@ -154,7 +178,6 @@ viewPage model =
                     ]
                 ]
             , viewMainContent model
-                |> div [ class "main" ]
             , div [ orientation "right", class "main-orientation right-0" ]
                 [ a [ class "email up" ] [ text "johann.gon.pereira@gmail.com" ]
                 ]
@@ -163,6 +186,7 @@ viewPage model =
         media =
             if model.viewport.w <= 1024 then
                 viewMainContent model
+                    |> List.singleton
 
             else
                 content
@@ -170,6 +194,37 @@ viewPage model =
     media
 
 
-viewMainContent : Model -> List (Html Msg)
-viewMainContent _ =
-    []
+viewMainContent : Model -> Html Msg
+viewMainContent model =
+    let
+        textSize width str =
+            if model.viewport.w >= width then
+                str
+
+            else
+                ""
+    in
+    div [ class "main w-[min(100vw_-_2rem,1920px)] lg:w-full mx-auto z-10" ]
+        [ section [ class "grid place-content-center gap-5 h-screen  m-auto" ]
+            [ Html.i [ class "font-mono text-accent-600 text-sm" ]
+                [ text "hi, my name is" ]
+            , h1 [ class "text-7xl font-800" ]
+                [ [ "Johann", textSize 1920 "Gonçalves", "Pereira" ]
+                    |> String.join " "
+                    |> text
+                ]
+            , h2 [ class "text-7xl font-800" ]
+                [ [ "I", textSize 1920 "love to", "build", textSize 1440 "things", "for the web." ]
+                    |> String.join " "
+                    |> text
+                ]
+            , p [ class "inline-block text-surface-400 w-gold-paragraph" ]
+                [ text """I’m a software developer specializing in
+             building (and occasionally designing) exceptional digital experiences. Currently,
+              I'm focused on building the plataform for """
+                , a [ class "text-accent-600", href "https://app.materialize.pro" ] [ text "Materialize" ]
+                , text "."
+                ]
+            , a [ class "btm-accent", href "https://github.com/Johann-Goncalves-Pereira" ] [ text "Check my Github" ]
+            ]
+        ]

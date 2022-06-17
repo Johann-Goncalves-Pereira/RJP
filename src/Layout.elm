@@ -13,6 +13,7 @@ import Utils.View exposing (materialIcon)
 
 type alias Model msg =
     { route : Route
+    , rootAttrs : List (Attribute msg)
     , headerContent : List (Html msg)
     , headerAttrs : List (Attribute msg)
     , mainContent : List (Html msg)
@@ -23,6 +24,7 @@ type alias Model msg =
 initLayout : Model msg
 initLayout =
     { route = Route.Home_
+    , rootAttrs = []
     , headerContent = []
     , headerAttrs = []
     , mainContent = []
@@ -32,16 +34,6 @@ initLayout =
 
 
 -- Structure
-
-
-isRoute : Route -> Route -> Bool
-isRoute route compare =
-    case ( route, compare ) of
-        ( Route.Home_, Route.Home_ ) ->
-            True
-
-        _ ->
-            False
 
 
 routeName : Route -> String
@@ -95,12 +87,16 @@ viewLayout model =
             class <| "root__main main--" ++ classBuilder (routeName model.route)
     in
     [ div
-        [ id "root"
-        , classList
+        ([ id "root"
+         , classList
             [ ( "root", True )
-            , ( "root--" ++ classBuilder (routeName model.route), True )
+            , ( "root--" ++ classBuilder (routeName model.route)
+              , True
+              )
             ]
-        ]
+         ]
+            ++ model.rootAttrs
+        )
         [ header (class "root__header" :: model.headerAttrs) model.headerContent
         , main_ (mainClass :: model.mainAttrs) model.mainContent
         ]

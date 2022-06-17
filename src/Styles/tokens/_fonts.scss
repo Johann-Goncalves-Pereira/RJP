@@ -4,4 +4,15 @@
 		sans-serif;
 	--font-mono: "Fira Code", "Fira Mono", "Roboto Mono", "Menlo", "Monaco",
 		"Consolas", "Liberation Mono", "Courier New", monospace;
+
+	@for $size from 0 through 50 {
+		$base: 0.5;
+		$multiplier: ($size * 0.125) + $base;
+
+		@if $size <= 9 {
+			--font-size-0#{$size}: #{$multiplier}rem;
+		} @else {
+			--font-size-#{$size}: #{$multiplier}rem;
+		}
+	}
 }
