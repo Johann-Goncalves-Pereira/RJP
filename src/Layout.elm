@@ -13,6 +13,8 @@ import Utils.View exposing (materialIcon)
 
 type alias Model msg =
     { route : Route
+    , headerContent : List (Html msg)
+    , headerAttrs : List (Attribute msg)
     , mainContent : List (Html msg)
     , mainAttrs : List (Attribute msg)
     }
@@ -21,6 +23,8 @@ type alias Model msg =
 initLayout : Model msg
 initLayout =
     { route = Route.Home_
+    , headerContent = []
+    , headerAttrs = []
     , mainContent = []
     , mainAttrs = []
     }
@@ -97,33 +101,7 @@ viewLayout model =
             , ( "root--" ++ classBuilder (routeName model.route), True )
             ]
         ]
-        [ viewHeader model
+        [ header (class "root__header" :: model.headerAttrs) model.headerContent
         , main_ (mainClass :: model.mainAttrs) model.mainContent
         ]
     ]
-
-
-viewHeader : Model msg -> Html msg
-viewHeader model =
-    let
-        correctZero =
-            String.fromInt >> String.padLeft 2 '0'
-
-        links =
-            List.indexedMap
-                (\i route ->
-                    li [ class "" ]
-                        [ a [ href <| "#" ++ route ++ "Id", class "list__link" ]
-                            [ span [ class "text-secondary-30" ] [ text <| correctZero i ++ ". " ], text route ]
-                        ]
-                )
-                [ "about", "experience", "work", "contact" ]
-    in
-    header [ class "root__header" ]
-        [ materialIcon "text-secondary-30 font-light" "hive"
-        , nav []
-            [ links
-                ++ [ a [ href "#", class "list__resume" ] [ text "resume" ] ]
-                |> ul [ class "list" ]
-            ]
-        ]

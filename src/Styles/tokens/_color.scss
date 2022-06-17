@@ -1,41 +1,77 @@
-@use "../abstracts/" as *;
-@use "sass:string";
+@use "../abstracts" as *;
 
-//? Prevent Hsl to transform in Hex.
 @function hsl($h, $s, $l) {
 	@return unquote("hsl(#{$h}, #{$s}, #{$l})");
 }
 
-$colors: (
-	primary: (
-		// Slate
-		10: hsl(200, 27%, 84%),
-		20: hsl(202, 20%, 65%),
-		30: hsl(202, 16%, 47%),
-		40: hsl(202, 25%, 27%),
-		50: hsl(204, 33%, 17%),
-		60: hsl(208, 47%, 11%),
+$theme--dark: (
+	surface: (
+		100: hsl(0, 0%, 90%),
+		200: hsl(0, 0%, 80%),
+		300: hsl(0, 0%, 70%),
+		400: hsl(0, 0%, 60%),
+		500: hsl(0, 0%, 50%),
+		600: hsl(0, 0%, 40%),
+		700: hsl(0, 0%, 30%),
+		800: hsl(0, 0%, 20%),
+		900: hsl(0, 0%, 10%),
 	),
-	secondary: (
-		// Violet
-		10: hsl(263, 69%, 42%),
-		// Blue
-		20: hsl(217, 91%, 60%),
-		// Rose
-		30: hsl(347, 77%, 50%),
-		// Green
-		40: hsl(142, 76%, 36%),
+	accent: (
+		100: hsl(0, 0%, 10%),
+		200: hsl(0, 0%, 20%),
+		300: hsl(0, 0%, 30%),
+		400: hsl(0, 0%, 40%),
+		500: hsl(0, 0%, 50%),
+		600: hsl(0, 0%, 60%),
+		700: hsl(0, 0%, 70%),
+		800: hsl(0, 0%, 80%),
+		900: hsl(0, 0%, 90%),
 	),
 );
 
-:root {
-	@each $color, $shades in $colors {
-		@each $shade, $clr in $shades {
-			$break-hsl: string.slice($clr, 5, -2);
-			$clean-hsl: str-replace($break-hsl, ",", "");
+$theme--light: (
+	surface: (
+		100: hsl(0, 0%, 10%),
+		200: hsl(0, 0%, 20%),
+		300: hsl(0, 0%, 30%),
+		400: hsl(0, 0%, 40%),
+		500: hsl(0, 0%, 50%),
+		600: hsl(0, 0%, 60%),
+		700: hsl(0, 0%, 70%),
+		800: hsl(0, 0%, 80%),
+		900: hsl(0, 0%, 90%),
+	),
+	accent: (
+		100: hsl(0, 0%, 90%),
+		200: hsl(0, 0%, 80%),
+		300: hsl(0, 0%, 70%),
+		400: hsl(0, 0%, 60%),
+		500: hsl(0, 0%, 50%),
+		600: hsl(0, 0%, 40%),
+		700: hsl(0, 0%, 30%),
+		800: hsl(0, 0%, 20%),
+		900: hsl(0, 0%, 10%),
+	),
+);
 
-			--clr-#{$color}-#{$shade}: #{$clr};
-			--clr-#{$color}-#{$shade}-hsl: #{$clean-hsl};
+@mixin theme($theme: $theme--dark) {
+	@each $type, $shades in $theme {
+		@each $shade, $color in $shades {
+			$get-just-hsl-values: str-slice($color, 5, -2);
+			$tale-out-coma: str-replace($get-just-hsl-values, ",", "");
+
+			--clr-#{$type}-#{$shade}: #{$color};
+			--clr-#{$type}-#{$shade}-hsl: #{$tale-out-coma};
 		}
+	}
+}
+
+:root {
+	@include theme;
+}
+
+@media (--OSlight) {
+	:root {
+		@include theme($theme--light);
 	}
 }
