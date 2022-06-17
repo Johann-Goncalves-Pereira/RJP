@@ -20,7 +20,7 @@
 
 		height: 100%;
 		width: var(--orientation-container-width);
-		color: var(--clr-accent-700);
+		color: var(--clr-accent-600);
 		font-weight: 300;
 
 		cursor: pointer;
@@ -28,7 +28,7 @@
 		z-index: var(--layer-2);
 
 		&:enter {
-			color: var(--clr-accent-700);
+			color: var(--clr-accent-600);
 		}
 	}
 
@@ -36,7 +36,7 @@
 		a {
 			display: inline-block;
 			font-family: var(--font-mono);
-			font-size: 0.75rem;
+			font-size: var(--font-size-02);
 			text-transform: capitalize;
 			letter-spacing: var(--font-letterspacing-2);
 			user-select: none;
@@ -49,7 +49,7 @@
 			transition: color 200ms ease-out;
 
 			&:enter {
-				color: var(--clr-accent-700);
+				color: var(--clr-accent-600);
 			}
 		}
 
@@ -58,13 +58,13 @@
 			border: 1px solid currentColor;
 			padding: 0.75rem 1.25rem;
 
-			color: var(--clr-accent-700);
+			color: var(--clr-accent-600);
 
 			will-change: background-color;
 			transition: background-color 300ms ease-out;
 
 			&:enter {
-				background-color: hsl(var(--clr-accent-700-hsl) / 0.25);
+				background-color: hsl(var(--clr-accent-600-hsl) / 0.125);
 			}
 		}
 	}
@@ -80,7 +80,7 @@
 		}
 
 		.icon {
-			font-size: 2rem;
+			font-size: var(--font-size-12);
 		}
 
 		.nav-toggler {
@@ -154,7 +154,7 @@
 			transition: 200ms ease-out;
 
 			&.check {
-				backdrop-filter: blur(1rem);
+				backdrop-filter: blur(0.5rem);
 			}
 
 			&.uncheck {
