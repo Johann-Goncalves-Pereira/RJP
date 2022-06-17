@@ -112,7 +112,7 @@ viewHeader model =
         links =
             List.indexedMap
                 (\i route ->
-                    li [ class "" ]
+                    li []
                         [ a [ href <| "#" ++ route ++ "Id", class "list__link" ]
                             [ span [ class "text-accent-700" ] [ text <| correctZero i ++ ". " ], text route ]
                         ]
@@ -120,7 +120,7 @@ viewHeader model =
                 [ "about", "experience", "work", "contact" ]
     in
     header [ class "root__header" ]
-        [ materialIcon "text-accent-700 font-light" "hive"
+        [ materialIcon "icon" "hive"
         , nav []
             [ links
                 ++ [ a [ href "#", class "list__resume" ] [ text "resume" ] ]

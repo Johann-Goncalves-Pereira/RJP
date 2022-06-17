@@ -1,7 +1,8 @@
 .main--home {
-	$main-o-width: 5.5rem;
 	display: grid;
-	grid-template-columns: $main-o-width 1fr $main-o-width;
+	grid-template-columns: var(--orientation-container-width) 1fr var(
+			--orientation-container-width
+		);
 
 	width: 100%;
 	min-height: 100vh;
@@ -15,7 +16,7 @@
 		justify-content: center;
 		gap: 1rem;
 
-		width: $main-o-width;
+		width: var(--orientation-container-width);
 		height: 100%;
 
 		grid-template-rows: 1fr 7rem;
@@ -50,11 +51,13 @@
 			place-items: center;
 			margin-top: auto;
 
+			font-size: 0.875rem;
+			font-family: var(--font-mono);
 			writing-mode: vertical-rl;
 			text-orientation: sideways;
 			letter-spacing: var(--font-letterspacing-2);
-			font-size: 0.875rem;
-			font-family: var(--font-mono);
+
+			user-select: none;
 		}
 	}
 
