@@ -76,7 +76,7 @@
 
 			&:enter {
 				transform: translateY(-0.25rem);
-				color: var(--clr-accent-700);
+				color: var(--clr-accent-600);
 			}
 		}
 
@@ -85,7 +85,7 @@
 			place-items: center;
 			margin-top: auto;
 
-			font-size: 0.875rem;
+			font-size: var(--font-size-03);
 			font-family: var(--font-mono);
 			writing-mode: vertical-rl;
 			text-orientation: sideways;
