@@ -6,9 +6,10 @@ import Browser.Events exposing (onResize)
 import Components.Svg as SVG exposing (Logo(..))
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
-import Html exposing (Html, a, div, h1, h2, h5, header, li, nav, p, section, span, text, ul)
-import Html.Attributes exposing (class, href, id, rel, tabindex, target)
+import Html exposing (Html, a, button, div, h1, h2, h5, header, li, nav, p, section, span, text, ul)
+import Html.Attributes exposing (attribute, class, href, id, rel, tabindex, target)
 import Html.Attributes.Aria exposing (ariaLabel, ariaLabelledby)
+import Html.Events exposing (onCheck, onClick)
 import Layout exposing (initLayout)
 import Page
 import Request
@@ -37,12 +38,15 @@ page _ _ =
 
 type alias Model =
     { viewport : { w : Float, h : Float }
+    , showNav : Bool
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { viewport = { w = 0, h = 0 } }
+    ( { viewport = { w = 0, h = 0 }
+      , showNav = False
+      }
     , Task.perform GetViewport getViewport
     )
 
@@ -52,8 +56,11 @@ init =
 
 
 type Msg
-    = GetViewport Viewport
+    = -- Page
+      GetViewport Viewport
     | GetNewViewport ( Float, Float )
+      -- Item
+    | ShowNav Bool
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -86,6 +93,9 @@ update msg model =
             , Cmd.none
             )
 
+        ShowNav toggler_ ->
+            ( { model | showNav = not toggler_ }, Cmd.none )
+
 
 subs : Model -> Sub Msg
 subs _ =
@@ -104,13 +114,6 @@ view model =
             { initLayout
                 | route = Route.Home_
                 , headerContent = viewHeader model
-                , mainAttrs =
-                    [ if model.viewport.w <= 1024 then
-                        class "main"
-
-                      else
-                        class ""
-                    ]
                 , mainContent = viewPage model
             }
     }
@@ -127,13 +130,34 @@ viewHeader model =
                 (\i route ->
                     li []
                         [ a [ href <| "#" ++ route ++ "Id", class "list__link" ]
-                            [ span [ class "text-accent-700" ] [ text <| correctZero i ++ ". " ], text route ]
+                            [ span [ class "text-accent-700" ]
+                                [ text <| correctZero i ++ ". " ]
+                            , text route
+                            ]
                         ]
                 )
                 [ "about", "experience", "work", "contact" ]
+
+        checkNav =
+            if model.showNav then
+                { state = "check" }
+
+            else
+                { state = "uncheck" }
     in
     [ materialIcon "icon" "hive"
-    , nav []
+    , if model.viewport.w <= 1024 then
+        button
+            [ class <| "nav-toggler " ++ checkNav.state
+            , onClick <| ShowNav model.showNav
+            ]
+            [ materialIcon "nav-toggler__icon segment" "segment"
+            , materialIcon "nav-toggler__icon close" "close"
+            ]
+
+      else
+        text ""
+    , nav [ class <| "nav " ++ checkNav.state ]
         [ links
             ++ [ a [ href "#", class "list__resume" ] [ text "resume" ] ]
             |> ul [ class "list" ]
@@ -154,7 +178,6 @@ viewPage model =
                     ]
                 ]
             , viewMainContent model
-                |> div [ class "main" ]
             , div [ orientation "right", class "main-orientation right-0" ]
                 [ a [ class "email up" ] [ text "johann.gon.pereira@gmail.com" ]
                 ]
@@ -163,6 +186,7 @@ viewPage model =
         media =
             if model.viewport.w <= 1024 then
                 viewMainContent model
+                    |> List.singleton
 
             else
                 content
@@ -170,6 +194,7 @@ viewPage model =
     media
 
 
-viewMainContent : Model -> List (Html Msg)
+viewMainContent : Model -> Html Msg
 viewMainContent _ =
-    []
+    div [ class "main" ]
+        []
