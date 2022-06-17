@@ -3,8 +3,8 @@
 @use "../abstracts/" as *;
 
 body {
-	color: var(--clr-primary-10);
-	background-color: var(--clr-primary-60);
+	color: var(--clr-surface-100);
+	background-color: var(--clr-surface-900);
 
 	font-family: var(--font-serif);
 }

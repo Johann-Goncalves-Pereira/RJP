@@ -114,13 +114,13 @@ viewHeader model =
                 (\i route ->
                     li [ class "" ]
                         [ a [ href <| "#" ++ route ++ "Id", class "list__link" ]
-                            [ span [ class "text-secondary-30" ] [ text <| correctZero i ++ ". " ], text route ]
+                            [ span [ class "text-accent-700" ] [ text <| correctZero i ++ ". " ], text route ]
                         ]
                 )
                 [ "about", "experience", "work", "contact" ]
     in
     header [ class "root__header" ]
-        [ materialIcon "text-secondary-30 font-light" "hive"
+        [ materialIcon "text-accent-700 font-light" "hive"
         , nav []
             [ links
                 ++ [ a [ href "#", class "list__resume" ] [ text "resume" ] ]

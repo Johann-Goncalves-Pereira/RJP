@@ -72,7 +72,7 @@ view model =
 
 viewPage : Model -> List (Html Msg)
 viewPage _ =
-    [ div [ orientation "left", class "main-o--left" ]
+    [ div [ orientation "left", class "main-orientation left-0" ]
         [ div [ class "grid gap-10 select-none mt-auto" ]
             [ materialIcon "text-3xl up" "south_america"
             , materialIcon "text-3xl up" "fingerprint"
@@ -81,7 +81,7 @@ viewPage _ =
             ]
         ]
     , div [ class "main" ] []
-    , div [ orientation "right", class "main-o--right" ]
+    , div [ orientation "right", class "main-orientation right-0" ]
         [ a [ class "email up" ] [ text "johann.gon.pereira@gmail.com" ]
         ]
     ]
