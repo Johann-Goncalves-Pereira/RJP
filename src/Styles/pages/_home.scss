@@ -1,11 +1,45 @@
 .main--home {
 	display: grid;
-	grid-template-columns: var(--orientation-container-width) 1fr var(
-			--orientation-container-width
-		);
+	grid-template-columns: 1fr;
+
+	@media (--lg-n-above) {
+		grid-template-columns: var(--orientation-container-width) 1fr var(
+				--orientation-container-width
+			);
+	}
 
 	width: 100%;
 	min-height: 100vh;
+
+	&::before,
+	&::after {
+		content: "";
+		position: absolute;
+	}
+
+	&::before {
+		top: 40%;
+		left: 50%;
+
+		width: var(--size-fluid-8);
+		aspect-ratio: var(--ratio-golden);
+		border-radius: var(--radius-blob-4);
+		background-color: var(--clr-surface-600);
+
+		filter: blur(8rem);
+	}
+
+	&::after {
+		top: 40%;
+		left: 40%;
+
+		width: var(--size-fluid-8);
+		aspect-ratio: var(--ratio-portrait);
+		border-radius: var(--radius-blob-3);
+		background-color: var(--clr-surface-400);
+
+		filter: blur(8rem);
+	}
 
 	.main-orientation {
 		position: fixed;
@@ -62,6 +96,8 @@
 	}
 
 	.main {
-		grid-column: 2/2;
+		@media (--lg-n-above) {
+			grid-column: 2/2;
+		}
 	}
 }
