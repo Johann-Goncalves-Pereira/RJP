@@ -8,3 +8,22 @@ body {
 .root {
 	--orientation-container-width: 5.5rem;
 }
+
+.btm-accent {
+	border: 1px solid currentColor;
+	border-radius: var(--rounded-sm);
+	padding: var(--size-3) var(--size-5);
+	margin-inline-end: auto;
+
+	color: var(--clr-accent-600);
+
+	font-family: var(--font-mono);
+	// font-size: var(--font-size-);
+
+	will-change: background-color;
+	transition: background-color 300ms ease-out;
+
+	&:enter {
+		background-color: hsl(var(--clr-accent-600-hsl) / 0.125);
+	}
+}
