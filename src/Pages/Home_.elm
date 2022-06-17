@@ -38,6 +38,7 @@ page _ _ =
 
 type alias Model =
     { viewport : { w : Float, h : Float }
+    , scroll : Scroll.Model
     , showNav : Bool
     }
 
@@ -45,6 +46,7 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     ( { viewport = { w = 0, h = 0 }
+      , scroll = Scroll.init
       , showNav = False
       }
     , Task.perform GetViewport getViewport
@@ -56,9 +58,10 @@ init =
 
 
 type Msg
-    = -- Page
+    = -- Page Events
       GetViewport Viewport
     | GetNewViewport ( Float, Float )
+    | ScrollMsg Scroll.Msg
       -- Item
     | ShowNav Bool
 
@@ -66,7 +69,6 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
-        defaultViewport : { w : Float, h : Float }
         defaultViewport =
             { w = model.viewport.w
             , h = model.viewport.h
@@ -93,13 +95,23 @@ update msg model =
             , Cmd.none
             )
 
+        ScrollMsg msg_ ->
+            ( { model
+                | scroll = Scroll.update msg_ model.scroll
+              }
+            , Cmd.none
+            )
+
         ShowNav toggler_ ->
             ( { model | showNav = not toggler_ }, Cmd.none )
 
 
 subs : Model -> Sub Msg
 subs _ =
-    onResize (\w h -> GetNewViewport ( toFloat w, toFloat h ))
+    Sub.batch
+        [ onResize (\w h -> GetNewViewport ( toFloat w, toFloat h ))
+        , Sub.map ScrollMsg Scroll.subScroll
+        ]
 
 
 
