@@ -130,7 +130,7 @@ viewHeader model =
                 (\i route ->
                     li []
                         [ a [ href <| "#" ++ route ++ "Id", class "list__link" ]
-                            [ span [ class "text-accent-700" ]
+                            [ span [ class "text-accent-600" ]
                                 [ text <| correctZero i ++ ". " ]
                             , text route
                             ]
@@ -195,6 +195,36 @@ viewPage model =
 
 
 viewMainContent : Model -> Html Msg
-viewMainContent _ =
-    div [ class "main" ]
-        []
+viewMainContent model =
+    let
+        textSize width str =
+            if model.viewport.w >= width then
+                str
+
+            else
+                ""
+    in
+    div [ class "main w-[min(100vw_-_2rem,1920px)] lg:w-full mx-auto z-10" ]
+        [ section [ class "grid place-content-center gap-5 h-screen  m-auto" ]
+            [ Html.i [ class "font-mono text-accent-600 text-sm" ]
+                [ text "hi, my name is" ]
+            , h1 [ class "text-7xl font-800" ]
+                [ [ "Johann", textSize 1920 "Gonçalves", "Pereira" ]
+                    |> String.join " "
+                    |> text
+                ]
+            , h2 [ class "text-7xl font-800" ]
+                [ [ "I", textSize 1920 "love to", "build", textSize 1440 "things", "for the web." ]
+                    |> String.join " "
+                    |> text
+                ]
+            , p [ class "inline-block text-surface-400 w-gold-paragraph" ]
+                [ text """I’m a software developer specializing in
+             building (and occasionally designing) exceptional digital experiences. Currently,
+              I'm focused on building the plataform for """
+                , a [ class "text-accent-600", href "https://app.materialize.pro" ] [ text "Materialize" ]
+                , text "."
+                ]
+            , a [ class "btm-accent", href "https://github.com/Johann-Goncalves-Pereira" ] [ text "Check my Github" ]
+            ]
+        ]
