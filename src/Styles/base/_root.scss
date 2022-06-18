@@ -3,10 +3,34 @@ body {
 	background-color: var(--clr-surface-900);
 
 	font-family: var(--font-serif);
+
+	overflow: auto;
+	overflow: overlay;
+
+	scrollbar-width: thin;
+	scrollbar-color: var(--clr-accent-400);
+
+	&::-webkit-scrollbar {
+		width: 2px;
+		background-color: transparent;
+
+		&-thumb {
+			background-color: var(--clr-accent-400);
+			background-image: linear-gradient(
+				45deg,
+				var(--clr-surface-900) 0%,
+				var(--clr-accent-400) 50%,
+				var(--clr-surface-900) 100%
+			);
+		}
+	}
 }
 
 .root {
 	--orientation-container-width: 5.5rem;
+
+	width: 100%;
+	height: 100%;
 }
 
 .btm-accent {
@@ -18,7 +42,7 @@ body {
 	color: var(--clr-accent-600);
 
 	font-family: var(--font-mono);
-	// font-size: var(--font-size-);
+	backdrop-filter: blur(0.25rem);
 
 	will-change: background-color;
 	transition: background-color 300ms ease-out;
