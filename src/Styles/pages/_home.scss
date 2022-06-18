@@ -110,11 +110,14 @@
 .main--home .about-me {
 	display: grid;
 	margin: auto;
-
-	width: Min(100% - var(--size-fluid-8), 75ch + 25rem);
+	width: calc(100% - 2rem);
 
 	padding-block: 10rem;
 	gap: var(--size-fluid-2);
+
+	@media (--md-n-above) {
+		width: Min(100% - var(--size-fluid-8), 75ch + 25rem);
+	}
 
 	.header {
 		display: grid;
@@ -172,10 +175,13 @@
 		&__icon {
 			color: var(--clr-accent-500);
 			transform: scale(1.5, 0.9) translate(-0.35rem, -0.125rem);
+			user-select: none;
+			width: 1ch;
 		}
 	}
 
 	.img {
+		$dislocation: 1.5rem;
 		position: relative;
 
 		grid-column-start: 1;
@@ -190,6 +196,13 @@
 
 		isolation: isolate;
 
+		@media (--xl-n-above) {
+			margin-top: 0;
+			grid-column-start: 2;
+			grid-row: 2 / span 2;
+			margin-inline: auto calc($dislocation + 4px);
+		}
+
 		&::before {
 			content: "";
 			position: absolute;
@@ -198,7 +211,7 @@
 
 			outline: 4px solid var(--clr-accent-500);
 			border-radius: inherit;
-			transform: translate(1.5rem, 1.5rem);
+			transform: translate($dislocation, $dislocation);
 
 			backface-visibility: hidden;
 			will-change: transform;
@@ -230,8 +243,9 @@
 			filter: grayscale(1);
 
 			backface-visibility: hidden;
-			will-change: transform, filter;
-			transition: transform 200ms ease-out 100ms, filter 200ms ease-out 100ms;
+			will-change: transform, filter, border-radius;
+			transition-property: transform, filter, border-radius;
+			transition: transform 200ms ease-out 100ms;
 		}
 
 		&:enter {
@@ -245,17 +259,12 @@
 			img {
 				transform: scale(1.1);
 				filter: grayscale(0);
+				border-radius: calc(var(--rounded-sm) * 2);
 			}
 		}
 	}
 
 	@media (--xl-n-above) {
 		grid-template-columns: 2fr 1fr;
-
-		.img {
-			margin-top: 0;
-			grid-column-start: 2;
-			grid-row: 2 / span 2;
-		}
 	}
 }
