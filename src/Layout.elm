@@ -1,4 +1,4 @@
-module Layout exposing (Model, initLayout, viewLayout)
+module Layout exposing (Model, initLayout, rootId, viewLayout)
 
 import Gen.Route as Route exposing (Route)
 import Html exposing (Attribute, Html, a, div, header, li, main_, nav, span, text, ul)
@@ -75,6 +75,11 @@ classBuilder string =
         |> String.toLower
 
 
+rootId : String
+rootId =
+    "root-id"
+
+
 
 -- View
 
@@ -87,7 +92,7 @@ viewLayout model =
             class <| "root__main main--" ++ classBuilder (routeName model.route)
     in
     [ div
-        ([ id "root"
+        ([ id rootId
          , classList
             [ ( "root", True )
             , ( "root--" ++ classBuilder (routeName model.route)
