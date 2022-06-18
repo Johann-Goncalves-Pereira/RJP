@@ -43,9 +43,18 @@ module.exports = {
       800: 800,
       900: 900,
     },
+    screens: {
+      xxs: "240px",
+      xs: "320px",
+      sm: "480px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1440px",
+      xxl: "1920px",
+    },
     extend: {
       width: {
-        "gold-paragraph": "clamp(45ch,50vw,75ch)",
+        "gold-paragraph": "clamp(45ch,50vw + 1rem,75ch)",
       },
     },
   },
