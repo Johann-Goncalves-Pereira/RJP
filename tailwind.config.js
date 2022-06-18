@@ -26,6 +26,7 @@ module.exports = {
     },
     borderRadius: {
       sm: "var(--rounded-sm)",
+      full: "var(--rounded-full)",
     },
     fontFamily: {
       mono: "var(--font-mono)",
@@ -45,8 +46,8 @@ module.exports = {
     extend: {
       width: {
         "gold-paragraph": "clamp(45ch,50vw,75ch)",
-      }
-    }
+      },
+    },
   },
   plugins: [],
   corePlugins: {
