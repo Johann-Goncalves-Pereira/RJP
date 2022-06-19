@@ -11,42 +11,6 @@
 	width: 100%;
 	min-height: 100vh;
 
-	&::before,
-	&::after {
-		content: "";
-		position: absolute;
-	}
-	@media (--lowContrast) {
-		&::before,
-		&::after {
-			content: none;
-		}
-	}
-
-	&::before {
-		top: 40%;
-		left: 50%;
-
-		width: var(--size-fluid-8);
-		aspect-ratio: var(--ratio-golden);
-		border-radius: var(--radius-blob-4);
-		background-color: hsl(var(--clr-surface-600-hsl) / 0.25);
-
-		filter: blur(8rem);
-	}
-
-	&::after {
-		top: 40%;
-		left: 40%;
-
-		width: var(--size-fluid-8);
-		aspect-ratio: var(--ratio-portrait);
-		border-radius: var(--radius-blob-3);
-		background-color: hsl(var(--clr-surface-400-hsl) / 0.25);
-
-		filter: blur(8rem);
-	}
-
 	.main-orientation {
 		position: fixed;
 		top: 0;
@@ -103,6 +67,69 @@
 	.main {
 		@media (--lg-n-above) {
 			grid-column: 2/2;
+		}
+	}
+
+	.secOne {
+		&::before,
+		&::after {
+			$property: transform, background-color, filter;
+
+			content: "";
+			position: absolute;
+
+			backface-visibility: hidden;
+			will-change: $property;
+			transition-property: $property;
+			transition: 300ms ease-out;
+
+			filter: blur(8rem);
+			z-index: -1;
+		}
+
+		@media (--lowContrast) {
+			&::before,
+			&::after {
+				content: none;
+			}
+		}
+
+		&::before {
+			top: 40%;
+			left: 50%;
+
+			width: var(--size-fluid-8);
+			aspect-ratio: var(--ratio-golden);
+			border-radius: var(--radius-blob-4);
+			background-color: hsl(var(--clr-surface-600-hsl) / 0.25);
+
+			transform: translate(var(--pos-x-1), var(--pos-y-1));
+		}
+
+		&::after {
+			top: 40%;
+			left: 40%;
+
+			width: var(--size-fluid-8);
+			aspect-ratio: var(--ratio-portrait);
+			border-radius: var(--radius-blob-3);
+			background-color: hsl(var(--clr-surface-400-hsl) / 0.25);
+
+			transform: translate(var(--pos-x-2), var(--pos-y-2));
+		}
+
+		&:enter {
+			&::before,
+			&::after {
+				filter: blur(7rem);
+			}
+
+			&::before {
+				background-color: hsl(var(--clr-accent-600-hsl) / 0.5) !important;
+			}
+			&::after {
+				background-color: hsl(var(--clr-accent-400-hsl) / 0.5) !important;
+			}
 		}
 	}
 }
