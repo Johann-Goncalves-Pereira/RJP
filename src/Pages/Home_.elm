@@ -1,7 +1,7 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
 import Array exposing (Array)
-import Browser.Dom as BrowserDom exposing (Viewport, getViewport)
+import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getViewport)
 import Browser.Events exposing (onResize)
 import Components.Svg as SVG exposing (Logo(..))
 import Gen.Params.Home_ exposing (Params)
@@ -10,16 +10,18 @@ import Html exposing (Attribute, Html, a, br, button, div, footer, h1, h2, h3, h
 import Html.Attributes exposing (alt, attribute, class, href, id, rel, src, tabindex, target)
 import Html.Attributes.Aria exposing (ariaLabel, ariaLabelledby)
 import Html.Events exposing (on, onCheck, onClick)
+import Html.Events.Extra.Mouse as Mouse
 import Layout exposing (initLayout, rootId)
 import Page
 import Request
+import Round
 import Shared
 import String exposing (right)
 import Svg exposing (desc)
 import Svg.Attributes exposing (orientation)
 import Task
 import Utils.Scroll as Scroll
-import Utils.View exposing (materialIcon)
+import Utils.View exposing (customProps, materialIcon)
 import View exposing (View)
 
 
@@ -38,19 +40,37 @@ page _ _ =
 
 
 type alias Model =
-    { viewport : { w : Float, h : Float }
+    { -- Page Events
+      viewport : { w : Float, h : Float }
     , scroll : Scroll.Model
+
+    -- Element States
     , showNav : Bool
+    , mousePos : { x : Float, y : Float }
+
+    -- Elements Size
+    , sectionOne : { w : Float, h : Float }
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { viewport = { w = 0, h = 0 }
+    ( { -- Page Events
+        viewport = { w = 0, h = 0 }
       , scroll = Scroll.init
+
+      -- Element States
       , showNav = False
+      , mousePos = { x = 0, y = 0 }
+
+      -- Elements Size
+      , sectionOne = { w = 0, h = 0 }
       }
-    , Task.perform GetViewport getViewport
+    , Cmd.batch
+        [ Task.perform GetViewport getViewport
+        , BrowserDom.getElement secOneId
+            |> Task.attempt GetSectionSize
+        ]
     )
 
 
@@ -63,8 +83,11 @@ type Msg
       GetViewport Viewport
     | GetNewViewport ( Float, Float )
     | ScrollMsg Scroll.Msg
-      -- Item
+      -- Element States
     | ShowNav Bool
+    | NewMousePos ( Float, Float )
+      -- Elements Size
+    | GetSectionSize (Result Error Element)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -85,7 +108,8 @@ update msg model =
                 | viewport =
                     { defaultViewport | w = w_, h = h_ }
               }
-            , Cmd.none
+            , BrowserDom.getElement secOneId
+                |> Task.attempt GetSectionSize
             )
 
         GetNewViewport ( w_, h_ ) ->
@@ -106,11 +130,30 @@ update msg model =
         ShowNav toggler_ ->
             ( { model | showNav = not toggler_ }, Cmd.none )
 
+        NewMousePos ( x_, y_ ) ->
+            ( { model | mousePos = { x = x_, y = y_ } }, Cmd.none )
+
+        GetSectionSize result_ ->
+            case result_ of
+                Ok e_ ->
+                    let
+                        ( w_, h_ ) =
+                            ( e_.element.width, e_.element.height )
+                    in
+                    ( { model | sectionOne = { w = w_, h = h_ } }, Cmd.none )
+
+                Err err_ ->
+                    ( model, Cmd.none )
+
+
+
+-- map : (a -> msg) -> Cmd a -> Cmd
+
 
 subs : Model -> Sub Msg
 subs _ =
     Sub.batch
-        [ onResize (\w h -> GetNewViewport ( toFloat w, toFloat h ))
+        [ onResize <| \w h -> GetNewViewport ( toFloat w, toFloat h )
         , Sub.map ScrollMsg Scroll.subScroll
         ]
 
@@ -221,6 +264,11 @@ viewMainContent model =
         ]
 
 
+secOneId : String
+secOneId =
+    "section-one-id"
+
+
 viewSectionOne : Model -> Html Msg
 viewSectionOne model =
     let
@@ -230,10 +278,40 @@ viewSectionOne model =
 
             else
                 ""
+
+        e =
+            { x = model.mousePos.x
+            , y = model.mousePos.y
+            , w = model.sectionOne.w / 2
+            , h = model.sectionOne.h / 2
+            }
+
+        calc =
+            { x = (e.x - e.w) / e.w
+            , y = (e.y - e.h) / e.h
+            }
+
+        r v_ =
+            String.concat [ Round.round 3 v_, "rem" ]
+
+        value =
+            { x1 = r calc.x
+            , y1 = r calc.y
+            , x2 = r (calc.x * -2)
+            , y3 = r (calc.y * -2)
+            }
     in
     section
-        [ class "grid place-content-center gap-5 min-h-screen m-auto select-none py-24"
+        [ class "secOne grid place-content-center gap-5 min-h-screen w-full m-auto select-none py-24 isolate"
+        , id secOneId
         , ariaLabelledby "title--name"
+        , customProps
+            [ { prop = "pos-x-1", value = value.x1 }
+            , { prop = "pos-y-1", value = value.y1 }
+            , { prop = "pos-x-2", value = value.x2 }
+            , { prop = "pos-y-2", value = value.y3 }
+            ]
+        , Mouse.onMove (.offsetPos >> NewMousePos)
         ]
         [ Html.i [ class "font-mono text-accent-600 text-sm" ]
             [ text "hi, my name is" ]
