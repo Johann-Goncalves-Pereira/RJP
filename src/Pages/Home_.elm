@@ -1,21 +1,19 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
-import Array exposing (Array)
-import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getViewport)
+import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getElement, getViewport, setViewport)
 import Browser.Events exposing (onResize)
 import Components.Svg as SVG exposing (Logo(..))
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
 import Html exposing (Attribute, Html, a, br, button, div, footer, h1, h2, h3, h5, header, img, li, nav, p, section, span, text, ul)
-import Html.Attributes exposing (alt, attribute, class, classList, href, id, rel, src, tabindex, target)
-import Html.Attributes.Aria exposing (ariaLabel, ariaLabelledby)
-import Html.Events exposing (on, onCheck, onClick, onMouseEnter, onMouseLeave, onMouseOut, onMouseOver)
+import Html.Attributes exposing (alt, class, classList, href, id, rel, src, tabindex, target)
+import Html.Attributes.Aria exposing (ariaLabelledby)
+import Html.Events exposing (onClick)
 import Html.Events.Extra.Mouse as Mouse
 import Layout exposing (initLayout, rootId)
 import Page
 import Request
 import Round
-import ScrollTo exposing (scrollTo)
 import Shared
 import String exposing (right)
 import Svg exposing (desc)
@@ -43,7 +41,7 @@ page _ _ =
 type alias Model =
     { -- Page Events
       viewport : { w : Float, h : Float }
-    , scroll : { s : Scroll.Model, to : ScrollTo.State }
+    , scroll : Scroll.Model
 
     -- Element States
     , showNav : Bool
@@ -51,8 +49,9 @@ type alias Model =
     , workSelected : Int
     , mousePos : { x : Float, y : Float }
 
-    -- Elements Size
+    -- Elements
     , sectionOne : { w : Float, h : Float }
+    , sectionPlace : List { id : String, y : Float }
     }
 
 
@@ -60,7 +59,7 @@ init : ( Model, Cmd Msg )
 init =
     ( { -- Page Events
         viewport = { w = 0, h = 0 }
-      , scroll = { s = Scroll.init, to = ScrollTo.init }
+      , scroll = Scroll.init
 
       -- Element States
       , showNav = False
@@ -68,8 +67,9 @@ init =
       , workSelected = 0
       , mousePos = { x = 0, y = 0 }
 
-      -- Elements Size
+      -- Elements
       , sectionOne = { w = 0, h = 0 }
+      , sectionPlace = []
       }
     , Cmd.batch
         [ Task.perform GetViewport getViewport
@@ -79,23 +79,31 @@ init =
     )
 
 
+getSectionPos =
+    List.map
+        (\x ->
+            BrowserDom.getElement x
+                |> Task.attempt GetSectionSize
+        )
+
+
 
 -- UPDATE
 
 
 type Msg
     = -- Page Events
-      GetViewport Viewport
+      NoOp
+    | GetViewport Viewport
     | GetNewViewport ( Float, Float )
     | ScrollMsg Scroll.Msg
-    | ScrollToMsg ScrollTo.Msg
-    | ScrollToElement String
+    | GoToSection Float
       -- Element States
     | ShowNav Bool
     | ImageOver Bool
     | SelectWork Int
     | NewMousePos ( Float, Float )
-      -- Elements Size
+      -- Elements
     | GetSectionSize (Result Error Element)
 
 
@@ -108,6 +116,9 @@ update msg model =
             }
     in
     case msg of
+        NoOp ->
+            ( model, Cmd.none )
+
         GetViewport v_ ->
             let
                 ( w_, h_ ) =
@@ -130,28 +141,18 @@ update msg model =
             )
 
         ScrollMsg msg_ ->
-            let
-                scrollModel_ =
-                    model.scroll.s
-            in
             ( { model
                 | scroll =
-                    { s = Scroll.update msg_ scrollModel_, to = model.scroll.to }
+                    Scroll.update msg_ model.scroll
               }
             , Cmd.none
             )
 
-        ScrollToMsg msg_ ->
-            let
-                ( model_, cmd_ ) =
-                    ScrollTo.update msg_ <| model.scroll.to
-            in
-            ( { model | scroll = { s = model.scroll.s, to = model_ } }
-            , Cmd.map ScrollToMsg cmd_
+        GoToSection y_ ->
+            ( model
+            , Task.attempt (\_ -> NoOp) <|
+                setViewport 0 y_
             )
-
-        ScrollToElement id_ ->
-            ( model, Cmd.map ScrollToMsg <| scrollTo id_ )
 
         ShowNav toggler_ ->
             ( { model | showNav = not toggler_ }, Cmd.none )
@@ -186,8 +187,8 @@ subs : Model -> Sub Msg
 subs model =
     Sub.batch
         [ onResize <| \w h -> GetNewViewport ( toFloat w, toFloat h )
-        , Sub.map ScrollMsg Scroll.subScroll
-        , Sub.map ScrollToMsg <| ScrollTo.subscriptions model.scroll.to
+
+        -- , Sub.map ScrollMsg Scroll.subScroll
         ]
 
 
@@ -222,8 +223,9 @@ viewHeader model =
                     li []
                         [ a
                             [ href <| "#" ++ route ++ "Id"
-                            , onClick <| ScrollToElement <| route ++ "Id"
                             , class "list__link"
+
+                            -- , onClick <| GoToSection 900
                             ]
                             [ span [ class "text-accent-600" ]
                                 [ text <| correctZero i ++ ". " ]
@@ -468,5 +470,12 @@ viewSectionThree model =
     section [ class "where-have-i-worked", id "experienceId" ]
         [ headerSection "" 2 "Where I’ve Worked"
         , listWork
-            |> ul [ class "work-list" ]
+            |> ul
+                [ class <|
+                    String.concat
+                        [ "work-list "
+                        , "work-list--"
+                        , String.fromInt model.workSelected
+                        ]
+                ]
         ]
