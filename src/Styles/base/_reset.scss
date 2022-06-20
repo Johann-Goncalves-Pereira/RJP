@@ -29,10 +29,7 @@ time, mark, audio, video;
 :where(html) {
 	height: 100%;
 
-	/* Set core root defaults */
-	&:focus-within {
-		scroll-behavior: smooth;
-	}
+	scroll-behavior: smooth;
 }
 :where(body) {
 	height: Max(100vh, 100%);
