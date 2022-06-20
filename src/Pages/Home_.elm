@@ -361,15 +361,23 @@ viewSectionTwo model =
                 unicode standard."""
             , br [] []
             , br [] []
-            , text """So perhaps, you've generated some fancy text, 
-                and you're content that you can now copy and paste your fancy 
-                text in the comments section of funny cat videos, but perhaps 
-                you're wondering how it's even possible to change the font of 
-                your text? Is it some sort of hack? Are you copying and pasting 
-                an actual font? Content that you can now copy and paste your fancy 
-                text in the comments section of funny cat videos, but perhaps 
-                you're wondering how it's even possible to change the font of 
-                your text? Is it some sort of hack? Are you copying and pasting 
+            , text """Amongst the hundreds of thousands of symbols which are in the unicode 
+                text specifications are certain characters which resemble, or are variations of 
+                the alphabet and other keyword symbols. For example, if we can take the phrase 
+                "thug life" and convert its characters into the fancy letters "𝖙𝖍𝖚𝖌 𝖑𝖎𝖋𝖊" which 
+                are a set of unicode symbols. These different sets of fancy text letters are 
+                scattered all throughout the unicode specification, and so to create a fancy 
+                text translator, it's just a matter of finding these sets of letters and symbols, 
+                and linking them to their normal alphabetical equivalents.
+                """
+            , br [] []
+            , br [] []
+            , text
+                """
+                Unicode has a huge number of symbols, and so we're able to create other 
+                things like a wingdings translator too. Also if you're looking for messy 
+                text, or glitchy text, visit this creepy zalgo text generator (another 
+                translator on LingoJam).
                 an actual font?"""
             ]
         , footer [ class "footer" ]
