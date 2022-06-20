@@ -7,14 +7,15 @@ import Components.Svg as SVG exposing (Logo(..))
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
 import Html exposing (Attribute, Html, a, br, button, div, footer, h1, h2, h3, h5, header, img, li, nav, p, section, span, text, ul)
-import Html.Attributes exposing (alt, attribute, class, href, id, rel, src, tabindex, target)
+import Html.Attributes exposing (alt, attribute, class, classList, href, id, rel, src, tabindex, target)
 import Html.Attributes.Aria exposing (ariaLabel, ariaLabelledby)
-import Html.Events exposing (on, onCheck, onClick)
+import Html.Events exposing (on, onCheck, onClick, onMouseEnter, onMouseLeave, onMouseOut, onMouseOver)
 import Html.Events.Extra.Mouse as Mouse
 import Layout exposing (initLayout, rootId)
 import Page
 import Request
 import Round
+import ScrollTo exposing (scrollTo)
 import Shared
 import String exposing (right)
 import Svg exposing (desc)
@@ -42,10 +43,12 @@ page _ _ =
 type alias Model =
     { -- Page Events
       viewport : { w : Float, h : Float }
-    , scroll : Scroll.Model
+    , scroll : { s : Scroll.Model, to : ScrollTo.State }
 
     -- Element States
     , showNav : Bool
+    , imageOver : Bool
+    , workSelected : Int
     , mousePos : { x : Float, y : Float }
 
     -- Elements Size
@@ -57,10 +60,12 @@ init : ( Model, Cmd Msg )
 init =
     ( { -- Page Events
         viewport = { w = 0, h = 0 }
-      , scroll = Scroll.init
+      , scroll = { s = Scroll.init, to = ScrollTo.init }
 
       -- Element States
       , showNav = False
+      , imageOver = False
+      , workSelected = 0
       , mousePos = { x = 0, y = 0 }
 
       -- Elements Size
@@ -83,8 +88,12 @@ type Msg
       GetViewport Viewport
     | GetNewViewport ( Float, Float )
     | ScrollMsg Scroll.Msg
+    | ScrollToMsg ScrollTo.Msg
+    | ScrollToElement String
       -- Element States
     | ShowNav Bool
+    | ImageOver Bool
+    | SelectWork Int
     | NewMousePos ( Float, Float )
       -- Elements Size
     | GetSectionSize (Result Error Element)
@@ -121,14 +130,37 @@ update msg model =
             )
 
         ScrollMsg msg_ ->
+            let
+                scrollModel_ =
+                    model.scroll.s
+            in
             ( { model
-                | scroll = Scroll.update msg_ model.scroll
+                | scroll =
+                    { s = Scroll.update msg_ scrollModel_, to = model.scroll.to }
               }
             , Cmd.none
             )
 
+        ScrollToMsg msg_ ->
+            let
+                ( model_, cmd_ ) =
+                    ScrollTo.update msg_ <| model.scroll.to
+            in
+            ( { model | scroll = { s = model.scroll.s, to = model_ } }
+            , Cmd.map ScrollToMsg cmd_
+            )
+
+        ScrollToElement id_ ->
+            ( model, Cmd.map ScrollToMsg <| scrollTo id_ )
+
         ShowNav toggler_ ->
             ( { model | showNav = not toggler_ }, Cmd.none )
+
+        ImageOver isOver_ ->
+            ( { model | imageOver = isOver_ }, Cmd.none )
+
+        SelectWork selected_ ->
+            ( { model | workSelected = selected_ }, Cmd.none )
 
         NewMousePos ( x_, y_ ) ->
             ( { model | mousePos = { x = x_, y = y_ } }, Cmd.none )
@@ -147,14 +179,15 @@ update msg model =
 
 
 
--- map : (a -> msg) -> Cmd a -> Cmd
+-- SUBSCRIPTIONS
 
 
 subs : Model -> Sub Msg
-subs _ =
+subs model =
     Sub.batch
         [ onResize <| \w h -> GetNewViewport ( toFloat w, toFloat h )
         , Sub.map ScrollMsg Scroll.subScroll
+        , Sub.map ScrollToMsg <| ScrollTo.subscriptions model.scroll.to
         ]
 
 
@@ -175,17 +208,23 @@ view model =
     }
 
 
+correctZero : Int -> String
+correctZero =
+    String.fromInt >> String.padLeft 2 '0'
+
+
 viewHeader : Model -> List (Html Msg)
 viewHeader model =
     let
-        correctZero =
-            String.fromInt >> String.padLeft 2 '0'
-
         links =
             List.indexedMap
                 (\i route ->
                     li []
-                        [ a [ href <| "#" ++ route ++ "Id", class "list__link" ]
+                        [ a
+                            [ href <| "#" ++ route ++ "Id"
+                            , onClick <| ScrollToElement <| route ++ "Id"
+                            , class "list__link"
+                            ]
                             [ span [ class "text-accent-600" ]
                                 [ text <| correctZero i ++ ". " ]
                             , text route
@@ -297,53 +336,59 @@ viewSectionOne model =
         value =
             { x1 = r calc.x
             , y1 = r calc.y
-            , x2 = r (calc.x * -2)
-            , y3 = r (calc.y * -2)
+            , x2 = r <| calc.x * -2
+            , y2 = r <| calc.y * -2
             }
     in
     section
-        [ class "secOne grid place-content-center gap-5 min-h-screen w-full m-auto select-none py-24 isolate"
-        , id secOneId
+        [ class "grid place-content-center min-h-screen w-full m-auto select-none py-24 isolate"
         , ariaLabelledby "title--name"
         , customProps
             [ { prop = "pos-x-1", value = value.x1 }
             , { prop = "pos-y-1", value = value.y1 }
             , { prop = "pos-x-2", value = value.x2 }
-            , { prop = "pos-y-2", value = value.y3 }
+            , { prop = "pos-y-2", value = value.y2 }
             ]
         , Mouse.onMove (.offsetPos >> NewMousePos)
         ]
-        [ Html.i [ class "font-mono text-accent-600 text-sm" ]
-            [ text "hi, my name is" ]
-        , h1 [ class "text-7xl font-800", id "title--name" ]
-            [ [ "Johann", textSize 1920 "Gonçalves", "Pereira" ]
-                |> String.join " "
-                |> text
-            ]
-        , h2 [ class "text-7xl font-800" ]
-            [ [ "I", textSize 1920 "love to", "build", textSize 1440 "things", "for the web." ]
-                |> String.join " "
-                |> text
-            ]
-        , p [ class "inline-block text-surface-400 sm:w-gold-paragraph" ]
-            [ text """I’m a software developer specializing in
+        [ div [ class "secOne grid place-content-center gap-5", id secOneId ]
+            [ Html.i [ class "font-mono text-accent-600 text-sm" ]
+                [ text "hi, my name is" ]
+            , h1 [ class "text-7xl font-800", id "title--name" ]
+                [ [ "Johann", textSize 1920 "Gonçalves", "Pereira" ]
+                    |> String.join " "
+                    |> text
+                ]
+            , h2 [ class "text-7xl font-800" ]
+                [ [ "I", textSize 1920 "love to", "build", textSize 1440 "things", "for the web." ]
+                    |> String.join " "
+                    |> text
+                ]
+            , p [ class "inline-block text-surface-400 sm:w-gold-paragraph" ]
+                [ text """I’m a software developer specializing in
              building (and occasionally designing) exceptional digital experiences. Currently,
               I'm focused on building the plataform for """
-            , a [ class "text-accent-600", href "https://app.materialize.pro" ] [ text "Materialize" ]
-            , text "."
+                , a [ class "text-accent-600", href "https://app.materialize.pro" ] [ text "Materialize" ]
+                , text "."
+                ]
+            , a [ class "btm-accent mt-8", href "https://github.com/Johann-Goncalves-Pereira" ]
+                [ text "Check my GitHub" ]
             ]
-        , a [ class "btm-accent mt-8", href "https://github.com/Johann-Goncalves-Pereira" ]
-            [ text "Check my GitHub" ]
+        ]
+
+
+headerSection : String -> Int -> String -> Html Msg
+headerSection addClass sectNumber title =
+    header [ class <| "header-section " ++ addClass ]
+        [ Html.i [ class "header-section__number" ] [ text <| correctZero sectNumber ++ "." ]
+        , h3 [ class "header-section__title" ] [ text title ]
         ]
 
 
 viewSectionTwo : Model -> Html Msg
 viewSectionTwo model =
-    section [ class "about-me" ]
-        [ header [ class "header" ]
-            [ Html.i [ class "header__number" ] [ text "01." ]
-            , h3 [ class "header__title" ] [ text "About Me" ]
-            ]
+    section [ class "about-me", id "aboutId" ]
+        [ headerSection "" 1 "About Me"
         , p [ class "paragraph" ]
             [ text """So perhaps, you've generated some fancy text, 
                 and you're content that you can now copy and paste your fancy 
@@ -397,10 +442,31 @@ viewSectionTwo model =
                     , "go (golang)"
                     ]
             ]
-        , div [ class "img" ] [ img [ src "https://picsum.photos/1200", alt "Profile Photo" ] [] ]
+        , div
+            [ classList [ ( "img", True ), ( "hover", model.imageOver ) ] ]
+            [ img [ src "https://picsum.photos/1200", alt "Profile Photo" ] [] ]
         ]
 
 
 viewSectionThree : Model -> Html Msg
 viewSectionThree model =
-    section [] []
+    let
+        listWork =
+            List.indexedMap
+                (\i x ->
+                    li
+                        [ classList
+                            [ ( "work-list__item", True )
+                            , ( "work-list__item--selected", i == model.workSelected )
+                            ]
+                        , onClick <| SelectWork i
+                        ]
+                        [ text x ]
+                )
+                [ "elm", "skljdl", "kjdçslkjd", "dlkjsalk", "djslk" ]
+    in
+    section [ class "where-have-i-worked", id "experienceId" ]
+        [ headerSection "" 2 "Where I’ve Worked"
+        , listWork
+            |> ul [ class "work-list" ]
+        ]
