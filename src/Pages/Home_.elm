@@ -5,11 +5,35 @@ import Browser.Events exposing (onResize)
 import Components.Svg as SVG exposing (Logo(..))
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
-import Html exposing (Attribute, Html, a, br, button, div, footer, h1, h2, h3, h5, header, img, li, nav, p, section, span, text, ul)
+import Html
+    exposing
+        ( Attribute
+        , Html
+        , a
+        , br
+        , button
+        , div
+        , footer
+        , h1
+        , h2
+        , h3
+        , h5
+        , header
+        , img
+        , li
+        , nav
+        , p
+        , section
+        , span
+        , strong
+        , text
+        , ul
+        )
 import Html.Attributes exposing (alt, class, classList, href, id, rel, src, tabindex, target)
 import Html.Attributes.Aria exposing (ariaLabelledby)
 import Html.Events exposing (onClick)
 import Html.Events.Extra.Mouse as Mouse
+import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
 import Layout exposing (initLayout, rootId)
 import Page
 import Request
@@ -20,7 +44,7 @@ import Svg exposing (desc)
 import Svg.Attributes exposing (orientation)
 import Task
 import Utils.Scroll as Scroll
-import Utils.View exposing (customProps, materialIcon)
+import Utils.View exposing (customProp, customProps, materialIcon)
 import View exposing (View)
 
 
@@ -187,8 +211,7 @@ subs : Model -> Sub Msg
 subs model =
     Sub.batch
         [ onResize <| \w h -> GetNewViewport ( toFloat w, toFloat h )
-
-        -- , Sub.map ScrollMsg Scroll.subScroll
+        , Sub.map ScrollMsg Scroll.subScroll
         ]
 
 
@@ -455,19 +478,62 @@ viewSectionThree model =
     let
         listWork =
             List.indexedMap
-                (\i x ->
+                (\i name ->
                     li
                         [ classList
                             [ ( "work-list__item", True )
                             , ( "work-list__item--selected", i == model.workSelected )
                             ]
-                        , onClick <| SelectWork i
                         ]
-                        [ text x ]
+                        [ button
+                            [ class "work-list__item__btm"
+                            , onClick <| SelectWork i
+                            ]
+                            [ text name ]
+                        ]
                 )
-                [ "elm", "skljdl", "kjdçslkjd", "dlkjsalk", "djslk" ]
+                [ "Materialize", "Portfolio", "Cssnano", "Elm", "Personal" ]
+
+        workContent =
+            List.indexedMap
+                (\i { title, atSign, date, content } ->
+                    if i == model.workSelected then
+                        div [ class "work" ]
+                            [ strong [ class "work__title" ]
+                                [ text <| title ++ " "
+                                , a
+                                    [ class "work__at-sign"
+                                    , href "#"
+                                    , String.concat [ String.fromInt <| (String.length atSign + 1) * -1, "ch" ]
+                                        |> customProp "n-ch"
+                                    ]
+                                    [ text <| "@" ++ atSign ]
+                                ]
+                            , p [ class "work__date" ] [ text date ]
+                            , List.map
+                                (\desc ->
+                                    li [ class "work__paragraph" ]
+                                        [ materialIcon "list-icon" "arrow_right", text desc ]
+                                )
+                                content
+                                |> ul []
+                            ]
+
+                    else
+                        text ""
+                )
+                [ { title = "Front-End Developer"
+                  , atSign = "materialize"
+                  , date = "August 2021 - Present"
+                  , content =
+                        [ "Materialize is a free and open-source Material Design Framework for web and mobile applications."
+                        , "It is a collection of HTML, CSS, and JavaScript components that are used to build websites and web applications."
+                        , "It is a collection of HTML, CSS, and JavaScript components that are used to build websites and web applications."
+                        ]
+                  }
+                ]
     in
-    section [ class "where-have-i-worked", id "experienceId" ]
+    section [ class "where-have-i-worked", id "experienceId" ] <|
         [ headerSection "" 2 "Where I’ve Worked"
         , listWork
             |> ul
@@ -479,3 +545,4 @@ viewSectionThree model =
                         ]
                 ]
         ]
+            ++ workContent
