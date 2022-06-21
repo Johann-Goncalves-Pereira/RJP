@@ -95,11 +95,11 @@ $theme--less: (
 	@include theme;
 }
 
-// @media (--OSlight) {
-// 	:root {
-// 		@include theme($theme--light);
-// 	}
-// }
+@media (--OSlight) {
+	:root {
+		@include theme($theme--light);
+	}
+}
 
 @media (--lowContrast) {
 	:root {
