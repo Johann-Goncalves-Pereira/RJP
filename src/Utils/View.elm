@@ -15,6 +15,11 @@ customProps listProps =
         |> attribute "style"
 
 
+customProp : String -> String -> Attribute msg
+customProp prop value =
+    customProps [ { prop = prop, value = value } ]
+
+
 materialIcon : String -> String -> Html msg
 materialIcon className iconName =
     span [ class <| "material-symbols-rounded " ++ className ] [ text iconName ]
