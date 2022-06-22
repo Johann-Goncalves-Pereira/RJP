@@ -3,6 +3,7 @@ module Pages.Home_ exposing (Model, Msg, page)
 import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getElement, getViewport, setViewport)
 import Browser.Events exposing (onResize)
 import Components.Svg as SVG exposing (Logo(..))
+import Dict exposing (Dict)
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
 import Html
@@ -75,7 +76,7 @@ type alias Model =
 
     -- Elements
     , sectionOne : { w : Float, h : Float }
-    , sectionPlace : List { id : String, y : Float }
+    , elementsPosition : Dict String Float
     }
 
 
@@ -93,7 +94,7 @@ init =
 
       -- Elements
       , sectionOne = { w = 0, h = 0 }
-      , sectionPlace = []
+      , elementsPosition = Dict.empty
       }
     , Cmd.batch
         [ Task.perform GetViewport getViewport
@@ -104,11 +105,10 @@ init =
 
 
 getSectionPos =
-    List.map
-        (\x ->
+    List.map <|
+        \x ->
             BrowserDom.getElement x
                 |> Task.attempt GetSectionSize
-        )
 
 
 
@@ -129,6 +129,11 @@ type Msg
     | NewMousePos ( Float, Float )
       -- Elements
     | GetSectionSize (Result Error Element)
+    | GotElementPosition String (Result Error Element)
+
+
+
+-- function tha get a number
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -202,6 +207,20 @@ update msg model =
                 Err err_ ->
                     ( model, Cmd.none )
 
+        GotElementPosition id_ result_ ->
+            case result_ of
+                Ok e_ ->
+                    let
+                        y_ =
+                            e_.element.y
+                    in
+                    ( { model | elementsPosition = Dict.insert id_ y_ model.elementsPosition }
+                    , Cmd.none
+                    )
+
+                Err _ ->
+                    ( model, Cmd.none )
+
 
 
 -- SUBSCRIPTIONS
@@ -213,6 +232,12 @@ subs model =
         [ onResize <| \w h -> GetNewViewport ( toFloat w, toFloat h )
         , Sub.map ScrollMsg Scroll.subScroll
         ]
+
+
+getPosition : (Msg -> msg) -> String -> Cmd msg
+getPosition lift id =
+    Task.attempt (lift << GotElementPosition id) <|
+        getElement id
 
 
 
@@ -240,15 +265,17 @@ correctZero =
 viewHeader : Model -> List (Html Msg)
 viewHeader model =
     let
+        vh =
+            round model.viewport.h
+
         links =
             List.indexedMap
                 (\i route ->
                     li []
                         [ a
-                            [ href <| "#" ++ route ++ "Id"
+                            [ href <| "#" ++ route
                             , class "list__link"
-
-                            -- , onClick <| GoToSection 900
+                            , onClick <| GoToSection <| toFloat (vh * (i + 1))
                             ]
                             [ span [ class "text-accent-600" ]
                                 [ text <| correctZero i ++ ". " ]
@@ -529,6 +556,28 @@ viewSectionThree model =
                         [ "Materialize is a free and open-source Material Design Framework for web and mobile applications."
                         , "It is a collection of HTML, CSS, and JavaScript components that are used to build websites and web applications."
                         , "It is a collection of HTML, CSS, and JavaScript components that are used to build websites and web applications."
+                        , """Amongst the hundreds of thousands of symbols which are in the unicode 
+                            text specifications are certain characters which resemble, or are variations of 
+                            the alphabet and other keyword symbols. For example, if we can take the phrase 
+                            "thug life" and convert its characters into the fancy letters "𝖙𝖍𝖚𝖌 𝖑𝖎𝖋𝖊" which 
+                            are a set of unicode symbols. These different sets of fancy text letters are 
+                            scattered all throughout the unicode specification, and so to create a fancy 
+                            text translator, it's just a matter of finding these sets of letters and symbols, 
+                            and linking them to their normal alphabetical equivalents.
+                            """
+                        ]
+                  }
+                , { title = "Front-End Developer"
+                  , atSign = "materialize"
+                  , date = "August 2021 - Present"
+                  , content =
+                        [ "Materialize is a free and open-source Material Design Framework for web and mobile applications."
+                        , "It is a collection of HTML, CSS, and JavaScript components that are used to build websites and web applications."
+                        , "It is a collection of HTML, CSS, and JavaScript components that are used to build websites and web applications."
+                        , """Amongst the hundreds of thousands of symbols which are in the unicode 
+                            text specifications are certain characters which resemble, or are variations of 
+                            the alphabet and other keyword symbols. For example, if we can take the phrase 
+                            """
                         ]
                   }
                 ]
