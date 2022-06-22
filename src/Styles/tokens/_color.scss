@@ -84,22 +84,24 @@ $theme--less: (
 		@each $shade, $color in $shades {
 			$get-just-hsl-values: str-slice($color, 5, -2);
 			$tale-out-coma: str-replace($get-just-hsl-values, ",", "");
+			$add-var-hue: str-replace($tale-out-coma, "0 ", "var(--hue, 0) ");
 
-			--clr-#{$type}-#{$shade}: #{$color};
+			--clr-#{$type}-#{$shade}: hsl(#{$tale-out-coma});
 			--clr-#{$type}-#{$shade}-hsl: #{$tale-out-coma};
 		}
 	}
 }
 
 :root {
+	--hue: 50;
 	@include theme;
 }
 
-@media (--OSlight) {
-	:root {
-		@include theme($theme--light);
-	}
-}
+// @media (--OSlight) {
+// 	:root {
+// 		@include theme($theme--light);
+// 	}
+// }
 
 @media (--lowContrast) {
 	:root {
