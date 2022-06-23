@@ -349,9 +349,10 @@ viewPage model =
 viewMainContent : Model -> Html Msg
 viewMainContent model =
     div [ class "main grid gap-10 w-[min(100vw_-_2rem,1920px)] lg:w-full mx-auto z-10" ]
-        [ viewSectionOne model
-        , viewSectionTwo model
-        , viewSectionThree model
+        [ viewIntroduction model
+        , viewAboutMe model
+        , viewWhereHaveIWorked model
+        , viewThingsThatIHaveBuild model
         ]
 
 
@@ -360,8 +361,8 @@ secOneId =
     "section-one-id"
 
 
-viewSectionOne : Model -> Html Msg
-viewSectionOne model =
+viewIntroduction : Model -> Html Msg
+viewIntroduction model =
     let
         textSize width str =
             if model.viewport.w >= width then
@@ -429,18 +430,22 @@ viewSectionOne model =
         ]
 
 
-headerSection : String -> Int -> String -> Html Msg
-headerSection addClass sectNumber title =
+headersSection : String -> Int -> String -> Html Msg
+headersSection addClass sectNumber title =
     header [ class <| "header-section " ++ addClass ]
         [ Html.i [ class "header-section__number" ] [ text <| correctZero sectNumber ++ "." ]
-        , h3 [ class "header-section__title" ] [ text title ]
+        , h3
+            [ class "header-section__title"
+            , id <| "section--title--" ++ String.fromInt sectNumber
+            ]
+            [ text title ]
         ]
 
 
-viewSectionTwo : Model -> Html Msg
-viewSectionTwo model =
-    section [ class "about-me", id "aboutId" ]
-        [ headerSection "" 1 "About Me"
+viewAboutMe : Model -> Html Msg
+viewAboutMe model =
+    section [ class "about-me", id "aboutId", ariaLabelledby "section--title--1" ]
+        [ headersSection "" 1 "About Me"
         , p [ class "paragraph" ]
             [ text """So perhaps, you've generated some fancy text, 
                 and you're content that you can now copy and paste your fancy 
@@ -500,8 +505,8 @@ viewSectionTwo model =
         ]
 
 
-viewSectionThree : Model -> Html Msg
-viewSectionThree model =
+viewWhereHaveIWorked : Model -> Html Msg
+viewWhereHaveIWorked model =
     let
         listWork =
             List.indexedMap
@@ -563,7 +568,7 @@ viewSectionThree model =
                             are a set of unicode symbols. These different sets of fancy text letters are 
                             scattered all throughout the unicode specification, and so to create a fancy 
                             text translator, it's just a matter of finding these sets of letters and symbols, 
-                            and linking them to their normal alphabetical equivalents.
+                            and linking them to their normal alphabetical equivalents.-
                             """
                         ]
                   }
@@ -582,8 +587,8 @@ viewSectionThree model =
                   }
                 ]
     in
-    section [ class "where-have-i-worked", id "experienceId" ] <|
-        [ headerSection "" 2 "Where I’ve Worked"
+    section [ class "where-have-i-worked", id "experienceId", ariaLabelledby "section--title--2" ] <|
+        [ headersSection "" 2 "Where I’ve Worked"
         , listWork
             |> ul
                 [ class <|
@@ -595,3 +600,38 @@ viewSectionThree model =
                 ]
         ]
             ++ workContent
+
+
+viewThingsThatIHaveBuild : Model -> Html Msg
+viewThingsThatIHaveBuild _ =
+    section [ class "things-that-i-have-build", ariaLabelledby "section--title--1" ]
+        [ headersSection "" 3 "Some Things I've Built"
+        , div [ class "projects" ]
+            [ div [ class "img" ] [ img [ src "https://picsum.photos/1024/730/" ] [] ]
+            , div [ class "projects__info" ]
+                [ Html.i [ class "font-mono font-500 text-accent-500 text-sm z-10" ] [ text "Featured Project" ]
+                , strong [ class "font-800 text-1xl md:text-3xl z-10" ] [ text "Materialize Plataform" ]
+                , div [ class "paragraph" ]
+                    [ p [ class "paragraph__text" ]
+                        [ text """
+                Materialize is a free and open-source Material Design 
+                Framework for web and mobile applications.
+                And a thing that I Don't understand,
+                Materialize is a free and open-source Material Design 
+                Framework for web and mobile applications."""
+                        ]
+                    ]
+                , ul [ class "list" ] <|
+                    List.map (\x -> li [] [ text x ])
+                        [ "Elm"
+                        , "PostCss"
+                        , "Html"
+                        , "Css"
+                        ]
+                , div [ class "flex items-center justify-end gap-4 mt-1" ]
+                    [ materialIcon "" "blur_on"
+                    , materialIcon "" "open_in_new"
+                    ]
+                ]
+            ]
+        ]
