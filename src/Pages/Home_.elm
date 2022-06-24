@@ -616,7 +616,7 @@ viewThingsThatIHaveBuild _ =
         , div [ class "projects" ]
             [ div [ class "img" ] [ img [ src "https://picsum.photos/1024/730/" ] [] ]
             , div [ class "projects__info" ]
-                [ Html.i [ class "font-mono font-500 text-accent-500 text-sm z-10" ] [ text "Featured Project" ]
+                [ Html.i [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-500" ] [ text "Featured Project" ]
                 , strong [ class "font-800 text-1xl md:text-3xl z-10" ] [ text "Materialize Plataform" ]
                 , div [ class "paragraph" ]
                     [ p [ class "paragraph__text" ]
@@ -635,9 +635,9 @@ viewThingsThatIHaveBuild _ =
                         , "Html"
                         , "Css"
                         ]
-                , div [ class "flex items-center justify-end gap-4 mt-1" ]
-                    [ materialIcon "" "blur_on"
-                    , materialIcon "" "open_in_new"
+                , div [ class "flex  items-center sm:justify-end gap-4 mt-1 text-surface-100 " ]
+                    [ materialIcon "drop-shadow" "blur_on"
+                    , materialIcon "drop-shadow" "open_in_new"
                     ]
                 ]
             ]
