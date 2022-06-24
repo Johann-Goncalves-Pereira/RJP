@@ -325,14 +325,15 @@
 
 .where-have-i-worked {
 	display: grid;
-	grid-template-columns: max-content 1fr;
 	gap: 1rem;
 
 	margin-block: 8rem;
 	margin-inline: auto;
 
 	width: calc(100% - 2rem);
+
 	@media (--md-n-above) {
+		grid-template-columns: max-content 1fr;
 		width: Min(100% - var(--size-fluid-9), var(--size-md));
 	}
 
@@ -344,13 +345,27 @@
 
 	.work-list {
 		display: grid;
-		grid-auto-rows: 1fr;
-		height: min-content;
+		grid-auto-flow: column;
+		grid-auto-columns: minmax(10rem, 1fr);
+
+		width: 100%;
+		overflow-x: auto;
+
+		@media (--md-n-above) {
+			grid-auto-flow: row;
+			grid-auto-rows: 1fr;
+			height: min-content;
+		}
 
 		@for $i from 0 through 8 {
 			&--#{$i} {
 				.work-list__item__btm::after {
-					transform: translateY(100% * $i);
+					transform: translateX(100% * $i);
+				}
+				@media (--md-n-above) {
+					.work-list__item__btm::after {
+						transform: translateY(100% * $i);
+					}
 				}
 			}
 		}
@@ -366,13 +381,23 @@
 			}
 
 			&__btm {
-				border-left: $border-left-width solid
+				border-top: $border-left-width solid
 					hsl(var(--clr-surface-400-hsl) / 0.25);
 				padding-block: var(--size-3);
 				padding-inline: var(--size-6);
 
+				width: 100%;
+
 				cursor: pointer;
 				user-select: none;
+
+				@media (--md-n-above) {
+					border-top: 0;
+					border-left: $border-left-width solid
+						hsl(var(--clr-surface-400-hsl) / 0.25);
+
+					text-align: start;
+				}
 			}
 
 			&:first-child {
@@ -380,14 +405,18 @@
 					content: "";
 					position: absolute;
 					inset: 0;
-					// left: -$border-left-width;
 					background-color: hsl(var(--clr-accent-400-hsl) / 0.125);
-					border-left: inherit;
-					border-left-color: hsl(var(--clr-accent-600-hsl) / 0.875);
+					border-top: inherit;
+					border-top-color: hsl(var(--clr-accent-600-hsl) / 0.875);
 
 					backface-visibility: hidden;
 					will-change: transition;
 					transition: transform 200ms ease-out;
+
+					@media (--md-n-above) {
+						border-left: inherit;
+						border-left-color: hsl(var(--clr-accent-600-hsl) / 0.875);
+					}
 				}
 			}
 		}

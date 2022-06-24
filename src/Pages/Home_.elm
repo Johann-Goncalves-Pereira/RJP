@@ -273,7 +273,7 @@ viewHeader model =
                 (\i route ->
                     li []
                         [ a
-                            [ href <| "#" ++ route
+                            [ href <| "#"
                             , class "list__link"
                             , onClick <| GoToSection <| toFloat (vh * (i + 1))
                             ]
@@ -322,16 +322,21 @@ viewPage model =
     let
         content =
             [ div [ orientation "left", class "main-orientation left-0" ]
-                [ div [ class "grid gap-10 select-none mt-auto" ]
-                    [ materialIcon "text-3xl up" "south_america"
-                    , materialIcon "text-3xl up" "fingerprint"
-                    , materialIcon "text-3xl up" "all_inclusive"
-                    , materialIcon "text-3xl up" "blur_on"
-                    ]
+                [ div [ class "grid gap-10 select-none mt-auto" ] <|
+                    List.map
+                        (\( icon, url ) ->
+                            a [ class "up", href <| url ]
+                                [ materialIcon "text-3xl" icon ]
+                        )
+                        [ ( "south_america", "#" )
+                        , ( "fingerprint", "#" )
+                        , ( "all_inclusive", "#" )
+                        , ( "blur_on", "#" )
+                        ]
                 ]
             , viewMainContent model
             , div [ orientation "right", class "main-orientation right-0" ]
-                [ a [ class "email up" ] [ text "johann.gon.pereira@gmail.com" ]
+                [ a [ class "email up", href "#" ] [ text "johann.gon.pereira@gmail.com" ]
                 ]
             ]
 
@@ -596,6 +601,8 @@ viewWhereHaveIWorked model =
                         [ "work-list "
                         , "work-list--"
                         , String.fromInt model.workSelected
+                        , " "
+                        , "scroll-style"
                         ]
                 ]
         ]
