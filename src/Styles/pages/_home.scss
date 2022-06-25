@@ -472,6 +472,7 @@
 			transform: scale(1.4, 0.8) translate(-0.45rem, -0.25rem);
 			user-select: none;
 			// width: 1ch;
+			height: min-content;
 		}
 	}
 }
@@ -563,7 +564,6 @@
 				border-radius: inherit;
 
 				background-color: hsl(var(--clr-surface-900-hsl) / 0.95);
-				backdrop-filter: blur(1px);
 
 				will-change: background-color;
 				transition-property: background-color;
@@ -673,9 +673,6 @@
 				justify-content: end;
 				color: var(--clr-surface-200);
 			}
-		}
-
-		.icon {
 		}
 	}
 }

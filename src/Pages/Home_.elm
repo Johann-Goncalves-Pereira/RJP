@@ -565,7 +565,13 @@ viewWhereHaveIWorked model =
                   , content =
                         [ "Materialize is a free and open-source Material Design Framework for web and mobile applications."
                         , "It is a collection of HTML, CSS, and JavaScript components that are used to build websites and web applications."
-                        , "It is a collection of HTML, CSS, and JavaScript components that are used to build websites and web applications."
+                        , """It is a collection of HTML,ns are certain characters which resemble, or are variations of 
+                            the alphabet and other keyword symbols. For example, if we can take the phrase 
+                            "thug life" and convert its characters into the fancy letters "𝖙𝖍𝖚𝖌 𝖑𝖎𝖋𝖊" which 
+                            are a set of unicode symbols. These different sets of fancy text letters are 
+                            scattered all throughout the unicode specification, and so to create a fancy 
+                            text translator, it's just a matter of finding these sets of letters and symbols, 
+                            and linking them to their normal alphabetical equivale CSS, and JavaScript components that are used to build websites and web applications."""
                         , """Amongst the hundreds of thousands of symbols which are in the unicode 
                             text specifications are certain characters which resemble, or are variations of 
                             the alphabet and other keyword symbols. For example, if we can take the phrase 
@@ -611,34 +617,49 @@ viewWhereHaveIWorked model =
 
 viewThingsThatIHaveBuild : Model -> Html Msg
 viewThingsThatIHaveBuild _ =
-    section [ class "things-that-i-have-build", ariaLabelledby "section--title--1" ]
-        [ headersSection "" 3 "Some Things I've Built"
-        , div [ class "projects" ]
-            [ div [ class "img" ] [ img [ src "https://picsum.photos/1024/730/" ] [] ]
-            , div [ class "projects__info" ]
-                [ Html.i [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-500" ] [ text "Featured Project" ]
-                , strong [ class "font-800 text-1xl md:text-3xl z-10" ] [ text "Materialize Plataform" ]
-                , div [ class "paragraph" ]
-                    [ p [ class "paragraph__text" ]
-                        [ text """
-                Materialize is a free and open-source Material Design 
-                Framework for web and mobile applications.
-                And a thing that I Don't understand,
-                Materialize is a free and open-source Material Design 
-                Framework for web and mobile applications."""
+    let
+        viewProjects =
+            List.indexedMap
+                (\i { imgUrl, italic, title, desc, list, repositoryUrl, projectLink } ->
+                    div [ class "projects" ]
+                        [ div [ class "img" ] [ img [ src imgUrl ] [] ]
+                        , div [ class "projects__info" ]
+                            [ Html.i [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-500" ]
+                                [ text <| Maybe.withDefault "Featured Project" italic ]
+                            , strong [ class "font-800 text-1xl md:text-3xl z-10" ] [ text title ]
+                            , div [ class "paragraph" ]
+                                [ p [ class "paragraph__text" ] [ text desc ]
+                                ]
+                            , ul [ class "list" ] <|
+                                List.map (\itemText -> li [] [ text itemText ])
+                                    list
+                            , div [ class "flex  items-center sm:justify-end gap-4 mt-1 text-surface-100 " ]
+                                [ materialIcon "drop-shadow" "blur_on"
+                                , materialIcon "drop-shadow" "open_in_new"
+                                ]
+                            ]
                         ]
-                    ]
-                , ul [ class "list" ] <|
-                    List.map (\x -> li [] [ text x ])
+                )
+                [ { imgUrl = "https://picsum.photos/2000/1000/"
+                  , italic = Nothing
+                  , title = "Materialize Plataform"
+                  , desc = """
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications.
+                            And a thing that I Don't understand,
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications."""
+                  , list =
                         [ "Elm"
                         , "PostCss"
                         , "Html"
                         , "Css"
                         ]
-                , div [ class "flex  items-center sm:justify-end gap-4 mt-1 text-surface-100 " ]
-                    [ materialIcon "drop-shadow" "blur_on"
-                    , materialIcon "drop-shadow" "open_in_new"
-                    ]
+                  , repositoryUrl = "#"
+                  , projectLink = "#"
+                  }
                 ]
-            ]
-        ]
+    in
+    section [ class "things-that-i-have-build", ariaLabelledby "section--title--1" ] <|
+        headersSection "" 3 "Some Things I've Built"
+            :: viewProjects
