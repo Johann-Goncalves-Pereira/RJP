@@ -46,6 +46,7 @@ import Svg exposing (desc)
 import Svg.Attributes exposing (orientation)
 import Task
 import Utils.Func exposing (aplR)
+import Utils.Models as Models
 import Utils.Scroll as Scroll
 import Utils.View exposing (customProp, customProps, materialIcon)
 import View exposing (View)
@@ -79,6 +80,9 @@ type alias Model =
     -- Elements
     , sectionOne : { w : Float, h : Float }
     , elementsPosition : Dict String Float
+
+    -- Models
+    , thingsThatIBuild : Models.ThingsThatIBuild
     }
 
 
@@ -97,6 +101,9 @@ init =
       -- Elements
       , sectionOne = { w = 0, h = 0 }
       , elementsPosition = Dict.empty
+
+      -- Models
+      , thingsThatIBuild = Models.defaultThingsThatIBuild
       }
     , Cmd.batch
         [ Task.perform GetViewport getViewport
@@ -105,14 +112,6 @@ init =
         , getSectionPos listIds
         ]
     )
-
-
-listIds : List String
-listIds =
-    [ "sec-one"
-    , "sec-two"
-    , "sec-three"
-    ]
 
 
 getSectionPos : List String -> Cmd Msg
@@ -200,7 +199,9 @@ update msg model =
             ( { model | imageOver = isOver_ }, Cmd.none )
 
         SelectWork selected_ ->
-            ( { model | workSelected = selected_ }, Cmd.none )
+            ( { model | workSelected = selected_ }
+            , getSectionPos listIds
+            )
 
         NewMousePos ( x_, y_ ) ->
             ( { model | mousePos = { x = x_, y = y_ } }, Cmd.none )
@@ -232,6 +233,12 @@ update msg model =
                     ( model, Cmd.none )
 
 
+getPosition : (Msg -> msg) -> String -> Cmd msg
+getPosition lift id =
+    Task.attempt (lift << GotElementPosition id) <|
+        getElement id
+
+
 
 -- SUBSCRIPTIONS
 
@@ -244,14 +251,17 @@ subs model =
         ]
 
 
-getPosition : (Msg -> msg) -> String -> Cmd msg
-getPosition lift id =
-    Task.attempt (lift << GotElementPosition id) <|
-        getElement id
-
-
 
 -- VIEW
+
+
+listIds : List String
+listIds =
+    [ "about-me"
+    , "where-i-have-worked"
+    , "some-things-that-i-build"
+    , "other-noteworthy-projects"
+    ]
 
 
 view : Model -> View Msg
@@ -298,6 +308,7 @@ viewHeader model =
                                 |> Maybe.withDefault 0
                                 |> GoToSection
                                 |> onClick
+                            , tabindex 1
                             ]
                             [ span [ class "text-accent-600" ]
                                 [ text <| correctZero i ++ ". " ]
@@ -314,7 +325,7 @@ viewHeader model =
             else
                 { state = "uncheck" }
     in
-    [ materialIcon "icon" "hive"
+    [ a [ class "h-full", onClick <| GoToSection 0, tabindex 1 ] [ materialIcon "icon" "hive" ]
     , if model.viewport.w <= 1024 then
         button
             [ class <| "nav-toggler " ++ checkNav.state
@@ -333,7 +344,7 @@ viewHeader model =
           else
             text ""
         , links
-            ++ [ li [] [ a [ href "#", class "list__resume" ] [ text "resume" ] ] ]
+            ++ [ li [] [ a [ href "#", class "list__resume", tabindex 1 ] [ text "resume" ] ] ]
             |> ul [ class "list" ]
         ]
     ]
@@ -347,7 +358,7 @@ viewPage model =
                 [ div [ class "grid gap-10 select-none mt-auto" ] <|
                     List.map
                         (\( icon, url ) ->
-                            a [ class "up", href <| url ]
+                            a [ class "up", href <| url, tabindex 2 ]
                                 [ materialIcon "text-3xl" icon ]
                         )
                         [ ( "south_america", "#" )
@@ -358,7 +369,7 @@ viewPage model =
                 ]
             , viewMainContent model
             , div [ orientation "right", class "main-orientation right-0" ]
-                [ a [ class "email up", href "#" ] [ text "johann.gon.pereira@gmail.com" ]
+                [ a [ class "email up", href "#", tabindex 2 ] [ text "johann.gon.pereira@gmail.com" ]
                 ]
             ]
 
@@ -432,34 +443,34 @@ viewIntroduction model =
         , Mouse.onMove (.offsetPos >> NewMousePos)
         ]
         [ div [ class "secOne grid place-content-center gap-5", id secOneId ]
-            [ Html.i [ class "font-mono text-accent-600 text-sm" ]
+            [ Html.i [ class "font-mono text-accent-600 text-sm", tabindex 4 ]
                 [ text "hi, my name is" ]
-            , h1 [ class "text-7xl font-800", id "title--name" ]
+            , h1 [ class "text-7xl font-800", id "title--name", tabindex 4 ]
                 [ [ "Johann", textSize 1920 "Gonçalves", "Pereira" ]
                     |> String.join " "
                     |> text
                 ]
-            , h2 [ class "text-7xl font-800" ]
+            , h2 [ class "text-7xl font-800", tabindex 4 ]
                 [ [ "I", textSize 1920 "love to", "build", textSize 1440 "things", "for the web." ]
                     |> String.join " "
                     |> text
                 ]
-            , p [ class "inline-block text-surface-400 sm:w-gold-paragraph" ]
+            , p [ class "inline-block text-surface-400 sm:w-gold-paragraph", tabindex 4 ]
                 [ text """I’m a software developer specializing in
              building (and occasionally designing) exceptional digital experiences. Currently,
               I'm focused on building the plataform for """
-                , a [ class "text-accent-600", href "https://app.materialize.pro" ] [ text "Materialize" ]
+                , a [ class "text-accent-600", href "https://app.materialize.pro", tabindex 4 ] [ text "Materialize" ]
                 , text "."
                 ]
-            , a [ class "btm-accent mt-8", href "https://github.com/Johann-Goncalves-Pereira" ]
+            , a [ class "btm-accent mt-8", href "https://github.com/Johann-Goncalves-Pereira", tabindex 4 ]
                 [ text "Check my GitHub" ]
             ]
         ]
 
 
-headersSection : String -> Int -> String -> Html Msg
-headersSection addClass sectNumber title =
-    header [ class <| "header-section " ++ addClass ]
+headersSection : Int -> String -> Html Msg
+headersSection sectNumber title =
+    header [ class <| "header-section", tabindex <| sectNumber + 4 ]
         [ Html.i [ class "header-section__number" ] [ text <| correctZero sectNumber ++ "." ]
         , h3
             [ class "header-section__title"
@@ -471,9 +482,8 @@ headersSection addClass sectNumber title =
 
 viewAboutMe : Model -> Html Msg
 viewAboutMe model =
-    section [ class "about-me", id <| getIds 0, ariaLabelledby "section--title--1" ]
-        [ headersSection "" 1 "About Me"
-        , p [ class "paragraph" ]
+    sectionBuilder "about-me" "About Me" 1 <|
+        [ p [ class "paragraph", tabindex 5 ]
             [ text """So perhaps, you've generated some fancy text, 
                 and you're content that you can now copy and paste your fancy 
                 text in the comments section of funny cat videos, but perhaps 
@@ -513,7 +523,7 @@ viewAboutMe model =
             [ ul [ class "footer__list" ] <|
                 List.map
                     (\x ->
-                        li [ class "footer__item" ]
+                        li [ class "footer__item", tabindex 5 ]
                             [ materialIcon "footer__icon" "arrow_right"
                             , text x
                             ]
@@ -541,12 +551,15 @@ viewWhereHaveIWorked model =
                     li
                         [ classList
                             [ ( "work-list__item", True )
-                            , ( "work-list__item--selected", i == model.workSelected )
+                            , ( "work-list__item--selected"
+                              , i == model.workSelected
+                              )
                             ]
                         ]
                         [ button
                             [ class "work-list__item__btm"
                             , onClick <| SelectWork i
+                            , tabindex 6
                             ]
                             [ text name ]
                         ]
@@ -558,20 +571,22 @@ viewWhereHaveIWorked model =
                 (\i { title, atSign, date, content } ->
                     if i == model.workSelected then
                         div [ class "work" ]
-                            [ strong [ class "work__title" ]
+                            [ strong [ class "work__title", tabindex 6 ]
                                 [ text <| title ++ " "
                                 , a
                                     [ class "work__at-sign"
                                     , href "#"
-                                    , String.concat [ String.fromInt <| (String.length atSign + 1) * -1, "ch" ]
+                                    , [ String.fromInt <| (String.length atSign + 1) * -1, "ch" ]
+                                        |> String.concat
                                         |> customProp "n-ch"
+                                    , tabindex 6
                                     ]
                                     [ text <| "@" ++ atSign ]
                                 ]
-                            , p [ class "work__date" ] [ text date ]
+                            , p [ class "work__date", tabindex 6 ] [ text date ]
                             , List.map
                                 (\desc ->
-                                    li [ class "work__paragraph" ]
+                                    li [ class "work__paragraph", tabindex 6 ]
                                         [ materialIcon "list-icon" "arrow_right", text desc ]
                                 )
                                 content
@@ -620,44 +635,76 @@ viewWhereHaveIWorked model =
                   }
                 ]
     in
-    section [ class "where-have-i-worked", id <| getIds 1, ariaLabelledby "section--title--2" ] <|
-        [ headersSection "" 2 "Where I’ve Worked"
-        , listWork
-            |> ul
-                [ class <|
-                    String.concat
-                        [ "work-list "
-                        , "work-list--"
-                        , String.fromInt model.workSelected
-                        , " "
-                        , "scroll-style"
-                        ]
+    sectionBuilder "where-have-i-worked" "Where I’ve Worked" 2 <|
+        ul
+            [ String.concat
+                [ "work-list "
+                , "work-list--"
+                , String.fromInt model.workSelected
+                , " scroll-style"
                 ]
+                |> class
+            ]
+            listWork
+            :: workContent
+
+
+sectionBuilder : String -> String -> Int -> List (Html Msg) -> Html Msg
+sectionBuilder className title count content =
+    section
+        [ class className
+        , id <| getIds (count - 1)
+        , "section--title--"
+            ++ String.fromInt count
+            |> ariaLabelledby
         ]
-            ++ workContent
+        (headersSection count title :: content)
+
+
+isOdd : Int -> Bool
+isOdd x =
+    if modBy 2 x == 0 then
+        False
+
+    else
+        True
 
 
 viewThingsThatIHaveBuild : Model -> Html Msg
-viewThingsThatIHaveBuild _ =
+viewThingsThatIHaveBuild model =
     let
         viewProjects =
             List.indexedMap
                 (\i { imgUrl, italic, title, desc, list, repositoryUrl, projectLink } ->
-                    div [ class "projects" ]
+                    div
+                        [ classList
+                            [ ( "projects", True )
+                            , ( "projects--left", isOdd i )
+                            , ( "projects--right", not <| isOdd i )
+                            ]
+                        ]
                         [ div [ class "img" ] [ img [ src imgUrl ] [] ]
                         , div [ class "projects__info" ]
-                            [ Html.i [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-500" ]
+                            [ Html.i
+                                [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-500"
+                                , tabindex 7
+                                ]
                                 [ text <| Maybe.withDefault "Featured Project" italic ]
-                            , strong [ class "font-800 text-1xl md:text-3xl z-10" ] [ text title ]
-                            , div [ class "paragraph" ]
+                            , strong [ class "font-800 text-1xl md:text-3xl z-10", tabindex 7 ] [ text title ]
+                            , div [ class "paragraph", tabindex 7 ]
                                 [ p [ class "paragraph__text" ] [ text desc ]
                                 ]
                             , ul [ class "list" ] <|
-                                List.map (\itemText -> li [] [ text itemText ])
+                                List.map (\itemText -> li [ tabindex 7 ] [ text itemText ])
                                     list
-                            , div [ class "flex  items-center sm:justify-end gap-4 mt-1 text-surface-100 " ]
-                                [ materialIcon "drop-shadow" "blur_on"
-                                , materialIcon "drop-shadow" "open_in_new"
+                            , div
+                                [ classList
+                                    [ ( "flex  items-center gap-4 mt-1 text-surface-100 ", True )
+                                    , ( "md:justify-end", not <| isOdd i )
+                                    ]
+                                ]
+                                [ a [ href repositoryUrl, tabindex 7 ] [ materialIcon "drop-shadow" "blur_on" ]
+                                , a [ href projectLink, tabindex 7 ] [ materialIcon "drop-shadow" "open_in_new" ]
                                 ]
                             ]
                         ]
@@ -673,15 +720,39 @@ viewThingsThatIHaveBuild _ =
                             Framework for web and mobile applications."""
                   , list =
                         [ "Elm"
-                        , "PostCss"
+                        , "Json"
                         , "Html"
                         , "Css"
                         ]
                   , repositoryUrl = "#"
                   , projectLink = "#"
                   }
+                , { imgUrl = "https://picsum.photos/1800/1200/"
+                  , italic = Nothing
+                  , title = "Materialize Website"
+                  , desc = """
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications.
+                            And a thing that I Don't understand,
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications.
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications.
+                            And a thing that I Don't understand,
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications."""
+                  , list =
+                        [ "Wordpress"
+                        , "Translate"
+                        , "Css"
+                        , "SEO"
+                        ]
+                  , repositoryUrl = "#"
+                  , projectLink = "#"
+                  }
                 ]
+                |> List.repeat 2
+                |> List.concat
     in
-    section [ class "things-that-i-have-build", id <| getIds 2, ariaLabelledby "section--title--1" ] <|
-        headersSection "" 3 "Some Things I've Built"
-            :: viewProjects
+    sectionBuilder "things-that-i-have-build" "Some Things I've Built" 3 <|
+        viewProjects
