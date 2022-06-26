@@ -23,7 +23,7 @@ time, mark, audio, video;
 	padding: 0;
 	border: 0;
 	font: inherit;
-	line-height: calc(4px + 2ex);
+	line-height: calc(2px + 2ex + 2px);
 }
 
 /* Set core body defaults */
@@ -67,8 +67,18 @@ a:not([class]) {
 }
 
 //& Personal
+:where(:focus-visible) {
+	box-shadow: inset 0 0 6px 1px var(--clr-accent-500);
+	border-radius: var(--rounded-sm);
+}
+
 :where(:focus) {
+	// outline: 1px solid red;
 	outline: 0;
+}
+
+::-moz-focus-inner {
+	border: 0;
 }
 
 :where(::placeholder) {

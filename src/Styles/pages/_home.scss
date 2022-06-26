@@ -381,6 +381,7 @@
 			}
 
 			&__btm {
+				border-radius: 0;
 				border-top: $border-left-width solid
 					hsl(var(--clr-surface-400-hsl) / 0.25);
 				padding-block: var(--size-3);
@@ -478,8 +479,12 @@
 }
 
 .things-that-i-have-build {
+	.header-section {
+		--mb_: 0;
+	}
+
 	display: grid;
-	gap: 3rem;
+	gap: var(--size-fluid-5);
 
 	margin-inline: auto;
 	padding-block: 10rem;
@@ -495,41 +500,97 @@
 		grid-template-columns: 1fr;
 		align-items: center;
 
-		@media (--sm-n-above) {
-			grid-template-columns: 4fr 4fr 3fr;
+		&--right,
+		&--left {
+			.projects__info,
+			.img {
+				grid-column: 1/1;
+				grid-row: 1/1;
+			}
 		}
 
-		@media (--md-n-above) {
-			grid-template-columns: 4fr 2fr 3fr;
+		&--right {
+			@media (--md-n-above) {
+				grid-template-columns: 4fr 4fr 3fr;
+			}
+
+			@media (--md-n-above) {
+				grid-template-columns: repeat(3, 1fr);
+			}
+
+			@media (--xl-n-above) {
+				grid-template-columns: 3fr 2fr 3fr;
+			}
+
+			.img {
+				@media (--md-n-above) {
+					grid-column: 1 / span 2;
+					grid-row: 1 / -1;
+				}
+			}
+
+			.projects__info {
+				@media (--md-n-above) {
+					grid-column: 2 / span 2;
+					grid-row: 1 / -1;
+
+					text-align: end;
+				}
+			}
+
+			.list {
+				@media (--md-n-above) {
+					justify-content: end;
+				}
+			}
 		}
 
-		@media (--xl-n-above) {
-			grid-template-columns: 4fr 1fr 3fr;
+		&--left {
+			@media (--md-n-above) {
+				grid-template-columns: 3fr 4fr 4fr;
+			}
+
+			@media (--md-n-above) {
+				grid-template-columns: repeat(3, 1fr);
+			}
+
+			@media (--xl-n-above) {
+				grid-template-columns: 3fr 2fr 3fr;
+			}
+
+			.img {
+				@media (--md-n-above) {
+					grid-column: 2 / span 2;
+					grid-row: 1 / -1;
+				}
+			}
+			.projects__info {
+				@media (--md-n-above) {
+					grid-column: 1 / span 2;
+					grid-row: 1 / -1;
+				}
+			}
 		}
 
 		.img {
-			grid-column: 1 / 1;
-			grid-row: 1 / 1;
-
 			position: relative;
 			z-index: 0;
 
 			border-radius: var(--rounded-sm);
 
-			@media (--sm-n-above) {
-				grid-column: 1 / span 2;
-				grid-row: 1 / -1;
-			}
-
 			&::before,
 			&::after {
 				content: "";
 				position: absolute;
-				inset: 0;
+				inset: var(--i_, -1px);
+
+				@media (--md-n-above) {
+					--i_: 0;
+				}
 			}
 
 			&::before {
-				background-color: hsl(0, 0%, 0%, 0.25);
+				background-color: hsl(var(--clr-shadow-1000-hsl) / 0.25);
 				filter: blur(0.75rem);
 				transform: scale(0.95) translateY(0.5rem);
 
@@ -542,7 +603,7 @@
 
 				aspect-ratio: var(--ratio-portrait);
 
-				@media (--sm-n-above) {
+				@media (--md-n-above) {
 					filter: grayscale(1);
 				}
 
@@ -568,7 +629,7 @@
 				will-change: background-color;
 				transition-property: background-color;
 
-				@media (--sm-n-above) {
+				@media (--md-n-above) {
 					background-color: hsl(var(--clr-accent-500-hsl) / 0.5);
 				}
 			}
@@ -580,7 +641,7 @@
 				transition-timing-function: ease-in-out;
 			}
 
-			@media (--sm-n-above) {
+			@media (--md-n-above) {
 				&:enter {
 					&::before {
 						transform: scale(1.05) translateY(0.75rem);
@@ -601,18 +662,11 @@
 			align-items: center;
 			gap: 0.5rem;
 
-			grid-column: 1/1;
-			grid-row: 1/1;
-
 			padding: 2rem 1.5rem;
 
 			text-shadow: 1px 1px 2px var(--clr-surface-900);
 
-			@media (--sm-n-above) {
-				grid-column: 2 / span 2;
-				grid-row: 1 / -1;
-
-				text-align: end;
+			@media (--md-n-above) {
 				text-shadow: none;
 			}
 		}
@@ -630,7 +684,7 @@
 				border-radius: inherit;
 
 				z-index: -1;
-				background-color: hsl(0, 0%, 0%, 0.5);
+				background-color: hsl(var(--clr-shadow-1000-hsl) / 0.5);
 				transform: scale(0.95) translateY(0.5rem);
 				filter: blur(0.75rem);
 
@@ -638,7 +692,7 @@
 				transition-duration: 200ms;
 				transition-timing-function: ease-in-out;
 
-				@media (--sm-n-above) {
+				@media (--md-n-above) {
 					content: "";
 				}
 			}
@@ -646,14 +700,14 @@
 			&__text {
 				border-radius: inherit;
 
-				@media (--sm-n-above) {
+				@media (--md-n-above) {
 					padding: 1rem 1.5rem;
 					color: var(--clr-surface-200);
 					background-color: var(--clr-surface-800);
 				}
 			}
 
-			&:enter {
+			&:hover {
 				&::before {
 					filter: blur(0.8rem);
 					transform: scale(0.975, 1) translateY(0.75rem);
@@ -669,8 +723,7 @@
 
 			z-index: 10;
 
-			@media (--sm-n-above) {
-				justify-content: end;
+			@media (--md-n-above) {
 				color: var(--clr-surface-200);
 			}
 		}
