@@ -37,7 +37,6 @@ import Html.Events exposing (onClick)
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
 import Layout exposing (initLayout, rootId)
-import List.Extra
 import Page
 import Request
 import Round
@@ -215,7 +214,7 @@ update msg model =
                     in
                     ( { model | sectionOne = { w = w_, h = h_ } }, Cmd.none )
 
-                Err err_ ->
+                Err _ ->
                     ( model, Cmd.none )
 
         GotElementPosition id_ result_ ->
