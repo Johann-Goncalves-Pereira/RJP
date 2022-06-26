@@ -1,5 +1,6 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
+import Array exposing (Array)
 import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getElement, getViewport, setViewport)
 import Browser.Events exposing (onResize)
 import Components.Svg as SVG exposing (Logo(..))
@@ -44,6 +45,7 @@ import String exposing (right)
 import Svg exposing (desc)
 import Svg.Attributes exposing (orientation)
 import Task
+import Utils.Func exposing (aplR)
 import Utils.Scroll as Scroll
 import Utils.View exposing (customProp, customProps, materialIcon)
 import View exposing (View)
@@ -100,15 +102,27 @@ init =
         [ Task.perform GetViewport getViewport
         , BrowserDom.getElement secOneId
             |> Task.attempt GetSectionSize
+        , getSectionPos listIds
         ]
     )
 
 
+listIds : List String
+listIds =
+    [ "sec-one"
+    , "sec-two"
+    , "sec-three"
+    ]
+
+
+getSectionPos : List String -> Cmd Msg
 getSectionPos =
-    List.map <|
-        \x ->
-            BrowserDom.getElement x
-                |> Task.attempt GetSectionSize
+    List.map
+        (\idName ->
+            BrowserDom.getElement idName
+                |> Task.attempt (GotElementPosition idName)
+        )
+        >> Cmd.batch
 
 
 
@@ -130,10 +144,6 @@ type Msg
       -- Elements
     | GetSectionSize (Result Error Element)
     | GotElementPosition String (Result Error Element)
-
-
-
--- function tha get a number
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -204,7 +214,7 @@ update msg model =
                     in
                     ( { model | sectionOne = { w = w_, h = h_ } }, Cmd.none )
 
-                Err err_ ->
+                Err _ ->
                     ( model, Cmd.none )
 
         GotElementPosition id_ result_ ->
@@ -262,6 +272,13 @@ correctZero =
     String.fromInt >> String.padLeft 2 '0'
 
 
+getIds : Int -> String
+getIds =
+    Maybe.withDefault ""
+        << aplR (Array.fromList listIds)
+        << Array.get
+
+
 viewHeader : Model -> List (Html Msg)
 viewHeader model =
     let
@@ -275,7 +292,12 @@ viewHeader model =
                         [ a
                             [ href <| "#"
                             , class "list__link"
-                            , onClick <| GoToSection <| toFloat (vh * (i + 1))
+                            , getIds i
+                                |> Dict.get
+                                >> aplR model.elementsPosition
+                                |> Maybe.withDefault 0
+                                |> GoToSection
+                                |> onClick
                             ]
                             [ span [ class "text-accent-600" ]
                                 [ text <| correctZero i ++ ". " ]
@@ -363,7 +385,7 @@ viewMainContent model =
 
 secOneId : String
 secOneId =
-    "section-one-id"
+    "introduction-id"
 
 
 viewIntroduction : Model -> Html Msg
@@ -449,7 +471,7 @@ headersSection addClass sectNumber title =
 
 viewAboutMe : Model -> Html Msg
 viewAboutMe model =
-    section [ class "about-me", id "aboutId", ariaLabelledby "section--title--1" ]
+    section [ class "about-me", id <| getIds 0, ariaLabelledby "section--title--1" ]
         [ headersSection "" 1 "About Me"
         , p [ class "paragraph" ]
             [ text """So perhaps, you've generated some fancy text, 
@@ -598,7 +620,7 @@ viewWhereHaveIWorked model =
                   }
                 ]
     in
-    section [ class "where-have-i-worked", id "experienceId", ariaLabelledby "section--title--2" ] <|
+    section [ class "where-have-i-worked", id <| getIds 1, ariaLabelledby "section--title--2" ] <|
         [ headersSection "" 2 "Where I’ve Worked"
         , listWork
             |> ul
@@ -660,6 +682,6 @@ viewThingsThatIHaveBuild _ =
                   }
                 ]
     in
-    section [ class "things-that-i-have-build", ariaLabelledby "section--title--1" ] <|
+    section [ class "things-that-i-have-build", id <| getIds 2, ariaLabelledby "section--title--1" ] <|
         headersSection "" 3 "Some Things I've Built"
             :: viewProjects
