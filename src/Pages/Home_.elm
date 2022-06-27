@@ -76,6 +76,7 @@ type alias Model =
     , imageOver : Bool
     , workSelected : Int
     , mousePos : { x : Float, y : Float }
+    , wheelDelta : Bool
 
     -- Elements
     , sectionOne : { w : Float, h : Float }
@@ -97,6 +98,7 @@ init =
       , imageOver = False
       , workSelected = 0
       , mousePos = { x = 0, y = 0 }
+      , wheelDelta = False
 
       -- Elements
       , sectionOne = { w = 0, h = 0 }
@@ -134,6 +136,7 @@ type Msg
     | GetViewport Viewport
     | GetNewViewport ( Float, Float )
     | ScrollMsg Scroll.Msg
+    | WheelDelta Bool
     | GoToSection Float
       -- Element States
     | ShowNav Bool
@@ -182,6 +185,13 @@ update msg model =
             ( { model
                 | scroll =
                     Scroll.update msg_ model.scroll
+              }
+            , Cmd.none
+            )
+
+        WheelDelta delta_ ->
+            ( { model
+                | wheelDelta = delta_
               }
             , Cmd.none
             )
@@ -264,13 +274,39 @@ listIds =
     ]
 
 
+onWheel : (Wheel.Event -> msg) -> Attribute msg
+onWheel =
+    { stopPropagation = True, preventDefault = False }
+        |> Wheel.onWithOptions
+
+
+wheelDelta : Wheel.Event -> Msg
+wheelDelta wheelEvent =
+    if wheelEvent.deltaY > 0 then
+        WheelDelta True
+
+    else
+        WheelDelta False
+
+
 view : Model -> View Msg
 view model =
+    let
+        sy =
+            model.scroll.scrollPos.y
+    in
     { title = "Revex - Home"
     , body =
         Layout.viewLayout
             { initLayout
                 | route = Route.Home_
+                , rootAttrs = [ onWheel wheelDelta ]
+                , headerAttrs =
+                    [ classList
+                        [ ( "wheel-hidden", model.wheelDelta && sy >= 100 )
+                        , ( "before:content-none", sy <= 100 )
+                        ]
+                    ]
                 , headerContent = viewHeader model
                 , mainContent = viewPage model
             }
