@@ -327,7 +327,7 @@
 	display: grid;
 	gap: 1rem;
 
-	padding-block: 8rem;
+	padding-block: 4rem;
 	margin-inline: auto;
 
 	width: calc(100% - 2rem);
@@ -433,24 +433,6 @@
 			font-weight: var(--font-weight-8);
 			text-transform: capitalize;
 			letter-spacing: var(--font-letterspacing-1);
-		}
-
-		&__at-sign {
-			background-image: linear-gradient(
-				90deg,
-				var(--clr-accent-600),
-				var(--clr-accent-600)
-			);
-			background-repeat: no-repeat;
-			background-size: auto 1px;
-			background-position-y: 100%;
-			background-position-x: var(--n-ch, -30ch);
-			color: var(--clr-accent-600);
-
-			transition: background-position 200ms ease-in;
-			&:enter {
-				background-position-x: 0;
-			}
 		}
 
 		&__date {
@@ -727,5 +709,28 @@
 				color: var(--clr-surface-200);
 			}
 		}
+	}
+}
+
+.other-noteworthy-projects {
+	padding-block: 8rem;
+}
+
+.link-underline {
+	background-image: linear-gradient(
+		90deg,
+		hsl(var(--clr-accent-600-hsl) / 0.5),
+		hsl(var(--clr-accent-600-hsl) / 0.5)
+	);
+	background-repeat: no-repeat;
+	background-size: auto 1px;
+	background-position-y: 100%;
+	background-position-x: var(--n-ch, -30ch);
+	color: var(--clr-accent-600);
+
+	transition: background-position 200ms ease-in;
+
+	&:enter {
+		--n-ch: 0 !important;
 	}
 }
