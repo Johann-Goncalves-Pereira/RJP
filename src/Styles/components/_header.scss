@@ -8,15 +8,19 @@
 	align-items: center;
 	padding-right: calc(var(--orientation-container-width) / 2 - 1ch);
 
-	@supports (not (-webkit-backdrop-filter: none)) and
-		(not (backdrop-filter: none)) {
-		--alpha: 0.975;
-	}
 	background-color: hsl(var(--clr-surface-900-hsl) / var(--alpha, 0.75));
 
 	width: 100%;
 
 	z-index: 90;
+
+	will-change: transform;
+	transition: transform 250ms ease-in-out;
+
+	@supports (not (-webkit-backdrop-filter: none)) and
+		(not (backdrop-filter: none)) {
+		--alpha: 0.975;
+	}
 
 	.icon {
 		display: grid;
@@ -70,6 +74,36 @@
 			&:enter {
 				background-color: hsl(var(--clr-accent-600-hsl) / 0.125);
 			}
+		}
+	}
+
+	@media (--lg-n-above) {
+		&.wheel-hidden {
+			transition-duration: 500ms;
+			transform: translateY(calc(-100% - 1rem));
+
+			&::before {
+				opacity: 0;
+			}
+		}
+
+		&::before {
+			content: "";
+			position: absolute;
+			inset-inline: 2%;
+			top: 100%;
+
+			height: 0.25rem;
+			background-color: hsl(var(--clr-shadow-1000-hsl) / 0.5);
+			filter: blur(0.5rem);
+
+			$rl: 300%;
+			$b: 400%;
+			clip-path: polygon(-$rl 0rem, 100% 0, $rl $b, 0 $b);
+
+			opacity: 1;
+
+			transition: opacity 500ms ease-out;
 		}
 	}
 

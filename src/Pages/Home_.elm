@@ -19,6 +19,7 @@ import Html
         , h1
         , h2
         , h3
+        , h4
         , h5
         , header
         , img
@@ -31,7 +32,7 @@ import Html
         , text
         , ul
         )
-import Html.Attributes exposing (alt, class, classList, href, id, rel, src, tabindex, target)
+import Html.Attributes exposing (alt, attribute, class, classList, href, id, rel, src, tabindex, target)
 import Html.Attributes.Aria exposing (ariaLabelledby)
 import Html.Events exposing (onClick)
 import Html.Events.Extra.Mouse as Mouse
@@ -76,6 +77,7 @@ type alias Model =
     , imageOver : Bool
     , workSelected : Int
     , mousePos : { x : Float, y : Float }
+    , wheelDelta : Bool
 
     -- Elements
     , sectionOne : { w : Float, h : Float }
@@ -97,6 +99,7 @@ init =
       , imageOver = False
       , workSelected = 0
       , mousePos = { x = 0, y = 0 }
+      , wheelDelta = False
 
       -- Elements
       , sectionOne = { w = 0, h = 0 }
@@ -134,6 +137,7 @@ type Msg
     | GetViewport Viewport
     | GetNewViewport ( Float, Float )
     | ScrollMsg Scroll.Msg
+    | WheelDelta Bool
     | GoToSection Float
       -- Element States
     | ShowNav Bool
@@ -182,6 +186,13 @@ update msg model =
             ( { model
                 | scroll =
                     Scroll.update msg_ model.scroll
+              }
+            , Cmd.none
+            )
+
+        WheelDelta delta_ ->
+            ( { model
+                | wheelDelta = delta_
               }
             , Cmd.none
             )
@@ -264,13 +275,39 @@ listIds =
     ]
 
 
+onWheel : (Wheel.Event -> msg) -> Attribute msg
+onWheel =
+    { stopPropagation = True, preventDefault = False }
+        |> Wheel.onWithOptions
+
+
+wheelDelta : Wheel.Event -> Msg
+wheelDelta wheelEvent =
+    if wheelEvent.deltaY > 0 then
+        WheelDelta True
+
+    else
+        WheelDelta False
+
+
 view : Model -> View Msg
 view model =
+    let
+        sy =
+            model.scroll.scrollPos.y
+    in
     { title = "Revex - Home"
     , body =
         Layout.viewLayout
             { initLayout
                 | route = Route.Home_
+                , rootAttrs = [ onWheel wheelDelta ]
+                , headerAttrs =
+                    [ classList
+                        [ ( "wheel-hidden", model.wheelDelta && sy >= 100 )
+                        , ( "before:content-none", sy <= 100 )
+                        ]
+                    ]
                 , headerContent = viewHeader model
                 , mainContent = viewPage model
             }
@@ -292,9 +329,6 @@ getIds =
 viewHeader : Model -> List (Html Msg)
 viewHeader model =
     let
-        vh =
-            round model.viewport.h
-
         links =
             List.indexedMap
                 (\i route ->
@@ -459,7 +493,7 @@ viewIntroduction model =
                 [ text """I’m a software developer specializing in
              building (and occasionally designing) exceptional digital experiences. Currently,
               I'm focused on building the plataform for """
-                , a [ class "text-accent-600", href "https://app.materialize.pro", tabindex 4 ] [ text "Materialize" ]
+                , a [ class "link-underline", customProp "c-ch" "-13ch", href "https://app.materialize.pro", tabindex 4 ] [ text "Materialize" ]
                 , text "."
                 ]
             , a [ class "btm-accent mt-8", href "https://github.com/Johann-Goncalves-Pereira", tabindex 4 ]
@@ -569,16 +603,20 @@ viewWhereHaveIWorked model =
         workContent =
             List.indexedMap
                 (\i { title, atSign, date, content } ->
+                    let
+                        nCh =
+                            [ String.fromInt <| (String.length atSign + 1) * -1, "ch" ]
+                                |> String.concat
+                                |> customProp "n-ch"
+                    in
                     if i == model.workSelected then
                         div [ class "work" ]
                             [ strong [ class "work__title", tabindex 6 ]
                                 [ text <| title ++ " "
                                 , a
-                                    [ class "work__at-sign"
+                                    [ class "link-underline"
                                     , href "#"
-                                    , [ String.fromInt <| (String.length atSign + 1) * -1, "ch" ]
-                                        |> String.concat
-                                        |> customProp "n-ch"
+                                    , nCh
                                     , tabindex 6
                                     ]
                                     [ text <| "@" ++ atSign ]
@@ -692,7 +730,7 @@ viewThingsThatIHaveBuild model =
                                 [ text <| Maybe.withDefault "Featured Project" italic ]
                             , strong [ class "font-800 text-1xl md:text-3xl z-10", tabindex 7 ] [ text title ]
                             , div [ class "paragraph", tabindex 7 ]
-                                [ p [ class "paragraph__text" ] [ text desc ]
+                                [ p [ class "paragraph__text", tabindex 7 ] [ text desc ]
                                 ]
                             , ul [ class "list" ] <|
                                 List.map (\itemText -> li [ tabindex 7 ] [ text itemText ])
@@ -756,3 +794,17 @@ viewThingsThatIHaveBuild model =
     in
     sectionBuilder "things-that-i-have-build" "Some Things I've Built" 3 <|
         viewProjects
+            ++ List.singleton
+                (section [ class "other-noteworthy-projects" ]
+                    [ header [ class "grid place-items-center gap-5" ]
+                        [ h4 [ class "text-4xl font-800", tabindex 7 ] [ text "Other Noteworthy Projects" ]
+                        , a [ class "link-underline", href "#", customProp "n-ch" "-13ch", tabindex 7 ] [ text "view the archive" ]
+                        ]
+                    , div [] <| viewNoteworthyProjects model
+                    ]
+                )
+
+
+viewNoteworthyProjects : Model -> List (Html Msg)
+viewNoteworthyProjects model =
+    []
