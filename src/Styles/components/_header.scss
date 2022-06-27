@@ -81,6 +81,10 @@
 		&.wheel-hidden {
 			transition-duration: 500ms;
 			transform: translateY(calc(-100% - 1rem));
+
+			&::before {
+				opacity: 0;
+			}
 		}
 
 		&::before {
@@ -96,6 +100,10 @@
 			$rl: 300%;
 			$b: 400%;
 			clip-path: polygon(-$rl 0rem, 100% 0, $rl $b, 0 $b);
+
+			opacity: 1;
+
+			transition: opacity 500ms ease-out;
 		}
 	}
 
