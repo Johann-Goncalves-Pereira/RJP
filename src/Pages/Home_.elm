@@ -491,9 +491,16 @@ viewIntroduction model =
                 ]
             , p [ class "inline-block text-surface-400 sm:w-gold-paragraph", tabindex 4 ]
                 [ text """I’m a software developer specializing in
-             building (and occasionally designing) exceptional digital experiences. Currently,
-              I'm focused on building the plataform for """
-                , a [ class "link-underline", customProp "c-ch" "-13ch", href "https://app.materialize.pro", tabindex 4 ] [ text "Materialize" ]
+                building (and occasionally designing) exceptional 
+                digital experiences. Currently,
+                I'm focused on building the plataform for """
+                , a
+                    [ class "link-underline"
+                    , customProp "c-ch" "-13ch"
+                    , href "https://app.materialize.pro"
+                    , tabindex 4
+                    ]
+                    [ text "Materialize" ]
                 , text "."
                 ]
             , a [ class "btm-accent mt-8", href "https://github.com/Johann-Goncalves-Pereira", tabindex 4 ]
@@ -628,7 +635,7 @@ viewWhereHaveIWorked model =
                                         [ materialIcon "list-icon" "arrow_right", text desc ]
                                 )
                                 content
-                                |> ul []
+                                |> ul [ class "grid gap-2" ]
                             ]
 
                     else
@@ -807,4 +814,20 @@ viewThingsThatIHaveBuild model =
 
 viewNoteworthyProjects : Model -> List (Html Msg)
 viewNoteworthyProjects model =
-    []
+    List.indexedMap
+        (\i x ->
+            let
+                mod =
+                    modBy 3 i
+            in
+            -- modBy 3 i
+            span
+                [ classList
+                    [ ( "1", mod == 0 )
+                    , ( "2", mod == 1 )
+                    , ( "3", mod == 2 )
+                    ]
+                ]
+                [ text <| String.fromInt (i + 1) ]
+        )
+        [ 1, 1, 1, 1, 1, 1, 1, 11, 1, 1, 1, 1, 1, 1, 1 ]
