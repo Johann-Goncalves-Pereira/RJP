@@ -332,6 +332,7 @@ view model =
                     [ classList
                         [ ( "wheel-hidden", model.wheelDelta && sy >= 100 )
                         , ( "before:content-none", sy <= 100 )
+                        , ( "backdrop-blur", not model.showNav || model.viewport.w >= 1024 )
                         ]
                     ]
                 , headerContent = viewHeader model
@@ -380,15 +381,15 @@ viewHeader model =
 
         checkNav =
             if model.showNav then
-                { state = "check" }
+                { className = "check" }
 
             else
-                { state = "uncheck" }
+                { className = "uncheck" }
     in
     [ a [ class "h-full", onClick <| GoToSection 0, tabindex 1 ] [ materialIcon "icon" "hive" ]
     , if model.viewport.w <= 1024 then
         button
-            [ class <| "nav-toggler " ++ checkNav.state
+            [ class <| "nav-toggler " ++ checkNav.className
             , onClick <| ShowNav model.showNav
             ]
             [ materialIcon "nav-toggler__icon segment" "segment"
@@ -397,7 +398,7 @@ viewHeader model =
 
       else
         text ""
-    , nav [ class <| "nav " ++ checkNav.state ]
+    , nav [ class <| "nav " ++ checkNav.className ]
         [ if model.viewport.w <= 1024 then
             div [ onClick <| ShowNav model.showNav ] []
 
