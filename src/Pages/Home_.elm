@@ -731,11 +731,11 @@ viewThingsThatIHaveBuild model =
                         [ div [ class "img" ] [ img [ src imgUrl ] [] ]
                         , div [ class "projects__info" ]
                             [ Html.i
-                                [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-500"
+                                [ class " font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-500"
                                 , tabindex 7
                                 ]
                                 [ text <| Maybe.withDefault "Featured Project" italic ]
-                            , strong [ class "font-800 text-1xl md:text-3xl z-10", tabindex 7 ] [ text title ]
+                            , strong [ class " font-800 text-1xl md:text-3xl z-10", tabindex 7 ] [ text title ]
                             , div [ class "paragraph", tabindex 7 ]
                                 [ p [ class "paragraph__text", tabindex 7 ] [ text desc ]
                                 ]
@@ -814,20 +814,12 @@ viewThingsThatIHaveBuild model =
 
 viewNoteworthyProjects : Model -> List (Html Msg)
 viewNoteworthyProjects model =
+    let
+        modMedia i =
+            modBy 3 i
+    in
     List.indexedMap
         (\i x ->
-            let
-                mod =
-                    modBy 3 i
-            in
-            -- modBy 3 i
-            span
-                [ classList
-                    [ ( "1", mod == 0 )
-                    , ( "2", mod == 1 )
-                    , ( "3", mod == 2 )
-                    ]
-                ]
-                [ text <| String.fromInt (i + 1) ]
+            div [] []
         )
         [ 1, 1, 1, 1, 1, 1, 1, 11, 1, 1, 1, 1, 1, 1, 1 ]
