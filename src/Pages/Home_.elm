@@ -491,9 +491,16 @@ viewIntroduction model =
                 ]
             , p [ class "inline-block text-surface-400 sm:w-gold-paragraph", tabindex 4 ]
                 [ text """I’m a software developer specializing in
-             building (and occasionally designing) exceptional digital experiences. Currently,
-              I'm focused on building the plataform for """
-                , a [ class "link-underline", customProp "c-ch" "-13ch", href "https://app.materialize.pro", tabindex 4 ] [ text "Materialize" ]
+                building (and occasionally designing) exceptional 
+                digital experiences. Currently,
+                I'm focused on building the plataform for """
+                , a
+                    [ class "link-underline"
+                    , customProp "c-ch" "-13ch"
+                    , href "https://app.materialize.pro"
+                    , tabindex 4
+                    ]
+                    [ text "Materialize" ]
                 , text "."
                 ]
             , a [ class "btm-accent mt-8", href "https://github.com/Johann-Goncalves-Pereira", tabindex 4 ]
@@ -628,7 +635,7 @@ viewWhereHaveIWorked model =
                                         [ materialIcon "list-icon" "arrow_right", text desc ]
                                 )
                                 content
-                                |> ul []
+                                |> ul [ class "grid gap-2" ]
                             ]
 
                     else
@@ -724,11 +731,11 @@ viewThingsThatIHaveBuild model =
                         [ div [ class "img" ] [ img [ src imgUrl ] [] ]
                         , div [ class "projects__info" ]
                             [ Html.i
-                                [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-500"
+                                [ class " font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-500"
                                 , tabindex 7
                                 ]
                                 [ text <| Maybe.withDefault "Featured Project" italic ]
-                            , strong [ class "font-800 text-1xl md:text-3xl z-10", tabindex 7 ] [ text title ]
+                            , strong [ class " font-800 text-1xl md:text-3xl z-10", tabindex 7 ] [ text title ]
                             , div [ class "paragraph", tabindex 7 ]
                                 [ p [ class "paragraph__text", tabindex 7 ] [ text desc ]
                                 ]
@@ -807,4 +814,12 @@ viewThingsThatIHaveBuild model =
 
 viewNoteworthyProjects : Model -> List (Html Msg)
 viewNoteworthyProjects model =
-    []
+    let
+        modMedia i =
+            modBy 3 i
+    in
+    List.indexedMap
+        (\i x ->
+            div [] []
+        )
+        [ 1, 1, 1, 1, 1, 1, 1, 11, 1, 1, 1, 1, 1, 1, 1 ]
