@@ -1,7 +1,4 @@
 body {
-	color: var(--clr-surface-100);
-	background-color: var(--clr-surface-900);
-
 	font-family: var(--font-serif);
 
 	overflow: auto;
@@ -53,8 +50,10 @@ body {
 .root {
 	--orientation-container-width: 5.5rem;
 
+	color: var(--clr-surface-100);
+	background-color: var(--clr-surface-900);
+
 	width: 100%;
-	height: 100%;
 }
 
 .btm-accent {
