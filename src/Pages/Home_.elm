@@ -32,7 +32,7 @@ import Html
         , text
         , ul
         )
-import Html.Attributes exposing (alt, attribute, class, classList, href, id, rel, src, tabindex, target)
+import Html.Attributes as HA exposing (alt, attribute, class, classList, href, id, rel, src, tabindex, target)
 import Html.Attributes.Aria exposing (ariaLabelledby)
 import Html.Events exposing (onClick)
 import Html.Events.Extra.Mouse as Mouse
@@ -71,6 +71,7 @@ type alias Model =
     { -- Page Events
       viewport : { w : Float, h : Float }
     , scroll : Scroll.Model
+    , theme : { scheme : Theme, hue : Int }
 
     -- Element States
     , showNav : Bool
@@ -93,6 +94,7 @@ init =
     ( { -- Page Events
         viewport = { w = 0, h = 0 }
       , scroll = Scroll.init
+      , theme = { scheme = Dark, hue = 0 }
 
       -- Element States
       , showNav = False
@@ -127,6 +129,11 @@ getSectionPos =
         >> Cmd.batch
 
 
+type Theme
+    = Dark
+    | Light
+
+
 
 -- UPDATE
 
@@ -139,6 +146,7 @@ type Msg
     | ScrollMsg Scroll.Msg
     | WheelDelta Bool
     | GoToSection Float
+    | ChangeTheme ( Theme, Int )
       -- Element States
     | ShowNav Bool
     | ImageOver Bool
@@ -201,6 +209,16 @@ update msg model =
             ( model
             , Task.attempt (\_ -> NoOp) <|
                 setViewport 0 y_
+            )
+
+        ChangeTheme ( scheme_, hue_ ) ->
+            ( { model
+                | theme =
+                    { scheme = scheme_
+                    , hue = hue_
+                    }
+              }
+            , Cmd.none
             )
 
         ShowNav toggler_ ->
@@ -295,13 +313,21 @@ view model =
     let
         sy =
             model.scroll.scrollPos.y
+
+        theme =
+            case ( model.theme.scheme, model.theme.hue ) of
+                ( Dark, x ) ->
+                    { scheme = "", hue = String.fromInt x }
+
+                ( Light, x ) ->
+                    { scheme = "light", hue = String.fromInt x }
     in
     { title = "Revex - Home"
     , body =
         Layout.viewLayout
             { initLayout
                 | route = Route.Home_
-                , rootAttrs = [ onWheel wheelDelta ]
+                , rootAttrs = [ class theme.scheme, customProp "page-hue" theme.hue, onWheel wheelDelta ]
                 , headerAttrs =
                     [ classList
                         [ ( "wheel-hidden", model.wheelDelta && sy >= 100 )
@@ -422,6 +448,7 @@ viewMainContent : Model -> Html Msg
 viewMainContent model =
     div [ class "main grid gap-10 w-[min(100vw_-_2rem,1920px)] lg:w-full mx-auto z-10" ]
         [ viewIntroduction model
+        , viewThemeConfig model
         , viewAboutMe model
         , viewWhereHaveIWorked model
         , viewThingsThatIHaveBuild model
@@ -506,6 +533,64 @@ viewIntroduction model =
             , a [ class "btm-accent mt-8", href "https://github.com/Johann-Goncalves-Pereira", tabindex 4 ]
                 [ text "Check my GitHub" ]
             ]
+        ]
+
+
+viewThemeConfig : Model -> Html Msg
+viewThemeConfig model =
+    let
+        theme =
+            model.theme
+
+        themeScheme =
+            case theme.scheme of
+                Dark ->
+                    { to = Light, icon = materialIcon "" "light_mode" }
+
+                Light ->
+                    { to = Dark, icon = materialIcon "" "dark_mode" }
+
+        hueCalc i =
+            i * 30
+
+        colors =
+            List.indexedMap
+                (\i t ->
+                    li [ class "list__item" ]
+                        [ button
+                            [ class "list__button"
+                            , tabindex 2
+                            , onClick <| ChangeTheme ( theme.scheme, hueCalc i )
+                            , customProp "hue" <| String.fromInt <| hueCalc i
+                            , HA.title <| "Change to: " ++ t
+                            ]
+                            []
+                        ]
+                )
+                [ "Red"
+                , "Orange"
+                , "Yellow"
+                , "Yellow Green"
+                , "Green"
+                , "Green Blue"
+                , "Blue Green"
+                , "Light Blue"
+                , "Blue"
+                , "Purple"
+                , "Pink"
+                , "Hot Pink"
+                ]
+    in
+    section [ class "theme" ] <|
+        [ button
+            [ class "scheme"
+            , tabindex 2
+            , onClick <|
+                ChangeTheme ( themeScheme.to, theme.hue )
+            , HA.title "Change Theme"
+            ]
+            [ themeScheme.icon ]
+        , ul [ class "list" ] colors
         ]
 
 

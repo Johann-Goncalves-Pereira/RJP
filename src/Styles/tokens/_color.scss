@@ -34,7 +34,7 @@ $theme--dark: (
 
 $theme--light: (
 	shadow: (
-		1000: hsl(0, 0%, 100%),
+		1000: hsl(0, 0%, 50%),
 	),
 	surface: (
 		100: hsl(0, 0%, 10%),
@@ -93,23 +93,21 @@ $theme--less: (
 		@each $shade, $color in $shades {
 			$get-just-hsl-values: str-slice($color, 5, -2);
 			$tale-out-coma: str-replace($get-just-hsl-values, ",", "");
-			$add-var-hue: str-replace($tale-out-coma, "0 ", "var(--hue, 0) ");
+			$add-var-hue: str-replace($tale-out-coma, "0 ", "var(--page-hue, 0) ");
 
-			--clr-#{$type}-#{$shade}: hsl(#{$tale-out-coma});
-			--clr-#{$type}-#{$shade}-hsl: #{$tale-out-coma};
+			--clr-#{$type}-#{$shade}: hsl(#{$add-var-hue});
+			--clr-#{$type}-#{$shade}-hsl: #{$add-var-hue};
 		}
 	}
 }
 
-:root {
+.root {
 	--hue: 50;
 	@include theme;
 }
 
-@media (--OSlight) {
-	:root {
-		@include theme($theme--light);
-	}
+.light {
+	@include theme($theme--light);
 }
 
 @media (--lowContrast) {
