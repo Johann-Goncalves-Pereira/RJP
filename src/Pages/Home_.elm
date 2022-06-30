@@ -79,9 +79,9 @@ type alias Model =
     -- Element States
     , showNav : Bool
     , imageOver : Bool
+    , showMore : Bool
     , workSelected : Int
     , mousePos : { x : Float, y : Float }
-    , showMore : Bool
 
     -- Elements
     , sectionOne : { w : Float, h : Float }
@@ -103,9 +103,9 @@ init =
       -- Element States
       , showNav = False
       , imageOver = False
+      , showMore = False
       , workSelected = 0
       , mousePos = { x = 0, y = 0 }
-      , showMore = False
 
       -- Elements
       , sectionOne = { w = 0, h = 0 }
@@ -919,10 +919,10 @@ viewThingsThatIHaveBuild model =
 
         showMore =
             if model.showMore then
-                "More"
+                "Less"
 
             else
-                "Less"
+                "More"
     in
     sectionBuilder "things-that-i-have-build" "Some Things I've Built" 3 <|
         viewProjects
@@ -934,7 +934,7 @@ viewThingsThatIHaveBuild model =
                         , a [ class "link-underline", href "#", customProp "n-ch" "-13ch", tabindex 0, target "_blank" ]
                             [ text "view the archive" ]
                         ]
-                    , ul [ class "grid grid-cols-fit-20 gap-6" ] <| viewNoteworthyProjects model
+                    , ul [ class "grid grid-cols-fit-20 auto-rows-fr gap-6" ] <| viewNoteworthyProjects model
                     , button
                         [ class "btm-accent mx-auto"
                         , tabindex 0
@@ -1006,8 +1006,18 @@ thingsThatIHaveBuild =
 viewNoteworthyProjects : Model -> List (Html Msg)
 viewNoteworthyProjects model =
     let
+        v_ =
+            if model.viewport.w <= 1024 then
+                1
+
+            else if model.viewport.w <= 1440 then
+                2
+
+            else
+                3
+
         modMedia i =
-            modBy 3 i
+            modBy v_ i
     in
     List.indexedMap
         (\i { gitHubUrl, projectUlr, title, desc, tags } ->
@@ -1052,10 +1062,10 @@ viewNoteworthyProjects model =
                 ]
         )
         (if model.showMore then
-            List.take 6 noteworthyProjectsData
+            noteworthyProjectsData
 
          else
-            noteworthyProjectsData
+            List.take (max 4 (v_ * 2)) noteworthyProjectsData
         )
 
 
