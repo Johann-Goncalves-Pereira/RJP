@@ -744,5 +744,122 @@
 }
 
 .other-noteworthy-projects {
+	display: grid;
+	gap: 3rem;
 	padding-block: 8rem;
+
+	.card-item {
+		display: grid;
+		user-select: none;
+
+		&::before,
+		.card {
+			grid-column: 1 / 1;
+			grid-row: 1 / 1;
+		}
+
+		&::before,
+		.card,
+		.card__title {
+			transition-duration: 200ms;
+			transition-timing-function: ease-in-out;
+		}
+
+		&::before {
+			content: "";
+
+			z-index: -1;
+			background-color: hsl(var(--clr-shadow-1000-hsl) / 0.5);
+
+			transform: scale(0.95) translateY(1rem);
+			filter: blur(1.25rem);
+
+			$p_: filter, transform;
+			will-change: $p_;
+			transition-property: $p_;
+		}
+
+		&:focus-visible,
+		&:focus-within,
+		&:hover {
+			box-shadow: none;
+			&::before {
+				transform: scale(0.975) translateY(1rem);
+				filter: blur(1.5rem);
+			}
+
+			.card {
+				transform: translateY(-0.5rem);
+
+				&__title {
+					color: var(--clr-accent-600);
+				}
+			}
+		}
+
+		&:focus-visible,
+		&:focus-within {
+			.card {
+				box-shadow: inset 0 0 6px 1px var(--clr-accent-500);
+				border-radius: var(--rounded-sm);
+			}
+		}
+	}
+
+	.card {
+		display: grid;
+		grid-template-rows: auto auto 1fr auto;
+		gap: 0.5rem;
+
+		padding: 1.75rem;
+		background-color: var(--clr-surface-800);
+
+		height: 100%;
+
+		will-change: transform;
+		transition-property: transform;
+
+		.link {
+			display: inline-grid;
+			place-content: center;
+
+			&:hover,
+			&:focus-visible {
+				color: var(--clr-accent-700);
+			}
+		}
+
+		&__wrapper {
+			display: grid;
+			grid-template-columns: 1fr auto auto;
+			align-items: start;
+			gap: 1rem;
+
+			font-size: 1.75rem;
+
+			span {
+				font-size: 1em;
+			}
+
+			.folder {
+				position: relative;
+				bottom: 4px;
+				font-size: 1.5em;
+			}
+		}
+
+		&__title {
+			font-size: 1.25rem;
+			font-weight: 700;
+
+			will-change: color;
+			transition-property: color;
+		}
+
+		&__list {
+			display: inline-flex;
+			gap: 0.5rem;
+			margin-top: auto;
+		}
+	}
 }
