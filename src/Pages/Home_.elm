@@ -40,6 +40,7 @@ import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
 import Layout exposing (initLayout, rootId)
 import Page
+import Process
 import Request
 import Round
 import Shared
@@ -73,13 +74,14 @@ type alias Model =
       viewport : { w : Float, h : Float }
     , scroll : Scroll.Model
     , theme : { scheme : Theme, hue : Int }
+    , wheelDelta : Bool
 
     -- Element States
     , showNav : Bool
     , imageOver : Bool
     , workSelected : Int
     , mousePos : { x : Float, y : Float }
-    , wheelDelta : Bool
+    , showMore : Bool
 
     -- Elements
     , sectionOne : { w : Float, h : Float }
@@ -96,13 +98,14 @@ init =
         viewport = { w = 0, h = 0 }
       , scroll = Scroll.init
       , theme = { scheme = Dark, hue = 0 }
+      , wheelDelta = False
 
       -- Element States
       , showNav = False
       , imageOver = False
       , workSelected = 0
       , mousePos = { x = 0, y = 0 }
-      , wheelDelta = False
+      , showMore = False
 
       -- Elements
       , sectionOne = { w = 0, h = 0 }
@@ -151,6 +154,7 @@ type Msg
       -- Element States
     | ShowNav Bool
     | ImageOver Bool
+    | ShowMore Bool
     | SelectWork Int
     | NewMousePos ( Float, Float )
       -- Elements
@@ -225,6 +229,9 @@ update msg model =
         ShowNav toggler_ ->
             ( { model | showNav = not toggler_ }, Cmd.none )
 
+        ShowMore toggler_ ->
+            ( { model | showMore = not toggler_ }, Cmd.none )
+
         ImageOver isOver_ ->
             ( { model | imageOver = isOver_ }, Cmd.none )
 
@@ -263,18 +270,12 @@ update msg model =
                     ( model, Cmd.none )
 
 
-getPosition : (Msg -> msg) -> String -> Cmd msg
-getPosition lift id =
-    Task.attempt (lift << GotElementPosition id) <|
-        getElement id
-
-
 
 -- SUBSCRIPTIONS
 
 
 subs : Model -> Sub Msg
-subs model =
+subs _ =
     Sub.batch
         [ onResize <| \w h -> GetNewViewport ( toFloat w, toFloat h )
         , Sub.map ScrollMsg Scroll.subScroll
@@ -291,6 +292,7 @@ listIds =
     , "where-i-have-worked"
     , "some-things-that-i-build"
     , "other-noteworthy-projects"
+    , "contact-me"
     ]
 
 
@@ -342,6 +344,8 @@ view model =
                     ]
                 , headerContent = viewHeader model
                 , mainContent = viewPage model
+                , footerAttrs = (viewFooter model).attrs
+                , footerContent = (viewFooter model).content
             }
     }
 
@@ -422,11 +426,16 @@ viewPage : Model -> List (Html Msg)
 viewPage model =
     let
         content =
-            [ div [ orientation "left", class "main-orientation left-0" ]
-                [ div [ class "grid gap-10 select-none mt-auto" ] <|
+            [ Html.address [ orientation "left", class "main-orientation left-0" ]
+                [ nav [ class "grid gap-10 select-none mt-auto" ] <|
                     List.map
                         (\( icon, url ) ->
-                            a [ class "up", href <| url, tabindex 0 ]
+                            a
+                                [ class "up"
+                                , href <| url
+                                , tabindex 0
+                                , target "_blank"
+                                ]
                                 [ materialIcon "text-3xl" icon ]
                         )
                         [ ( "south_america", "#" )
@@ -435,8 +444,14 @@ viewPage model =
                         , ( "blur_on", "#" )
                         ]
                 ]
-            , div [ orientation "right", class "main-orientation right-0" ]
-                [ a [ class "email up", href "#", tabindex 0 ] [ text "johann.gon.pereira@gmail.com" ]
+            , Html.address [ orientation "right", class "main-orientation right-0" ]
+                [ a
+                    [ class "email up"
+                    , href "#"
+                    , tabindex 0
+                    , target "_blank"
+                    ]
+                    [ text "johann.gon.pereira@gmail.com" ]
                 ]
             , viewMainContent model
             ]
@@ -460,6 +475,7 @@ viewMainContent model =
         , viewAboutMe model
         , viewWhereHaveIWorked model
         , viewThingsThatIHaveBuild model
+        , viewWhatsNext model
         ]
 
 
@@ -534,6 +550,7 @@ viewIntroduction model =
                     , customProp "c-ch" "-13ch"
                     , href "https://app.materialize.pro"
                     , tabindex 0
+                    , target "_blank"
                     ]
                     [ text "Materialize" ]
                 , text "."
@@ -654,10 +671,10 @@ viewAboutMe model =
                 an actual font?"""
             ]
         , footer [ class "footer" ]
-            [ ul [ class "footer__list" ] <|
+            [ ul [ class "footer__list", tabindex 0 ] <|
                 List.map
                     (\x ->
-                        li [ class "footer__item", tabindex 0 ]
+                        li [ class "footer__item" ]
                             [ materialIcon "footer__icon" "arrow_right"
                             , text x
                             ]
@@ -743,17 +760,18 @@ viewWhereHaveIWorked model =
                                     , href "#"
                                     , nCh
                                     , tabindex 0
+                                    , target "_blank"
                                     ]
                                     [ text <| "@" ++ atSign ]
                                 ]
                             , p [ class "work__date", tabindex 0 ] [ text date ]
                             , List.map
                                 (\desc ->
-                                    li [ class "work__paragraph", tabindex 0 ]
+                                    li [ class "work__paragraph" ]
                                         [ materialIcon "list-icon" "arrow_right", text desc ]
                                 )
                                 content
-                                |> ul [ class "grid gap-2" ]
+                                |> ul [ class "grid gap-2", tabindex 0 ]
                             ]
 
                     else
@@ -851,21 +869,27 @@ viewThingsThatIHaveBuild model =
                             , ( "projects--right", not <| isOdd i )
                             ]
                         ]
-                        [ div [ class "img", ariaLabel altImg, tabindex 0 ]
-                            [ img [ src imgUrl, alt altImg, tabindex 0 ] [] ]
+                        [ a
+                            [ class "img"
+                            , href projectLink
+                            , ariaLabel altImg
+                            , tabindex 0
+                            , target "_blank"
+                            ]
+                            [ img [ src imgUrl, alt altImg ] [] ]
                         , div [ class "projects__info" ]
                             [ Html.i
-                                [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-500"
+                                [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-600"
                                 , tabindex 0
                                 ]
                                 [ text <| Maybe.withDefault "Featured Project" italic ]
                             , h5 [ class " font-800 text-1xl md:text-3xl z-10", tabindex 0 ]
                                 [ text title ]
-                            , div [ class "paragraph", tabindex 0 ]
+                            , div [ class "paragraph" ]
                                 [ p [ class "paragraph__text", tabindex 0 ] [ text desc ]
                                 ]
-                            , ul [ class "list" ] <|
-                                List.map (\itemText -> li [ tabindex 0 ] [ text itemText ])
+                            , ul [ class "list", tabindex 0 ] <|
+                                List.map (\itemText -> li [] [ text itemText ])
                                     list
                             , div
                                 [ classList
@@ -873,74 +897,110 @@ viewThingsThatIHaveBuild model =
                                     , ( "md:justify-end", not <| isOdd i )
                                     ]
                                 ]
-                                [ a [ class "inline-grid place-content-center", href repositoryUrl, tabindex 0 ]
+                                [ a
+                                    [ class "inline-grid place-content-center"
+                                    , href repositoryUrl
+                                    , tabindex 0
+                                    , target "_blank"
+                                    ]
                                     [ materialIcon "drop-shadow" "blur_on" ]
-                                , a [ class "inline-grid place-content-center", href projectLink, tabindex 0 ]
+                                , a
+                                    [ class "inline-grid place-content-center"
+                                    , href projectLink
+                                    , tabindex 0
+                                    , target "_blank"
+                                    ]
                                     [ materialIcon "drop-shadow" "open_in_new" ]
                                 ]
                             ]
                         ]
                 )
-                [ { imgUrl = "https://picsum.photos/2000/1000/"
-                  , altImg = "Materialize Plataform"
-                  , italic = Nothing
-                  , title = "Materialize Plataform"
-                  , desc = """
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            And a thing that I Don't understand,
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications."""
-                  , list =
-                        [ "Elm"
-                        , "Json"
-                        , "Html"
-                        , "Css"
-                        ]
-                  , repositoryUrl = "#"
-                  , projectLink = "#"
-                  }
-                , { imgUrl = "https://picsum.photos/1800/1200/"
-                  , altImg = "Materialize Website"
-                  , italic = Nothing
-                  , title = "Materialize Website"
-                  , desc = """
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            And a thing that I Don't understand,
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            And a thing that I Don't understand,
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications."""
-                  , list =
-                        [ "Wordpress"
-                        , "Translate"
-                        , "Css"
-                        , "SEO"
-                        ]
-                  , repositoryUrl = "#"
-                  , projectLink = "#"
-                  }
-                ]
-                |> List.repeat 2
-                |> List.concat
+                thingsThatIHaveBuild
+
+        showMore =
+            if model.showMore then
+                "More"
+
+            else
+                "Less"
     in
     sectionBuilder "things-that-i-have-build" "Some Things I've Built" 3 <|
         viewProjects
             ++ List.singleton
                 (section [ class "other-noteworthy-projects", ariaLabelledby "header-noteworthy" ]
                     [ header [ class "grid place-items-center gap-5" ]
-                        [ h4 [ class "text-4xl font-800", tabindex 0, id "header-noteworthy" ]
+                        [ h4 [ class "text-4xl text-center font-800", tabindex 0, id "header-noteworthy" ]
                             [ text "Other Noteworthy Projects" ]
-                        , a [ class "link-underline", href "#", customProp "n-ch" "-13ch", tabindex 0 ]
+                        , a [ class "link-underline", href "#", customProp "n-ch" "-13ch", tabindex 0, target "_blank" ]
                             [ text "view the archive" ]
                         ]
-                    , ul [ class "grid grid-flow-dense" ] <| viewNoteworthyProjects model
+                    , ul [ class "grid grid-cols-fit-20 gap-6" ] <| viewNoteworthyProjects model
+                    , button
+                        [ class "btm-accent mx-auto"
+                        , tabindex 0
+                        , onClick <| ShowMore model.showMore
+                        ]
+                        [ text <| String.join " " [ "View", showMore ] ]
                     ]
                 )
+
+
+thingsThatIHaveBuild :
+    List
+        { imgUrl : String
+        , altImg : String
+        , italic : Maybe String
+        , title : String
+        , desc : String
+        , list : List String
+        , repositoryUrl : String
+        , projectLink : String
+        }
+thingsThatIHaveBuild =
+    [ { imgUrl = "https://picsum.photos/2000/1000/"
+      , altImg = "Materialize Plataform"
+      , italic = Nothing
+      , title = "Materialize Plataform"
+      , desc = """
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications.
+                            And a thing that I Don't understand,
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications."""
+      , list =
+            [ "Elm"
+            , "Json"
+            , "Html"
+            , "Css"
+            ]
+      , repositoryUrl = "#"
+      , projectLink = "#"
+      }
+    , { imgUrl = "https://picsum.photos/1800/1200/"
+      , altImg = "Materialize Website"
+      , italic = Nothing
+      , title = "Materialize Website"
+      , desc = """
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications.
+                            And a thing that I Don't understand,
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications.
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications.
+                            And a thing that I Don't understand,
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications."""
+      , list =
+            [ "Wordpress"
+            , "Translate"
+            , "Css"
+            , "SEO"
+            ]
+      , repositoryUrl = "#"
+      , projectLink = "#"
+      }
+    ]
 
 
 viewNoteworthyProjects : Model -> List (Html Msg)
@@ -950,13 +1010,18 @@ viewNoteworthyProjects model =
             modBy 3 i
     in
     List.indexedMap
-        (\i { gitHubUrl, projectUlr } ->
+        (\i { gitHubUrl, projectUlr, title, desc, tags } ->
             let
                 head_ =
                     "header--noteworthy--" ++ String.fromInt i
 
                 link_ url_ icon_ =
-                    a [ class "inline-grid place-content-center", href url_, tabindex 0 ] [ materialIcon "" icon_ ]
+                    a
+                        [ class "link"
+                        , href url_
+                        , tabindex 0
+                        ]
+                        [ materialIcon "" icon_ ]
 
                 gitHub_ =
                     case gitHubUrl of
@@ -966,17 +1031,118 @@ viewNoteworthyProjects model =
                         Just url_ ->
                             link_ url_ "blur_on"
             in
-            li []
-                [ section [ class "card", ariaLabelledby head_ ]
-                    [ div []
-                        [ materialIcon "" "folder"
+            li [ class "card-item", tabindex 0 ]
+                [ a
+                    [ class "card"
+                    , href projectUlr
+                    , ariaLabelledby head_
+                    , target "_blank"
+                    ]
+                    [ div [ class "card__wrapper " ]
+                        [ materialIcon "folder" "folder"
                         , gitHub_
                         , link_ projectUlr "open_in_new"
                         ]
-                    , header []
-                        [ h6 [ id head_ ] []
-                        ]
+                    , h6 [ class "card__title", id head_ ] [ text title ]
+                    , p [] [ text desc ]
+                    , ul [ class "card__list" ] <|
+                        List.map (\itemText -> li [] [ text itemText ])
+                            tags
                     ]
                 ]
         )
-        [ { gitHubUrl = Just "", projectUlr = "" } ]
+        (if model.showMore then
+            List.take 6 noteworthyProjectsData
+
+         else
+            noteworthyProjectsData
+        )
+
+
+
+-- noteworthyProjectsData :
+
+
+noteworthyProjectsData :
+    List
+        { gitHubUrl : Maybe String
+        , projectUlr : String
+        , title : String
+        , desc : String
+        , tags : List String
+        }
+noteworthyProjectsData =
+    [ { gitHubUrl = Just "#"
+      , projectUlr = "#"
+      , title = "Out Doors website"
+      , desc = """A simple website for a company that sells outdoor gear.
+          It's just the home page bug is responsive and super beautiful"""
+      , tags = [ "elm", "sass", "html" ]
+      }
+    , { gitHubUrl = Nothing
+      , projectUlr = "#"
+      , title = "Out Doors website"
+      , desc = """A simple website for a company that sells outdoor gear.
+          It's just the home page bug is responsive and super beautiful
+          A simple website for a company that sells outdoor gear.
+          It's just the home page bug is responsive and super beautiful"""
+      , tags = [ "elm", "sass", "html" ]
+      }
+    , { gitHubUrl = Just "#"
+      , projectUlr = "#"
+      , title = "Out Doors website Out Doors website Out Doors websiteOut Doors website"
+      , desc = """A simple website for a company that sells outdoor gear.
+          It's just the home page bug is responsive and super beautiful"""
+      , tags = [ "elm", "sass", "html" ]
+      }
+    ]
+        |> List.repeat 5
+        |> List.concat
+
+
+viewWhatsNext : Model -> Html Msg
+viewWhatsNext model =
+    let
+        al_ =
+            "section--title--4"
+    in
+    section [ class "whats-now", ariaLabelledby al_, id <| getIds 3 ]
+        [ header [ class "flex gap-2 text-accent-600 font-mono" ]
+            [ Html.i [] [ text "04. " ]
+            , h3 [ id al_ ] [ text "What’s Next?" ]
+            ]
+        , h6 [ class "font-900 text-5xl" ] [ text "Get In Touch" ]
+        , p [ class "sm:w-gp text-center" ] [ text """
+            Although I’m not currently looking for any new opportunities, 
+            my inbox is always open. Whether you have a question or just 
+            want to say hi, I’ll try my best to get back to you!""" ]
+        , button
+            [ class "btm-accent mt-6 mx-auto"
+            , tabindex 0
+            , onClick <| ShowMore model.showMore
+            ]
+            [ text "Say Hello" ]
+        ]
+
+
+viewFooter : Model -> { attrs : List (Attribute msg), content : List (Html msg) }
+viewFooter model =
+    { attrs = [ class "grid place-items-center pb-3 mt-40" ]
+    , content =
+        [ a
+            [ class "grid gap-3 whitespace-pre-wrap text-center text-xs font-mono"
+            , href "#"
+            , tabindex 0
+            , target "_blank"
+            ]
+            [ text "Design by Brittany Chiang && Johann Pereira\n"
+            , text "Build by Johann Pereira"
+            , p [ class "flex items-center justify-center gap-2 font-600" ]
+                [ materialIcon "" "auto_awesome"
+                , text "23.40"
+                , materialIcon "" "fork_right"
+                , text "202.3"
+                ]
+            ]
+        ]
+    }

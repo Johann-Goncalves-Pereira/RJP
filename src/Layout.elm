@@ -1,7 +1,7 @@
 module Layout exposing (Model, initLayout, rootId, viewLayout)
 
 import Gen.Route as Route exposing (Route)
-import Html exposing (Attribute, Html, a, div, header, li, main_, nav, span, text, ul)
+import Html exposing (Attribute, Html, a, div, footer, header, li, main_, nav, span, text, ul)
 import Html.Attributes exposing (class, classList, href, id, tabindex)
 import Regex
 import Utils.View exposing (materialIcon)
@@ -18,6 +18,8 @@ type alias Model msg =
     , headerAttrs : List (Attribute msg)
     , mainContent : List (Html msg)
     , mainAttrs : List (Attribute msg)
+    , footerAttrs : List (Attribute msg)
+    , footerContent : List (Html msg)
     }
 
 
@@ -29,6 +31,8 @@ initLayout =
     , headerAttrs = []
     , mainContent = []
     , mainAttrs = []
+    , footerAttrs = []
+    , footerContent = []
     }
 
 
@@ -104,5 +108,6 @@ viewLayout model =
         )
         [ header (class "root__header" :: model.headerAttrs) model.headerContent
         , main_ (mainClass :: model.mainAttrs) model.mainContent
+        , footer (class "root__footer" :: model.footerAttrs) model.footerContent
         ]
     ]

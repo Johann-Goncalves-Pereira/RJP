@@ -150,13 +150,18 @@
 	.paragraph,
 	.footer {
 		grid-column-start: 1;
+
+		width: calc(100% - 2rem);
+		@media (--sm-n-above) {
+			width: clamp(45ch, 100%, 75ch);
+		}
+
 		@media (--lg-n-below) {
 			margin-inline: auto;
 		}
 	}
 
 	.paragraph {
-		width: clamp(45ch, 100%, 75ch);
 		line-height: var(--font-lineheight-1);
 		font-size: var(--font-size-fluid-0);
 	}
@@ -164,12 +169,8 @@
 	.footer {
 		&__list {
 			display: grid;
-			grid-template-columns: repeat(2, 1fr);
+			grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
 			gap: 1rem;
-
-			@media (--lg-n-above) {
-				width: 75%;
-			}
 		}
 
 		&__item {
@@ -190,7 +191,7 @@
 	}
 
 	.img {
-		$dislocation: 1.5rem;
+		$dislocation: var(--size-fluid-2);
 		position: relative;
 
 		grid-column-start: 1;
@@ -222,11 +223,15 @@
 
 			outline: 4px solid var(--clr-accent-500);
 			border-radius: inherit;
-			transform: translate($dislocation, $dislocation);
+			transform: scale(1.05);
 
 			backface-visibility: hidden;
 			will-change: transform;
 			transition: transform 200ms ease-out 100ms;
+
+			@media (--lg-n-above) {
+				transform: translate($dislocation, $dislocation);
+			}
 		}
 
 		&::after {
@@ -405,8 +410,8 @@
 				&::after {
 					content: "";
 					position: absolute;
-					inset-block: 0;
-					inset-inline: -$border-left-width 0;
+					inset-inline: 0;
+					inset-block: -$border-left-width 0;
 					background-color: hsl(var(--clr-accent-400-hsl) / 0.125);
 					border-top: inherit;
 					border-top-color: hsl(var(--clr-accent-600-hsl) / 0.875);
@@ -418,6 +423,9 @@
 					z-index: -1;
 
 					@media (--md-n-above) {
+						inset-block: 0;
+						inset-inline: -$border-left-width 0;
+
 						border-left: inherit;
 						border-left-color: hsl(var(--clr-accent-600-hsl) / 0.875);
 					}
@@ -691,6 +699,12 @@
 			&__text {
 				border-radius: inherit;
 
+				backface-visibility: hidden;
+				will-change: transform;
+				transition: transform 200ms ease-in-out;
+
+				-webkit-font-smoothing: subpixel-antialiased;
+
 				@media (--md-n-above) {
 					padding: 1rem 1.5rem;
 					color: var(--clr-surface-200);
@@ -702,6 +716,10 @@
 				&::before {
 					filter: blur(0.8rem);
 					transform: scale(0.975, 1) translateY(0.75rem);
+				}
+
+				.paragraph__text {
+					transform: translateY(-0.5rem);
 				}
 			}
 		}
@@ -741,5 +759,122 @@
 }
 
 .other-noteworthy-projects {
+	display: grid;
+	gap: 3rem;
 	padding-block: 8rem;
+
+	.card-item {
+		display: grid;
+		user-select: none;
+
+		&::before,
+		.card {
+			grid-column: 1 / 1;
+			grid-row: 1 / 1;
+		}
+
+		&::before,
+		.card,
+		.card__title {
+			transition-duration: 200ms;
+			transition-timing-function: ease-in-out;
+		}
+
+		&::before {
+			content: "";
+
+			z-index: -1;
+			background-color: hsl(var(--clr-shadow-1000-hsl) / 0.5);
+
+			transform: scale(0.95) translateY(1rem);
+			filter: blur(1.25rem);
+
+			$p_: filter, transform;
+			will-change: $p_;
+			transition-property: $p_;
+		}
+
+		&:focus-visible,
+		&:focus-within,
+		&:hover {
+			box-shadow: none;
+			&::before {
+				transform: scale(0.975) translateY(1rem);
+				filter: blur(1.5rem);
+			}
+
+			.card {
+				transform: translateY(-0.5rem);
+
+				&__title {
+					color: var(--clr-accent-600);
+				}
+			}
+		}
+
+		&:focus-visible,
+		&:focus-within {
+			.card {
+				box-shadow: inset 0 0 6px 1px var(--clr-accent-500);
+				border-radius: var(--rounded-sm);
+			}
+		}
+	}
+
+	.card {
+		display: grid;
+		grid-template-rows: auto auto 1fr auto;
+		gap: 0.5rem;
+
+		padding: 1.75rem;
+		background-color: var(--clr-surface-800);
+
+		height: 100%;
+
+		will-change: transform;
+		transition-property: transform;
+
+		.link {
+			display: inline-grid;
+			place-content: center;
+
+			&:hover,
+			&:focus-visible {
+				color: var(--clr-accent-700);
+			}
+		}
+
+		&__wrapper {
+			display: grid;
+			grid-template-columns: 1fr auto auto;
+			align-items: start;
+			gap: 1rem;
+
+			font-size: 1.75rem;
+
+			span {
+				font-size: 1em;
+			}
+
+			.folder {
+				position: relative;
+				bottom: 4px;
+				font-size: 1.5em;
+			}
+		}
+
+		&__title {
+			font-size: 1.25rem;
+			font-weight: 700;
+
+			will-change: color;
+			transition-property: color;
+		}
+
+		&__list {
+			display: inline-flex;
+			gap: 0.5rem;
+			margin-top: auto;
+		}
+	}
 }

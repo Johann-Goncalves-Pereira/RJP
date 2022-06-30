@@ -23,7 +23,11 @@ customProp prop value =
 
 materialIcon : String -> String -> Html msg
 materialIcon className iconName =
-    span [ class <| "material-symbols-rounded " ++ className, ariaHidden True ]
+    span
+        [ class <| "material-symbols-rounded " ++ className
+
+        {- , ariaHidden True -}
+        ]
         [ text iconName ]
 
 
