@@ -12,8 +12,8 @@ import Html
         ( Attribute
         , Html
         , a
+        , article
         , br
-        , button
         , div
         , footer
         , h1
@@ -21,6 +21,7 @@ import Html
         , h3
         , h4
         , h5
+        , h6
         , header
         , img
         , li
@@ -33,7 +34,7 @@ import Html
         , ul
         )
 import Html.Attributes as HA exposing (alt, attribute, class, classList, href, id, rel, src, tabindex, target)
-import Html.Attributes.Aria exposing (ariaLabelledby)
+import Html.Attributes.Aria exposing (ariaChecked, ariaControls, ariaLabelledby, ariaSelected, role)
 import Html.Events exposing (onClick)
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
@@ -44,12 +45,12 @@ import Round
 import Shared
 import String exposing (right)
 import Svg exposing (desc)
-import Svg.Attributes exposing (orientation)
+import Svg.Attributes exposing (display, orientation, type_)
 import Task
 import Utils.Func exposing (aplR)
 import Utils.Models as Models
 import Utils.Scroll as Scroll
-import Utils.View exposing (customProp, customProps, materialIcon)
+import Utils.View exposing (button, customProp, customProps, materialIcon)
 import View exposing (View)
 
 
@@ -327,7 +328,11 @@ view model =
         Layout.viewLayout
             { initLayout
                 | route = Route.Home_
-                , rootAttrs = [ class theme.scheme, customProp "page-hue" theme.hue, onWheel wheelDelta ]
+                , rootAttrs =
+                    [ class theme.scheme
+                    , customProp "page-hue" theme.hue
+                    , onWheel wheelDelta
+                    ]
                 , headerAttrs =
                     [ classList
                         [ ( "wheel-hidden", model.wheelDelta && sy >= 100 )
@@ -381,15 +386,17 @@ viewHeader model =
 
         checkNav =
             if model.showNav then
-                { className = "check" }
+                { className = "check", ariaChecked_ = "true" }
 
             else
-                { className = "uncheck" }
+                { className = "uncheck", ariaChecked_ = "false" }
     in
-    [ a [ class "h-full", onClick <| GoToSection 0, tabindex 1 ] [ materialIcon "icon" "hive" ]
+    [ a [ class "h-full", href "#", tabindex 1, onClick <| GoToSection 0 ] [ materialIcon "icon" "hive" ]
     , if model.viewport.w <= 1024 then
         button
             [ class <| "nav-toggler " ++ checkNav.className
+            , role "switch"
+            , ariaChecked checkNav.ariaChecked_
             , onClick <| ShowNav model.showNav
             ]
             [ materialIcon "nav-toggler__icon segment" "segment"
@@ -400,7 +407,7 @@ viewHeader model =
         text ""
     , nav [ class <| "nav " ++ checkNav.className ]
         [ if model.viewport.w <= 1024 then
-            div [ onClick <| ShowNav model.showNav ] []
+            button [ role "switch", onClick <| ShowNav model.showNav ] []
 
           else
             text ""
@@ -447,7 +454,7 @@ viewPage model =
 
 viewMainContent : Model -> Html Msg
 viewMainContent model =
-    div [ class "main grid gap-10 w-[min(100vw_-_2rem,1920px)] lg:w-full mx-auto z-10" ]
+    article [ class "main grid gap-10 w-[min(100vw_-_2rem,var(--size-xxl))] lg:w-full mx-auto z-10" ]
         [ viewIntroduction model
         , viewThemeConfig model
         , viewAboutMe model
@@ -517,7 +524,7 @@ viewIntroduction model =
                     |> String.join " "
                     |> text
                 ]
-            , p [ class "inline-block text-surface-400 sm:w-gold-paragraph", tabindex 4 ]
+            , p [ class "inline-block text-surface-400 sm:w-gp", tabindex 4 ]
                 [ text """I’m a software developer specializing in
                 building (and occasionally designing) exceptional 
                 digital experiences. Currently,
@@ -672,21 +679,35 @@ viewAboutMe model =
 viewWhereHaveIWorked : Model -> Html Msg
 viewWhereHaveIWorked model =
     let
+        tabControls index_ =
+            "header--where--" ++ String.fromInt index_ ++ "--tp"
+
         listWork =
             List.indexedMap
                 (\i name ->
+                    let
+                        selected_ =
+                            if i == model.workSelected then
+                                { selectedB = True, selectedS = "true" }
+
+                            else
+                                { selectedB = False, selectedS = "false" }
+                    in
                     li
                         [ classList
                             [ ( "work-list__item", True )
                             , ( "work-list__item--selected"
-                              , i == model.workSelected
+                              , selected_.selectedB
                               )
                             ]
                         ]
                         [ button
-                            [ class "work-list__item__btm"
+                            [ class "work-list__item__btn"
                             , onClick <| SelectWork i
                             , tabindex 6
+                            , role "tab"
+                            , ariaSelected selected_.selectedS
+                            , ariaControls <| tabControls i
                             ]
                             [ text name ]
                         ]
@@ -697,15 +718,29 @@ viewWhereHaveIWorked model =
             List.indexedMap
                 (\i { title, atSign, date, content } ->
                     let
+                        head_ =
+                            "header--where--" ++ String.fromInt i
+
                         nCh =
                             [ String.fromInt <| (String.length atSign + 1) * -1, "ch" ]
                                 |> String.concat
                                 |> customProp "n-ch"
                     in
                     if i == model.workSelected then
-                        div [ class "work" ]
-                            [ strong [ class "work__title", tabindex 6 ]
-                                [ text <| title ++ " "
+                        section
+                            [ class "work"
+                            , role "tabpanel"
+                            , ariaLabelledby head_
+                            , id <| tabControls i
+                            ]
+                            [ header [ class "work__header" ]
+                                [ h5
+                                    [ class ""
+                                    , id head_
+                                    , tabindex 6
+                                    ]
+                                    [ text <| title ++ " "
+                                    ]
                                 , a
                                     [ class "link-underline"
                                     , href "#"
@@ -775,6 +810,7 @@ viewWhereHaveIWorked model =
                 , " scroll-style"
                 ]
                 |> class
+            , role "tablist"
             ]
             listWork
             :: workContent
@@ -801,6 +837,10 @@ isOdd x =
         True
 
 
+
+-- tabPainel -> tabList -> tab
+
+
 viewThingsThatIHaveBuild : Model -> Html Msg
 viewThingsThatIHaveBuild model =
     let
@@ -821,7 +861,7 @@ viewThingsThatIHaveBuild model =
                                 , tabindex 7
                                 ]
                                 [ text <| Maybe.withDefault "Featured Project" italic ]
-                            , strong [ class " font-800 text-1xl md:text-3xl z-10", tabindex 7 ] [ text title ]
+                            , h5 [ class " font-800 text-1xl md:text-3xl z-10", tabindex 7 ] [ text title ]
                             , div [ class "paragraph", tabindex 7 ]
                                 [ p [ class "paragraph__text", tabindex 7 ] [ text desc ]
                                 ]
@@ -888,12 +928,14 @@ viewThingsThatIHaveBuild model =
     sectionBuilder "things-that-i-have-build" "Some Things I've Built" 3 <|
         viewProjects
             ++ List.singleton
-                (section [ class "other-noteworthy-projects" ]
+                (section [ class "other-noteworthy-projects", ariaLabelledby "header-noteworthy" ]
                     [ header [ class "grid place-items-center gap-5" ]
-                        [ h4 [ class "text-4xl font-800", tabindex 7 ] [ text "Other Noteworthy Projects" ]
-                        , a [ class "link-underline", href "#", customProp "n-ch" "-13ch", tabindex 7 ] [ text "view the archive" ]
+                        [ h4 [ class "text-4xl font-800", tabindex 7, id "header-noteworthy" ]
+                            [ text "Other Noteworthy Projects" ]
+                        , a [ class "link-underline", href "#", customProp "n-ch" "-13ch", tabindex 7 ]
+                            [ text "view the archive" ]
                         ]
-                    , div [] <| viewNoteworthyProjects model
+                    , ul [ class "grid grid-flow-dense" ] <| viewNoteworthyProjects model
                     ]
                 )
 
@@ -934,4 +976,4 @@ viewNoteworthyProjects model =
                     ]
                 ]
         )
-        [ 1, 1, 1, 1, 1, 1, 1, 11, 1, 1, 1, 1, 1, 1, 1 ]
+        [ { gitHubUrl = Just "", projectUlr = "" } ]
