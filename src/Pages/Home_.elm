@@ -34,7 +34,7 @@ import Html
         , ul
         )
 import Html.Attributes as HA exposing (alt, attribute, class, classList, href, id, rel, src, tabindex, target)
-import Html.Attributes.Aria exposing (ariaChecked, ariaControls, ariaLabelledby, ariaSelected, role)
+import Html.Attributes.Aria exposing (ariaChecked, ariaControls, ariaLabel, ariaLabelledby, ariaSelected, role)
 import Html.Events exposing (onClick)
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
@@ -435,10 +435,10 @@ viewPage model =
                         , ( "blur_on", "#" )
                         ]
                 ]
-            , viewMainContent model
             , div [ orientation "right", class "main-orientation right-0" ]
                 [ a [ class "email up", href "#", tabindex 0 ] [ text "johann.gon.pereira@gmail.com" ]
                 ]
+            , viewMainContent model
             ]
 
         media =
@@ -511,7 +511,7 @@ viewIntroduction model =
             ]
         , Mouse.onMove (.offsetPos >> NewMousePos)
         ]
-        [ div [ class "secOne grid place-content-center gap-5", id secOneId ]
+        [ div [ class "secOne grid place-content-center justify-items-start gap-5", id secOneId ]
             [ Html.i [ class "font-mono text-accent-600 text-sm", tabindex 0 ]
                 [ text "hi, my name is" ]
             , h1 [ class "text-7xl font-800", id "title--name", tabindex 0 ]
@@ -604,7 +604,7 @@ viewThemeConfig model =
 
 headersSection : Int -> String -> Html Msg
 headersSection sectNumber title =
-    header [ class <| "header-section", tabindex <| sectNumber + 4 ]
+    header [ class <| "header-section", tabindex 0 ]
         [ Html.i [ class "header-section__number" ] [ text <| correctZero sectNumber ++ "." ]
         , h3
             [ class "header-section__title"
@@ -671,7 +671,10 @@ viewAboutMe model =
                     ]
             ]
         , div
-            [ classList [ ( "img", True ), ( "hover", model.imageOver ) ] ]
+            [ classList [ ( "img", True ), ( "hover", model.imageOver ) ]
+            , tabindex 0
+            , ariaLabel "Profile Photo"
+            ]
             [ img [ src "https://picsum.photos/1200", alt "Profile Photo" ] [] ]
         ]
 
@@ -848,14 +851,16 @@ viewThingsThatIHaveBuild model =
                             , ( "projects--right", not <| isOdd i )
                             ]
                         ]
-                        [ div [ class "img" ] [ img [ src imgUrl, alt altImg ] [] ]
+                        [ div [ class "img", ariaLabel altImg, tabindex 0 ]
+                            [ img [ src imgUrl, alt altImg, tabindex 0 ] [] ]
                         , div [ class "projects__info" ]
                             [ Html.i
-                                [ class " font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-500"
+                                [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-500"
                                 , tabindex 0
                                 ]
                                 [ text <| Maybe.withDefault "Featured Project" italic ]
-                            , h5 [ class " font-800 text-1xl md:text-3xl z-10", tabindex 0 ] [ text title ]
+                            , h5 [ class " font-800 text-1xl md:text-3xl z-10", tabindex 0 ]
+                                [ text title ]
                             , div [ class "paragraph", tabindex 0 ]
                                 [ p [ class "paragraph__text", tabindex 0 ] [ text desc ]
                                 ]
@@ -868,8 +873,10 @@ viewThingsThatIHaveBuild model =
                                     , ( "md:justify-end", not <| isOdd i )
                                     ]
                                 ]
-                                [ a [ href repositoryUrl, tabindex 0 ] [ materialIcon "drop-shadow" "blur_on" ]
-                                , a [ href projectLink, tabindex 0 ] [ materialIcon "drop-shadow" "open_in_new" ]
+                                [ a [ class "inline-grid place-content-center", href repositoryUrl, tabindex 0 ]
+                                    [ materialIcon "drop-shadow" "blur_on" ]
+                                , a [ class "inline-grid place-content-center", href projectLink, tabindex 0 ]
+                                    [ materialIcon "drop-shadow" "open_in_new" ]
                                 ]
                             ]
                         ]
@@ -949,7 +956,7 @@ viewNoteworthyProjects model =
                     "header--noteworthy--" ++ String.fromInt i
 
                 link_ url_ icon_ =
-                    a [ href url_, tabindex 0 ] [ materialIcon "" icon_ ]
+                    a [ class "inline-grid place-content-center", href url_, tabindex 0 ] [ materialIcon "" icon_ ]
 
                 gitHub_ =
                     case gitHubUrl of
