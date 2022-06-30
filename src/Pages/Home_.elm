@@ -426,7 +426,12 @@ viewPage model =
                 [ div [ class "grid gap-10 select-none mt-auto" ] <|
                     List.map
                         (\( icon, url ) ->
-                            a [ class "up", href <| url, tabindex 0 ]
+                            a
+                                [ class "up"
+                                , href <| url
+                                , tabindex 0
+                                , target "_blank"
+                                ]
                                 [ materialIcon "text-3xl" icon ]
                         )
                         [ ( "south_america", "#" )
@@ -436,7 +441,13 @@ viewPage model =
                         ]
                 ]
             , div [ orientation "right", class "main-orientation right-0" ]
-                [ a [ class "email up", href "#", tabindex 0 ] [ text "johann.gon.pereira@gmail.com" ]
+                [ a
+                    [ class "email up"
+                    , href "#"
+                    , tabindex 0
+                    , target "_blank"
+                    ]
+                    [ text "johann.gon.pereira@gmail.com" ]
                 ]
             , viewMainContent model
             ]
@@ -534,6 +545,7 @@ viewIntroduction model =
                     , customProp "c-ch" "-13ch"
                     , href "https://app.materialize.pro"
                     , tabindex 0
+                    , target "_blank"
                     ]
                     [ text "Materialize" ]
                 , text "."
@@ -654,10 +666,10 @@ viewAboutMe model =
                 an actual font?"""
             ]
         , footer [ class "footer" ]
-            [ ul [ class "footer__list" ] <|
+            [ ul [ class "footer__list", tabindex 0 ] <|
                 List.map
                     (\x ->
-                        li [ class "footer__item", tabindex 0 ]
+                        li [ class "footer__item" ]
                             [ materialIcon "footer__icon" "arrow_right"
                             , text x
                             ]
@@ -743,17 +755,18 @@ viewWhereHaveIWorked model =
                                     , href "#"
                                     , nCh
                                     , tabindex 0
+                                    , target "_blank"
                                     ]
                                     [ text <| "@" ++ atSign ]
                                 ]
                             , p [ class "work__date", tabindex 0 ] [ text date ]
                             , List.map
                                 (\desc ->
-                                    li [ class "work__paragraph", tabindex 0 ]
+                                    li [ class "work__paragraph" ]
                                         [ materialIcon "list-icon" "arrow_right", text desc ]
                                 )
                                 content
-                                |> ul [ class "grid gap-2" ]
+                                |> ul [ class "grid gap-2", tabindex 0 ]
                             ]
 
                     else
@@ -851,21 +864,27 @@ viewThingsThatIHaveBuild model =
                             , ( "projects--right", not <| isOdd i )
                             ]
                         ]
-                        [ div [ class "img", ariaLabel altImg, tabindex 0 ]
-                            [ img [ src imgUrl, alt altImg, tabindex 0 ] [] ]
+                        [ a
+                            [ class "img"
+                            , href projectLink
+                            , ariaLabel altImg
+                            , tabindex 0
+                            , target "_blank"
+                            ]
+                            [ img [ src imgUrl, alt altImg ] [] ]
                         , div [ class "projects__info" ]
                             [ Html.i
-                                [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-500"
+                                [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-600"
                                 , tabindex 0
                                 ]
                                 [ text <| Maybe.withDefault "Featured Project" italic ]
                             , h5 [ class " font-800 text-1xl md:text-3xl z-10", tabindex 0 ]
                                 [ text title ]
-                            , div [ class "paragraph", tabindex 0 ]
+                            , div [ class "paragraph" ]
                                 [ p [ class "paragraph__text", tabindex 0 ] [ text desc ]
                                 ]
-                            , ul [ class "list" ] <|
-                                List.map (\itemText -> li [ tabindex 0 ] [ text itemText ])
+                            , ul [ class "list", tabindex 0 ] <|
+                                List.map (\itemText -> li [] [ text itemText ])
                                     list
                             , div
                                 [ classList
@@ -873,9 +892,19 @@ viewThingsThatIHaveBuild model =
                                     , ( "md:justify-end", not <| isOdd i )
                                     ]
                                 ]
-                                [ a [ class "inline-grid place-content-center", href repositoryUrl, tabindex 0 ]
+                                [ a
+                                    [ class "inline-grid place-content-center"
+                                    , href repositoryUrl
+                                    , tabindex 0
+                                    , target "_blank"
+                                    ]
                                     [ materialIcon "drop-shadow" "blur_on" ]
-                                , a [ class "inline-grid place-content-center", href projectLink, tabindex 0 ]
+                                , a
+                                    [ class "inline-grid place-content-center"
+                                    , href projectLink
+                                    , tabindex 0
+                                    , target "_blank"
+                                    ]
                                     [ materialIcon "drop-shadow" "open_in_new" ]
                                 ]
                             ]
@@ -933,12 +962,12 @@ viewThingsThatIHaveBuild model =
             ++ List.singleton
                 (section [ class "other-noteworthy-projects", ariaLabelledby "header-noteworthy" ]
                     [ header [ class "grid place-items-center gap-5" ]
-                        [ h4 [ class "text-4xl font-800", tabindex 0, id "header-noteworthy" ]
+                        [ h4 [ class "text-4xl text-center font-800", tabindex 0, id "header-noteworthy" ]
                             [ text "Other Noteworthy Projects" ]
-                        , a [ class "link-underline", href "#", customProp "n-ch" "-13ch", tabindex 0 ]
+                        , a [ class "link-underline", href "#", customProp "n-ch" "-13ch", tabindex 0, target "_blank" ]
                             [ text "view the archive" ]
                         ]
-                    , ul [ class "grid grid-flow-dense" ] <| viewNoteworthyProjects model
+                    , ul [ class "grid grid-cols-fit-20 gap-6" ] <| viewNoteworthyProjects model
                     ]
                 )
 
@@ -950,13 +979,18 @@ viewNoteworthyProjects model =
             modBy 3 i
     in
     List.indexedMap
-        (\i { gitHubUrl, projectUlr } ->
+        (\i { gitHubUrl, projectUlr, title, desc, tags } ->
             let
                 head_ =
                     "header--noteworthy--" ++ String.fromInt i
 
                 link_ url_ icon_ =
-                    a [ class "inline-grid place-content-center", href url_, tabindex 0 ] [ materialIcon "" icon_ ]
+                    a
+                        [ class "link"
+                        , href url_
+                        , tabindex 0
+                        ]
+                        [ materialIcon "" icon_ ]
 
                 gitHub_ =
                     case gitHubUrl of
@@ -966,17 +1000,50 @@ viewNoteworthyProjects model =
                         Just url_ ->
                             link_ url_ "blur_on"
             in
-            li []
-                [ section [ class "card", ariaLabelledby head_ ]
-                    [ div []
-                        [ materialIcon "" "folder"
+            li [ class "card-item", tabindex 0 ]
+                [ a
+                    [ class "card"
+                    , href projectUlr
+                    , ariaLabelledby head_
+                    , target "_blank"
+                    ]
+                    [ div [ class "card__wrapper " ]
+                        [ materialIcon "folder" "folder"
                         , gitHub_
                         , link_ projectUlr "open_in_new"
                         ]
-                    , header []
-                        [ h6 [ id head_ ] []
-                        ]
+                    , h6 [ class "card__title", id head_ ] [ text title ]
+                    , p [] [ text desc ]
+                    , ul [ class "card__list" ] <|
+                        List.map (\itemText -> li [] [ text itemText ])
+                            tags
                     ]
                 ]
         )
-        [ { gitHubUrl = Just "", projectUlr = "" } ]
+        ([ { gitHubUrl = Just ""
+           , projectUlr = ""
+           , title = "Out Doors website"
+           , desc = """A simple website for a company that sells outdoor gear.
+          It's just the home page bug is responsive and super beautiful"""
+           , tags = [ "elm", "sass", "html" ]
+           }
+         , { gitHubUrl = Just ""
+           , projectUlr = ""
+           , title = "Out Doors website"
+           , desc = """A simple website for a company that sells outdoor gear.
+          It's just the home page bug is responsive and super beautiful
+          A simple website for a company that sells outdoor gear.
+          It's just the home page bug is responsive and super beautiful"""
+           , tags = [ "elm", "sass", "html" ]
+           }
+         , { gitHubUrl = Just ""
+           , projectUlr = ""
+           , title = "Out Doors website Out Doors website Out Doors websiteOut Doors website"
+           , desc = """A simple website for a company that sells outdoor gear.
+          It's just the home page bug is responsive and super beautiful"""
+           , tags = [ "elm", "sass", "html" ]
+           }
+         ]
+            |> List.repeat 20
+            |> List.concat
+        )
