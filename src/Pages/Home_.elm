@@ -40,6 +40,7 @@ import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
 import Layout exposing (initLayout, rootId)
 import Page
+import Process
 import Request
 import Round
 import Shared
@@ -73,13 +74,14 @@ type alias Model =
       viewport : { w : Float, h : Float }
     , scroll : Scroll.Model
     , theme : { scheme : Theme, hue : Int }
+    , wheelDelta : Bool
 
     -- Element States
     , showNav : Bool
     , imageOver : Bool
     , workSelected : Int
     , mousePos : { x : Float, y : Float }
-    , wheelDelta : Bool
+    , showMore : Bool
 
     -- Elements
     , sectionOne : { w : Float, h : Float }
@@ -96,13 +98,14 @@ init =
         viewport = { w = 0, h = 0 }
       , scroll = Scroll.init
       , theme = { scheme = Dark, hue = 0 }
+      , wheelDelta = False
 
       -- Element States
       , showNav = False
       , imageOver = False
       , workSelected = 0
       , mousePos = { x = 0, y = 0 }
-      , wheelDelta = False
+      , showMore = False
 
       -- Elements
       , sectionOne = { w = 0, h = 0 }
@@ -151,6 +154,7 @@ type Msg
       -- Element States
     | ShowNav Bool
     | ImageOver Bool
+    | ShowMore Bool
     | SelectWork Int
     | NewMousePos ( Float, Float )
       -- Elements
@@ -224,6 +228,9 @@ update msg model =
 
         ShowNav toggler_ ->
             ( { model | showNav = not toggler_ }, Cmd.none )
+
+        ShowMore toggler_ ->
+            ( { model | showMore = not toggler_ }, Cmd.none )
 
         ImageOver isOver_ ->
             ( { model | imageOver = isOver_ }, Cmd.none )
@@ -910,52 +917,14 @@ viewThingsThatIHaveBuild model =
                             ]
                         ]
                 )
-                [ { imgUrl = "https://picsum.photos/2000/1000/"
-                  , altImg = "Materialize Plataform"
-                  , italic = Nothing
-                  , title = "Materialize Plataform"
-                  , desc = """
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            And a thing that I Don't understand,
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications."""
-                  , list =
-                        [ "Elm"
-                        , "Json"
-                        , "Html"
-                        , "Css"
-                        ]
-                  , repositoryUrl = "#"
-                  , projectLink = "#"
-                  }
-                , { imgUrl = "https://picsum.photos/1800/1200/"
-                  , altImg = "Materialize Website"
-                  , italic = Nothing
-                  , title = "Materialize Website"
-                  , desc = """
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            And a thing that I Don't understand,
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            And a thing that I Don't understand,
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications."""
-                  , list =
-                        [ "Wordpress"
-                        , "Translate"
-                        , "Css"
-                        , "SEO"
-                        ]
-                  , repositoryUrl = "#"
-                  , projectLink = "#"
-                  }
-                ]
-                |> List.repeat 2
-                |> List.concat
+                thingsThatIHaveBuild
+
+        showMore =
+            if model.showMore then
+                "More"
+
+            else
+                "Less"
     in
     sectionBuilder "things-that-i-have-build" "Some Things I've Built" 3 <|
         viewProjects
@@ -968,8 +937,74 @@ viewThingsThatIHaveBuild model =
                             [ text "view the archive" ]
                         ]
                     , ul [ class "grid grid-cols-fit-20 gap-6" ] <| viewNoteworthyProjects model
+                    , button
+                        [ class "btm-accent mx-auto"
+                        , tabindex 0
+                        , onClick <| ShowMore model.showMore
+                        ]
+                        [ text <| String.join " " [ "View", showMore ] ]
                     ]
                 )
+
+
+thingsThatIHaveBuild :
+    List
+        { imgUrl : String
+        , altImg : String
+        , italic : Maybe String
+        , title : String
+        , desc : String
+        , list : List String
+        , repositoryUrl : String
+        , projectLink : String
+        }
+thingsThatIHaveBuild =
+    [ { imgUrl = "https://picsum.photos/2000/1000/"
+      , altImg = "Materialize Plataform"
+      , italic = Nothing
+      , title = "Materialize Plataform"
+      , desc = """
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications.
+                            And a thing that I Don't understand,
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications."""
+      , list =
+            [ "Elm"
+            , "Json"
+            , "Html"
+            , "Css"
+            ]
+      , repositoryUrl = "#"
+      , projectLink = "#"
+      }
+    , { imgUrl = "https://picsum.photos/1800/1200/"
+      , altImg = "Materialize Website"
+      , italic = Nothing
+      , title = "Materialize Website"
+      , desc = """
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications.
+                            And a thing that I Don't understand,
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications.
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications.
+                            And a thing that I Don't understand,
+                            Materialize is a free and open-source Material Design 
+                            Framework for web and mobile applications."""
+      , list =
+            [ "Wordpress"
+            , "Translate"
+            , "Css"
+            , "SEO"
+            ]
+      , repositoryUrl = "#"
+      , projectLink = "#"
+      }
+    ]
+        |> List.repeat 2
+        |> List.concat
 
 
 viewNoteworthyProjects : Model -> List (Html Msg)
@@ -1020,30 +1055,55 @@ viewNoteworthyProjects model =
                     ]
                 ]
         )
-        ([ { gitHubUrl = Just ""
-           , projectUlr = ""
-           , title = "Out Doors website"
-           , desc = """A simple website for a company that sells outdoor gear.
+        (if model.showMore then
+            List.take 6 noteworthyProjectsData
+
+         else
+            noteworthyProjectsData
+        )
+
+
+
+-- noteworthyProjectsData :
+
+
+noteworthyProjectsData :
+    List
+        { gitHubUrl : Maybe String
+        , projectUlr : String
+        , title : String
+        , desc : String
+        , tags : List String
+        }
+noteworthyProjectsData =
+    [ { gitHubUrl = Just ""
+      , projectUlr = ""
+      , title = "Out Doors website"
+      , desc = """A simple website for a company that sells outdoor gear.
           It's just the home page bug is responsive and super beautiful"""
-           , tags = [ "elm", "sass", "html" ]
-           }
-         , { gitHubUrl = Just ""
-           , projectUlr = ""
-           , title = "Out Doors website"
-           , desc = """A simple website for a company that sells outdoor gear.
+      , tags = [ "elm", "sass", "html" ]
+      }
+    , { gitHubUrl = Just ""
+      , projectUlr = ""
+      , title = "Out Doors website"
+      , desc = """A simple website for a company that sells outdoor gear.
           It's just the home page bug is responsive and super beautiful
           A simple website for a company that sells outdoor gear.
           It's just the home page bug is responsive and super beautiful"""
-           , tags = [ "elm", "sass", "html" ]
-           }
-         , { gitHubUrl = Just ""
-           , projectUlr = ""
-           , title = "Out Doors website Out Doors website Out Doors websiteOut Doors website"
-           , desc = """A simple website for a company that sells outdoor gear.
+      , tags = [ "elm", "sass", "html" ]
+      }
+    , { gitHubUrl = Just ""
+      , projectUlr = ""
+      , title = "Out Doors website Out Doors website Out Doors websiteOut Doors website"
+      , desc = """A simple website for a company that sells outdoor gear.
           It's just the home page bug is responsive and super beautiful"""
-           , tags = [ "elm", "sass", "html" ]
-           }
-         ]
-            |> List.repeat 20
-            |> List.concat
-        )
+      , tags = [ "elm", "sass", "html" ]
+      }
+    ]
+        |> List.repeat 5
+        |> List.concat
+
+
+viewWhatsNext : Model -> Html Msg
+viewWhatsNext model =
+    section [] []
