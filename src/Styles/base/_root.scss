@@ -1,24 +1,27 @@
 body {
-	font-family: var(--font-serif);
+	color: var(--clr-surface-100, hsl(0, 0%, 90%));
+	background-color: var(--clr-surface-900, hsl(0, 0%, 10%));
 
-	overflow: auto;
-	overflow: overlay;
+	font-family: var(--font-serif);
 
 	scrollbar-width: thin;
 	scrollbar-color: var(--clr-accent-400);
 
+	overflow: auto;
+	overflow: overlay;
+
 	&::-webkit-scrollbar {
-		width: 2px;
-		background-color: transparent;
+		width: 1px;
+		border-radius: 5px;
 
 		&-thumb {
-			background-color: var(--clr-accent-400);
-			background-image: linear-gradient(
-				45deg,
-				var(--clr-surface-900) 0%,
-				var(--clr-accent-400) 50%,
-				var(--clr-surface-900) 100%
-			);
+			background-color: var(--clr-surface-500);
+
+			box-shadow: 0px 0px 2rem 2rem var(--clr-surface-500);
+		}
+
+		&-track {
+			background-color: transparent;
 		}
 	}
 }

@@ -259,7 +259,8 @@
 			transition: transform 200ms ease-out 100ms;
 		}
 
-		&:enter {
+		&:hover,
+		&:focus-within {
 			&::before {
 				transform: translate(0, 0) scale(0.98);
 			}
@@ -359,53 +360,53 @@
 
 		@for $i from 0 through 8 {
 			&--#{$i} {
-				.work-list__item__btm::after {
+				.work-list__btn::after {
 					transform: translateX(100% * $i);
 				}
 				@media (--md-n-above) {
-					.work-list__item__btm::after {
+					.work-list__btn::after {
 						transform: translateY(100% * $i);
 					}
 				}
 			}
 		}
 
-		&__item {
-			$border-left-width: 2px;
+		$border-left-width: 2px;
 
+		&__btn {
 			position: relative;
+
+			border-radius: 0;
+			border-top: $border-left-width solid
+				hsl(var(--clr-surface-400-hsl) / 0.25);
+			padding-block: var(--size-3);
+			padding-inline: var(--size-6);
+
+			width: 100%;
+
+			isolation: isolate;
+			cursor: pointer;
+			user-select: none;
+
+			@media (--md-n-above) {
+				border-top: 0;
+				border-left: $border-left-width solid
+					hsl(var(--clr-surface-400-hsl) / 0.25);
+
+				text-align: start;
+			}
 
 			&--selected {
 				color: var(--clr-accent-600);
-				transform: color 200ms ease-out 200ms;
-			}
-
-			&__btm {
-				border-radius: 0;
-				border-top: $border-left-width solid
-					hsl(var(--clr-surface-400-hsl) / 0.25);
-				padding-block: var(--size-3);
-				padding-inline: var(--size-6);
-
-				width: 100%;
-
-				cursor: pointer;
-				user-select: none;
-
-				@media (--md-n-above) {
-					border-top: 0;
-					border-left: $border-left-width solid
-						hsl(var(--clr-surface-400-hsl) / 0.25);
-
-					text-align: start;
-				}
+				transition: color 200ms ease-out;
 			}
 
 			&:first-child {
-				.work-list__item__btm::after {
+				&::after {
 					content: "";
 					position: absolute;
-					inset: 0;
+					inset-block: 0;
+					inset-inline: -$border-left-width 0;
 					background-color: hsl(var(--clr-accent-400-hsl) / 0.125);
 					border-top: inherit;
 					border-top-color: hsl(var(--clr-accent-600-hsl) / 0.875);
@@ -413,6 +414,8 @@
 					backface-visibility: hidden;
 					will-change: transition;
 					transition: transform 200ms ease-out;
+
+					z-index: -1;
 
 					@media (--md-n-above) {
 						border-left: inherit;
@@ -428,7 +431,11 @@
 		grid-auto-rows: min-content;
 		gap: 0.25rem;
 
-		&__title {
+		&__header {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+
 			color: var(--clr-surface-100);
 			font-weight: var(--font-weight-8);
 			text-transform: capitalize;
@@ -714,10 +721,6 @@
 	}
 }
 
-.other-noteworthy-projects {
-	padding-block: 8rem;
-}
-
 .link-underline {
 	background-image: linear-gradient(
 		90deg,
@@ -735,4 +738,8 @@
 	&:enter {
 		--n-ch: 0 !important;
 	}
+}
+
+.other-noteworthy-projects {
+	padding-block: 8rem;
 }
