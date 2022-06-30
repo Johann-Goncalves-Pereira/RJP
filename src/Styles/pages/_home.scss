@@ -359,11 +359,11 @@
 
 		@for $i from 0 through 8 {
 			&--#{$i} {
-				.work-list__item__btm::after {
+				.work-list__item__btn::after {
 					transform: translateX(100% * $i);
 				}
 				@media (--md-n-above) {
-					.work-list__item__btm::after {
+					.work-list__item__btn::after {
 						transform: translateY(100% * $i);
 					}
 				}
@@ -380,7 +380,7 @@
 				transform: color 200ms ease-out 200ms;
 			}
 
-			&__btm {
+			&__btn {
 				border-radius: 0;
 				border-top: $border-left-width solid
 					hsl(var(--clr-surface-400-hsl) / 0.25);
@@ -389,6 +389,7 @@
 
 				width: 100%;
 
+				isolation: isolate;
 				cursor: pointer;
 				user-select: none;
 
@@ -402,7 +403,7 @@
 			}
 
 			&:first-child {
-				.work-list__item__btm::after {
+				.work-list__item__btn::after {
 					content: "";
 					position: absolute;
 					inset: 0;
@@ -413,6 +414,8 @@
 					backface-visibility: hidden;
 					will-change: transition;
 					transition: transform 200ms ease-out;
+
+					z-index: -1;
 
 					@media (--md-n-above) {
 						border-left: inherit;
@@ -428,7 +431,11 @@
 		grid-auto-rows: min-content;
 		gap: 0.25rem;
 
-		&__title {
+		&__header {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+
 			color: var(--clr-surface-100);
 			font-weight: var(--font-weight-8);
 			text-transform: capitalize;
@@ -714,10 +721,6 @@
 	}
 }
 
-.other-noteworthy-projects {
-	padding-block: 8rem;
-}
-
 .link-underline {
 	background-image: linear-gradient(
 		90deg,
@@ -735,4 +738,8 @@
 	&:enter {
 		--n-ch: 0 !important;
 	}
+}
+
+.other-noteworthy-projects {
+	padding-block: 8rem;
 }
