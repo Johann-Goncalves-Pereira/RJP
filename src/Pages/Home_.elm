@@ -905,7 +905,33 @@ viewNoteworthyProjects model =
             modBy 3 i
     in
     List.indexedMap
-        (\i x ->
-            div [] []
+        (\i { gitHubUrl, projectUlr } ->
+            let
+                head_ =
+                    "header--noteworthy--" ++ String.fromInt i
+
+                link_ url_ icon_ =
+                    a [ href url_, tabindex 7 ] [ materialIcon "" icon_ ]
+
+                gitHub_ =
+                    case gitHubUrl of
+                        Nothing ->
+                            text ""
+
+                        Just url_ ->
+                            link_ url_ "blur_on"
+            in
+            li []
+                [ section [ class "card", ariaLabelledby head_ ]
+                    [ div []
+                        [ materialIcon "" "folder"
+                        , gitHub_
+                        , link_ projectUlr "open_in_new"
+                        ]
+                    , header []
+                        [ h6 [ id head_ ] []
+                        ]
+                    ]
+                ]
         )
         [ 1, 1, 1, 1, 1, 1, 1, 11, 1, 1, 1, 1, 1, 1, 1 ]
