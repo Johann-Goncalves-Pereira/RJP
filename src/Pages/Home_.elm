@@ -374,7 +374,7 @@ viewHeader model =
                                 |> Maybe.withDefault 0
                                 |> GoToSection
                                 |> onClick
-                            , tabindex 1
+                            , tabindex 0
                             ]
                             [ span [ class "text-accent-600" ]
                                 [ text <| correctZero i ++ ". " ]
@@ -391,7 +391,7 @@ viewHeader model =
             else
                 { className = "uncheck", ariaChecked_ = "false" }
     in
-    [ a [ class "h-full", href "#", tabindex 1, onClick <| GoToSection 0 ] [ materialIcon "icon" "hive" ]
+    [ a [ class "h-full", href "#", tabindex 0, onClick <| GoToSection 0 ] [ materialIcon "icon" "hive" ]
     , if model.viewport.w <= 1024 then
         button
             [ class <| "nav-toggler " ++ checkNav.className
@@ -412,7 +412,7 @@ viewHeader model =
           else
             text ""
         , links
-            ++ [ li [] [ a [ href "#", class "list__resume", tabindex 1 ] [ text "resume" ] ] ]
+            ++ [ li [] [ a [ href "#", class "list__resume", tabindex 0 ] [ text "resume" ] ] ]
             |> ul [ class "list" ]
         ]
     ]
@@ -426,7 +426,7 @@ viewPage model =
                 [ div [ class "grid gap-10 select-none mt-auto" ] <|
                     List.map
                         (\( icon, url ) ->
-                            a [ class "up", href <| url, tabindex 2 ]
+                            a [ class "up", href <| url, tabindex 0 ]
                                 [ materialIcon "text-3xl" icon ]
                         )
                         [ ( "south_america", "#" )
@@ -437,7 +437,7 @@ viewPage model =
                 ]
             , viewMainContent model
             , div [ orientation "right", class "main-orientation right-0" ]
-                [ a [ class "email up", href "#", tabindex 2 ] [ text "johann.gon.pereira@gmail.com" ]
+                [ a [ class "email up", href "#", tabindex 0 ] [ text "johann.gon.pereira@gmail.com" ]
                 ]
             ]
 
@@ -512,19 +512,19 @@ viewIntroduction model =
         , Mouse.onMove (.offsetPos >> NewMousePos)
         ]
         [ div [ class "secOne grid place-content-center gap-5", id secOneId ]
-            [ Html.i [ class "font-mono text-accent-600 text-sm", tabindex 4 ]
+            [ Html.i [ class "font-mono text-accent-600 text-sm", tabindex 0 ]
                 [ text "hi, my name is" ]
-            , h1 [ class "text-7xl font-800", id "title--name", tabindex 4 ]
+            , h1 [ class "text-7xl font-800", id "title--name", tabindex 0 ]
                 [ [ "Johann", textSize 1920 "Gonçalves", "Pereira" ]
                     |> String.join " "
                     |> text
                 ]
-            , h2 [ class "text-7xl font-800", tabindex 4 ]
+            , h2 [ class "text-7xl font-800", tabindex 0 ]
                 [ [ "I", textSize 1920 "love to", "build", textSize 1440 "things", "for the web." ]
                     |> String.join " "
                     |> text
                 ]
-            , p [ class "inline-block text-surface-400 sm:w-gp", tabindex 4 ]
+            , p [ class "inline-block text-surface-400 sm:w-gp", tabindex 0 ]
                 [ text """I’m a software developer specializing in
                 building (and occasionally designing) exceptional 
                 digital experiences. Currently,
@@ -533,12 +533,12 @@ viewIntroduction model =
                     [ class "link-underline"
                     , customProp "c-ch" "-13ch"
                     , href "https://app.materialize.pro"
-                    , tabindex 4
+                    , tabindex 0
                     ]
                     [ text "Materialize" ]
                 , text "."
                 ]
-            , a [ class "btm-accent mt-8", href "https://github.com/Johann-Goncalves-Pereira", tabindex 4 ]
+            , a [ class "btm-accent mt-8", href "https://github.com/Johann-Goncalves-Pereira", tabindex 0 ]
                 [ text "Check my GitHub" ]
             ]
         ]
@@ -567,7 +567,7 @@ viewThemeConfig model =
                     li [ class "list__item" ]
                         [ button
                             [ class "list__button"
-                            , tabindex 2
+                            , tabindex 0
                             , onClick <| ChangeTheme ( theme.scheme, hueCalc i )
                             , customProp "hue" <| String.fromInt <| hueCalc i
                             , HA.title <| "Change to: " ++ t
@@ -592,7 +592,7 @@ viewThemeConfig model =
     section [ class "theme" ] <|
         [ button
             [ class "scheme"
-            , tabindex 2
+            , tabindex 0
             , onClick <|
                 ChangeTheme ( themeScheme.to, theme.hue )
             , HA.title "Change Theme"
@@ -617,7 +617,7 @@ headersSection sectNumber title =
 viewAboutMe : Model -> Html Msg
 viewAboutMe model =
     sectionBuilder "about-me" "About Me" 1 <|
-        [ p [ class "paragraph", tabindex 5 ]
+        [ p [ class "paragraph", tabindex 0 ]
             [ text """So perhaps, you've generated some fancy text, 
                 and you're content that you can now copy and paste your fancy 
                 text in the comments section of funny cat videos, but perhaps 
@@ -657,7 +657,7 @@ viewAboutMe model =
             [ ul [ class "footer__list" ] <|
                 List.map
                     (\x ->
-                        li [ class "footer__item", tabindex 5 ]
+                        li [ class "footer__item", tabindex 0 ]
                             [ materialIcon "footer__icon" "arrow_right"
                             , text x
                             ]
@@ -693,24 +693,18 @@ viewWhereHaveIWorked model =
                             else
                                 { selectedB = False, selectedS = "false" }
                     in
-                    li
+                    button
                         [ classList
-                            [ ( "work-list__item", True )
-                            , ( "work-list__item--selected"
-                              , selected_.selectedB
-                              )
+                            [ ( "work-list__btn", True )
+                            , ( "work-list__btn--selected", selected_.selectedB )
                             ]
+                        , role "tab"
+                        , ariaSelected selected_.selectedS
+                        , ariaControls <| tabControls i
+                        , tabindex 0
+                        , onClick <| SelectWork i
                         ]
-                        [ button
-                            [ class "work-list__item__btn"
-                            , onClick <| SelectWork i
-                            , tabindex 6
-                            , role "tab"
-                            , ariaSelected selected_.selectedS
-                            , ariaControls <| tabControls i
-                            ]
-                            [ text name ]
-                        ]
+                        [ text name ]
                 )
                 [ "Materialize", "Portfolio", "Cssnano", "Elm", "Personal" ]
 
@@ -737,7 +731,7 @@ viewWhereHaveIWorked model =
                                 [ h5
                                     [ class ""
                                     , id head_
-                                    , tabindex 6
+                                    , tabindex 0
                                     ]
                                     [ text <| title ++ " "
                                     ]
@@ -745,14 +739,14 @@ viewWhereHaveIWorked model =
                                     [ class "link-underline"
                                     , href "#"
                                     , nCh
-                                    , tabindex 6
+                                    , tabindex 0
                                     ]
                                     [ text <| "@" ++ atSign ]
                                 ]
-                            , p [ class "work__date", tabindex 6 ] [ text date ]
+                            , p [ class "work__date", tabindex 0 ] [ text date ]
                             , List.map
                                 (\desc ->
-                                    li [ class "work__paragraph", tabindex 6 ]
+                                    li [ class "work__paragraph", tabindex 0 ]
                                         [ materialIcon "list-icon" "arrow_right", text desc ]
                                 )
                                 content
@@ -802,7 +796,7 @@ viewWhereHaveIWorked model =
                 ]
     in
     sectionBuilder "where-have-i-worked" "Where I’ve Worked" 2 <|
-        ul
+        div
             [ String.concat
                 [ "work-list "
                 , "work-list--"
@@ -846,7 +840,7 @@ viewThingsThatIHaveBuild model =
     let
         viewProjects =
             List.indexedMap
-                (\i { imgUrl, italic, title, desc, list, repositoryUrl, projectLink } ->
+                (\i { imgUrl, altImg, italic, title, desc, list, repositoryUrl, projectLink } ->
                     div
                         [ classList
                             [ ( "projects", True )
@@ -854,19 +848,19 @@ viewThingsThatIHaveBuild model =
                             , ( "projects--right", not <| isOdd i )
                             ]
                         ]
-                        [ div [ class "img" ] [ img [ src imgUrl ] [] ]
+                        [ div [ class "img" ] [ img [ src imgUrl, alt altImg ] [] ]
                         , div [ class "projects__info" ]
                             [ Html.i
                                 [ class " font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-500"
-                                , tabindex 7
+                                , tabindex 0
                                 ]
                                 [ text <| Maybe.withDefault "Featured Project" italic ]
-                            , h5 [ class " font-800 text-1xl md:text-3xl z-10", tabindex 7 ] [ text title ]
-                            , div [ class "paragraph", tabindex 7 ]
-                                [ p [ class "paragraph__text", tabindex 7 ] [ text desc ]
+                            , h5 [ class " font-800 text-1xl md:text-3xl z-10", tabindex 0 ] [ text title ]
+                            , div [ class "paragraph", tabindex 0 ]
+                                [ p [ class "paragraph__text", tabindex 0 ] [ text desc ]
                                 ]
                             , ul [ class "list" ] <|
-                                List.map (\itemText -> li [ tabindex 7 ] [ text itemText ])
+                                List.map (\itemText -> li [ tabindex 0 ] [ text itemText ])
                                     list
                             , div
                                 [ classList
@@ -874,13 +868,14 @@ viewThingsThatIHaveBuild model =
                                     , ( "md:justify-end", not <| isOdd i )
                                     ]
                                 ]
-                                [ a [ href repositoryUrl, tabindex 7 ] [ materialIcon "drop-shadow" "blur_on" ]
-                                , a [ href projectLink, tabindex 7 ] [ materialIcon "drop-shadow" "open_in_new" ]
+                                [ a [ href repositoryUrl, tabindex 0 ] [ materialIcon "drop-shadow" "blur_on" ]
+                                , a [ href projectLink, tabindex 0 ] [ materialIcon "drop-shadow" "open_in_new" ]
                                 ]
                             ]
                         ]
                 )
                 [ { imgUrl = "https://picsum.photos/2000/1000/"
+                  , altImg = "Materialize Plataform"
                   , italic = Nothing
                   , title = "Materialize Plataform"
                   , desc = """
@@ -899,6 +894,7 @@ viewThingsThatIHaveBuild model =
                   , projectLink = "#"
                   }
                 , { imgUrl = "https://picsum.photos/1800/1200/"
+                  , altImg = "Materialize Website"
                   , italic = Nothing
                   , title = "Materialize Website"
                   , desc = """
@@ -930,9 +926,9 @@ viewThingsThatIHaveBuild model =
             ++ List.singleton
                 (section [ class "other-noteworthy-projects", ariaLabelledby "header-noteworthy" ]
                     [ header [ class "grid place-items-center gap-5" ]
-                        [ h4 [ class "text-4xl font-800", tabindex 7, id "header-noteworthy" ]
+                        [ h4 [ class "text-4xl font-800", tabindex 0, id "header-noteworthy" ]
                             [ text "Other Noteworthy Projects" ]
-                        , a [ class "link-underline", href "#", customProp "n-ch" "-13ch", tabindex 7 ]
+                        , a [ class "link-underline", href "#", customProp "n-ch" "-13ch", tabindex 0 ]
                             [ text "view the archive" ]
                         ]
                     , ul [ class "grid grid-flow-dense" ] <| viewNoteworthyProjects model
@@ -953,7 +949,7 @@ viewNoteworthyProjects model =
                     "header--noteworthy--" ++ String.fromInt i
 
                 link_ url_ icon_ =
-                    a [ href url_, tabindex 7 ] [ materialIcon "" icon_ ]
+                    a [ href url_, tabindex 0 ] [ materialIcon "" icon_ ]
 
                 gitHub_ =
                     case gitHubUrl of
