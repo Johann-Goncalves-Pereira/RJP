@@ -270,18 +270,12 @@ update msg model =
                     ( model, Cmd.none )
 
 
-getPosition : (Msg -> msg) -> String -> Cmd msg
-getPosition lift id =
-    Task.attempt (lift << GotElementPosition id) <|
-        getElement id
-
-
 
 -- SUBSCRIPTIONS
 
 
 subs : Model -> Sub Msg
-subs model =
+subs _ =
     Sub.batch
         [ onResize <| \w h -> GetNewViewport ( toFloat w, toFloat h )
         , Sub.map ScrollMsg Scroll.subScroll
@@ -298,6 +292,7 @@ listIds =
     , "where-i-have-worked"
     , "some-things-that-i-build"
     , "other-noteworthy-projects"
+    , "contact-me"
     ]
 
 
@@ -349,6 +344,8 @@ view model =
                     ]
                 , headerContent = viewHeader model
                 , mainContent = viewPage model
+                , footerAttrs = (viewFooter model).attrs
+                , footerContent = (viewFooter model).content
             }
     }
 
@@ -429,8 +426,8 @@ viewPage : Model -> List (Html Msg)
 viewPage model =
     let
         content =
-            [ div [ orientation "left", class "main-orientation left-0" ]
-                [ div [ class "grid gap-10 select-none mt-auto" ] <|
+            [ Html.address [ orientation "left", class "main-orientation left-0" ]
+                [ nav [ class "grid gap-10 select-none mt-auto" ] <|
                     List.map
                         (\( icon, url ) ->
                             a
@@ -447,7 +444,7 @@ viewPage model =
                         , ( "blur_on", "#" )
                         ]
                 ]
-            , div [ orientation "right", class "main-orientation right-0" ]
+            , Html.address [ orientation "right", class "main-orientation right-0" ]
                 [ a
                     [ class "email up"
                     , href "#"
@@ -478,6 +475,7 @@ viewMainContent model =
         , viewAboutMe model
         , viewWhereHaveIWorked model
         , viewThingsThatIHaveBuild model
+        , viewWhatsNext model
         ]
 
 
@@ -1003,8 +1001,6 @@ thingsThatIHaveBuild =
       , projectLink = "#"
       }
     ]
-        |> List.repeat 2
-        |> List.concat
 
 
 viewNoteworthyProjects : Model -> List (Html Msg)
@@ -1076,15 +1072,15 @@ noteworthyProjectsData :
         , tags : List String
         }
 noteworthyProjectsData =
-    [ { gitHubUrl = Just ""
-      , projectUlr = ""
+    [ { gitHubUrl = Just "#"
+      , projectUlr = "#"
       , title = "Out Doors website"
       , desc = """A simple website for a company that sells outdoor gear.
           It's just the home page bug is responsive and super beautiful"""
       , tags = [ "elm", "sass", "html" ]
       }
-    , { gitHubUrl = Just ""
-      , projectUlr = ""
+    , { gitHubUrl = Nothing
+      , projectUlr = "#"
       , title = "Out Doors website"
       , desc = """A simple website for a company that sells outdoor gear.
           It's just the home page bug is responsive and super beautiful
@@ -1092,8 +1088,8 @@ noteworthyProjectsData =
           It's just the home page bug is responsive and super beautiful"""
       , tags = [ "elm", "sass", "html" ]
       }
-    , { gitHubUrl = Just ""
-      , projectUlr = ""
+    , { gitHubUrl = Just "#"
+      , projectUlr = "#"
       , title = "Out Doors website Out Doors website Out Doors websiteOut Doors website"
       , desc = """A simple website for a company that sells outdoor gear.
           It's just the home page bug is responsive and super beautiful"""
@@ -1106,4 +1102,47 @@ noteworthyProjectsData =
 
 viewWhatsNext : Model -> Html Msg
 viewWhatsNext model =
-    section [] []
+    let
+        al_ =
+            "section--title--4"
+    in
+    section [ class "whats-now", ariaLabelledby al_, id <| getIds 3 ]
+        [ header [ class "flex gap-2 text-accent-600 font-mono" ]
+            [ Html.i [] [ text "04. " ]
+            , h3 [ id al_ ] [ text "What’s Next?" ]
+            ]
+        , h6 [ class "font-900 text-5xl" ] [ text "Get In Touch" ]
+        , p [ class "sm:w-gp text-center" ] [ text """
+            Although I’m not currently looking for any new opportunities, 
+            my inbox is always open. Whether you have a question or just 
+            want to say hi, I’ll try my best to get back to you!""" ]
+        , button
+            [ class "btm-accent mt-6 mx-auto"
+            , tabindex 0
+            , onClick <| ShowMore model.showMore
+            ]
+            [ text "Say Hello" ]
+        ]
+
+
+viewFooter : Model -> { attrs : List (Attribute msg), content : List (Html msg) }
+viewFooter model =
+    { attrs = [ class "grid place-items-center pb-3 mt-40" ]
+    , content =
+        [ a
+            [ class "grid gap-3 whitespace-pre-wrap text-center text-xs font-mono"
+            , href "#"
+            , tabindex 0
+            , target "_blank"
+            ]
+            [ text "Design by Brittany Chiang && Johann Pereira\n"
+            , text "Build by Johann Pereira"
+            , p [ class "flex items-center justify-center gap-2 font-600" ]
+                [ materialIcon "" "auto_awesome"
+                , text "23.40"
+                , materialIcon "" "fork_right"
+                , text "202.3"
+                ]
+            ]
+        ]
+    }
