@@ -53,8 +53,11 @@ module.exports = {
       xxl: "1920px",
     },
     extend: {
+      // gridTemplateColumns : {
+      //   "fit": "repeat(auto-fit, minmax(0, 1fr))",
+      // },
       width: {
-        "gold-paragraph": "clamp(45ch,50vw + 1rem,75ch)",
+        "gp": "clamp(45ch,50vw + 1rem,75ch)",
       },
     },
   },
