@@ -544,18 +544,24 @@ viewIntroduction model =
                 [ text """I’m a software developer specializing in
                 building (and occasionally designing) exceptional 
                 digital experiences. Currently,
-                I'm focused on building the plataform for """
+                I'm focused on building the platform for """
                 , a
                     [ class "link-underline"
                     , customProp "c-ch" "-13ch"
                     , href "https://app.materialize.pro"
                     , tabindex 0
                     , target "_blank"
+                    , HA.title "Link to Materialize Plataform"
                     ]
                     [ text "Materialize" ]
                 , text "."
                 ]
-            , a [ class "btm-accent mt-8", href "https://github.com/Johann-Goncalves-Pereira", tabindex 0 ]
+            , a
+                [ class "btm-accent mt-8"
+                , href "https://github.com/Johann-Goncalves-Pereira"
+                , tabindex 0
+                , HA.title "Link to GitHub"
+                ]
                 [ text "Check my GitHub" ]
             ]
         ]
@@ -587,7 +593,7 @@ viewThemeConfig model =
                             , tabindex 0
                             , onClick <| ChangeTheme ( theme.scheme, hueCalc i )
                             , customProp "hue" <| String.fromInt <| hueCalc i
-                            , HA.title <| "Change to: " ++ t
+                            , HA.title <| "Change color to: " ++ t
                             ]
                             []
                         ]
@@ -633,42 +639,47 @@ headersSection sectNumber title =
 
 viewAboutMe : Model -> Html Msg
 viewAboutMe model =
+    let
+        externalLink_ url_ name_ =
+            a
+                [ class "link-underline"
+                , customProp "n-ch" <| "-" ++ String.fromInt (String.length name_) ++ "ch"
+                , HA.title "External link"
+                , tabindex 0
+                , href url_
+                ]
+                [ text name_ ]
+    in
     sectionBuilder "about-me" "About Me" 1 <|
         [ p [ class "paragraph", tabindex 0 ]
-            [ text """So perhaps, you've generated some fancy text, 
-                and you're content that you can now copy and paste your fancy 
-                text in the comments section of funny cat videos, but perhaps 
-                you're wondering how it's even possible to change the font of 
-                your text? Is it some sort of hack? Are you copying and pasting 
-                an actual font?"""
+            [ text """Hi! I'm Johann a front-end developer from Brazil.
+             I love to create for the web, beautiful and functional interfaces.
+             My interest for development started back in 2017, when I made a project with the 
+            """
+            , externalLink_ "https://www.rocketseat.com.br" "RocketSeat"
+            , text """ it was my first website, and I fall in love with Html/Css and design, 
+            from then I discovered that I wasn't so difficult to make cool websites."""
             , br [] []
             , br [] []
-            , text """Well, the answer is actually no - rather than generating fancy fonts, 
-                this converter creates fancy symbols. The explanation starts with unicode; 
-                an industry standard which creates the specification for thousands of different 
-                symbols and characters. All the characters that you see on your 
-                electronic devices, and printed in books, are likely specified by the 
-                unicode standard."""
+            , text "Jumping to the present day, I'm working at a "
+            , externalLink_ "https://www.materialize.pro/for-companies"
+                "start-up for instant hiring solution"
+            , text """, as a front-end developer, I made the visual of the platform,
+             and worked on the website. I'm also working as a freelancer, 
+             on my leisure time, and I'm constantly looking for new challenges. 
+             The thing that I've the most joy making it, It is accessible and 
+             well-designed websites."""
             , br [] []
             , br [] []
-            , text """Amongst the hundreds of thousands of symbols which are in the unicode 
-                text specifications are certain characters which resemble, or are variations of 
-                the alphabet and other keyword symbols. For example, if we can take the phrase 
-                "thug life" and convert its characters into the fancy letters "𝖙𝖍𝖚𝖌 𝖑𝖎𝖋𝖊" which 
-                are a set of unicode symbols. These different sets of fancy text letters are 
-                scattered all throughout the unicode specification, and so to create a fancy 
-                text translator, it's just a matter of finding these sets of letters and symbols, 
-                and linking them to their normal alphabetical equivalents.
-                """
-            , br [] []
-            , br [] []
-            , text
-                """
-                Unicode has a huge number of symbols, and so we're able to create other 
-                things like a wingdings translator too. Also if you're looking for messy 
-                text, or glitchy text, visit this creepy zalgo text generator (another 
-                translator on LingoJam).
-                an actual font?"""
+            , text "I work in some open-source projects, like "
+            , externalLink_ "https://cssnano.co" "CssNano"
+            , text ", "
+            , externalLink_ "https://elm-lang.org" "Elm"
+            , text " and "
+            , externalLink_ "https://open-props.style" "OpenProps"
+            , text ". The last things are my personal projects, like"
+            , externalLink_ "https://github.com/Johann-Goncalves-Pereira/Revex/" "Revex"
+            , text "."
             ]
         , footer [ class "footer" ]
             [ ul [ class "footer__list", tabindex 0 ] <|
@@ -682,9 +693,9 @@ viewAboutMe model =
                     [ "elm"
                     , "html - css/sass"
                     , "design - figma"
-                    , "Js - Ts - React"
-                    , "shell (bash, zsh)"
-                    , "go (golang)"
+                    , "Js/Ts - React"
+                    , "shell - bash/zsh"
+                    , "go(golang)"
                     ]
             ]
         , div
