@@ -5,12 +5,12 @@ port onScroll : ({ x : Float, y : Float } -> msg) -> Sub msg
 
 
 type alias Model =
-    { scrollPos : { x : Float, y : Float } }
+    { x : Float, y : Float }
 
 
 init : Model
 init =
-    { scrollPos = { x = 0, y = 0 } }
+    { x = 0, y = 0 }
 
 
 type Msg
@@ -21,7 +21,7 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         OnScroll offset ->
-            { model | scrollPos = { x = offset.x, y = offset.y } }
+            { model | x = offset.x, y = offset.y }
 
 
 subScroll : Sub Msg

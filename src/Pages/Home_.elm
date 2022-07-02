@@ -123,6 +123,11 @@ init =
     )
 
 
+run : msg -> Cmd msg
+run m =
+    Task.perform (always m) (Task.succeed ())
+
+
 getSectionPos : List String -> Cmd Msg
 getSectionPos =
     List.map
@@ -148,8 +153,8 @@ type Msg
     | GetViewport Viewport
     | GetNewViewport ( Float, Float )
     | ScrollMsg Scroll.Msg
+    | ScrollTo (Maybe Float)
     | WheelDelta Bool
-    | GoToSection Float
     | ChangeTheme ( Theme, Int )
       -- Element States
     | ShowNav Bool
@@ -203,17 +208,23 @@ update msg model =
             , Cmd.none
             )
 
+        ScrollTo y_ ->
+            ( model
+            , Task.attempt (\_ -> NoOp) <|
+                setViewport 0 <|
+                    case y_ of
+                        Nothing ->
+                            model.scroll.y
+
+                        Just vpt_ ->
+                            vpt_
+            )
+
         WheelDelta delta_ ->
             ( { model
                 | wheelDelta = delta_
               }
             , Cmd.none
-            )
-
-        GoToSection y_ ->
-            ( model
-            , Task.attempt (\_ -> NoOp) <|
-                setViewport 0 y_
             )
 
         ChangeTheme ( scheme_, hue_ ) ->
@@ -288,11 +299,11 @@ subs _ =
 
 listIds : List String
 listIds =
-    [ "about-me"
-    , "where-i-have-worked"
-    , "some-things-that-i-build"
+    [ "about"
+    , "experience"
+    , "work"
     , "other-noteworthy-projects"
-    , "contact-me"
+    , "contact"
     ]
 
 
@@ -315,7 +326,7 @@ view : Model -> View Msg
 view model =
     let
         sy =
-            model.scroll.scrollPos.y
+            model.scroll.y
 
         theme =
             case ( model.theme.scheme, model.theme.hue ) of
@@ -370,13 +381,13 @@ viewHeader model =
                 (\i route ->
                     li []
                         [ a
-                            [ href <| "#"
+                            [ href <| "#" ++ getIds i
                             , class "list__link"
                             , getIds i
                                 |> Dict.get
                                 >> aplR model.elementsPosition
-                                |> Maybe.withDefault 0
-                                |> GoToSection
+                                -- |> (Just <| Maybe.withDefault 0)
+                                |> ScrollTo
                                 |> onClick
                             , tabindex 0
                             ]
@@ -395,7 +406,8 @@ viewHeader model =
             else
                 { className = "uncheck", ariaChecked_ = "false" }
     in
-    [ a [ class "h-full", href "#", tabindex 0, onClick <| GoToSection 0 ] [ materialIcon "icon" "hive" ]
+    [ a [ class "h-full", href "#", tabindex 0, onClick <| ScrollTo <| Just 0 ]
+        [ materialIcon "icon" "hive" ]
     , if model.viewport.w <= 1024 then
         button
             [ class <| "nav-toggler " ++ checkNav.className
