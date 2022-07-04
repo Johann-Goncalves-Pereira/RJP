@@ -27,6 +27,10 @@
 
 		color: var(--clr-surface-200);
 
+		nav:hover + &::after {
+			background-color: red;
+		}
+
 		&::after {
 			content: "";
 
@@ -386,9 +390,11 @@
 		$border-left-width: 2px;
 
 		&__btn {
+			--fv-shadow-inset: inset 0 0 6px 2px currentColor;
+			--fv-rounded: 0;
+
 			position: relative;
 
-			border-radius: 0;
 			border-top: $border-left-width solid
 				hsl(var(--clr-surface-400-hsl) / 0.25);
 			padding-block: var(--size-3);
@@ -579,6 +585,8 @@
 		}
 
 		.img {
+			--fv-shadow-inset: none;
+
 			position: relative;
 			z-index: 0;
 

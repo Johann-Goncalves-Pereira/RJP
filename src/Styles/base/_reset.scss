@@ -62,18 +62,27 @@ a:not([class]) {
 
 /* Make images easier to work with */
 :where(img, picture) {
-	max-width: 100%;
 	display: block;
+	max-width: 100%;
 }
 
 //& Personal
-:where(:focus-visible) {
-	box-shadow: inset 0 0 6px 1px var(--clr-accent-500);
-	border-radius: var(--rounded-sm);
+// :where(:focus-visible)
+:focus-visible {
+	box-shadow://
+		var(
+		--fv-shadow-inset,
+		var(--fv-shadow-x, 0px) //
+		var(--fv-shadow-y, 0px) //
+		var(--fv-shadow-blur, 8px) //
+		var(--fv-shadow-spreed, 2px) //
+		var(--fv-shadow-color, currentColor)
+	);
+
+	border-radius: var(--fv-rounded, var(--rounded-sm));
 }
 
-:where(:focus) {
-	// outline: 1px solid red;
+:where(:focus, :focus-visible) {
 	outline: 0;
 }
 
