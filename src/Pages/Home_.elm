@@ -3,6 +3,7 @@ module Pages.Home_ exposing (Model, Msg, page)
 import Array exposing (Array)
 import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getElement, getViewport, setViewport)
 import Browser.Events exposing (onResize)
+import Layout exposing (initLayout, rootId)
 import Components.Svg as SVG exposing (Logo(..))
 import Dict exposing (Dict)
 import Gen.Params.Home_ exposing (Params)
@@ -38,15 +39,13 @@ import Html.Attributes.Aria exposing (ariaChecked, ariaControls, ariaLabel, aria
 import Html.Events exposing (onClick)
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
-import Layout exposing (initLayout, rootId)
 import Page
-import Process
 import Request
 import Round
 import Shared
-import String exposing (right)
+import Storage exposing (Storage)
 import Svg exposing (desc)
-import Svg.Attributes exposing (display, orientation, type_)
+import Svg.Attributes exposing (orientation)
 import Task
 import Utils.Func exposing (aplR)
 import Utils.Models as Models
@@ -56,11 +55,11 @@ import View exposing (View)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
-page _ _ =
+page shared _ =
     Page.element
         { init = init
-        , update = update
-        , view = view
+        , update = update shared.storage
+        , view = view shared.storage
         , subscriptions = subs
         }
 
@@ -73,7 +72,6 @@ type alias Model =
     { -- Page Events
       viewport : { w : Float, h : Float }
     , scroll : Scroll.Model
-    , theme : { scheme : Theme, hue : Int }
     , wheelDelta : Bool
 
     -- Element States
@@ -97,7 +95,6 @@ init =
     ( { -- Page Events
         viewport = { w = 0, h = 0 }
       , scroll = Scroll.init
-      , theme = { scheme = Dark, hue = 0 }
       , wheelDelta = False
 
       -- Element States
@@ -138,11 +135,6 @@ getSectionPos =
         >> Cmd.batch
 
 
-type Theme
-    = Dark
-    | Light
-
-
 
 -- UPDATE
 
@@ -155,7 +147,7 @@ type Msg
     | ScrollMsg Scroll.Msg
     | ScrollTo (Maybe Float)
     | WheelDelta Bool
-    | ChangeTheme ( Theme, Int )
+    | ChangeTheme ( Storage.Scheme, Int )
       -- Element States
     | ShowNav Bool
     | ImageOver Bool
@@ -167,8 +159,8 @@ type Msg
     | GotElementPosition String (Result Error Element)
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
+update : Storage -> Msg -> Model -> ( Model, Cmd Msg )
+update storage msg model =
     let
         defaultViewport =
             { w = model.viewport.w
@@ -228,13 +220,8 @@ update msg model =
             )
 
         ChangeTheme ( scheme_, hue_ ) ->
-            ( { model
-                | theme =
-                    { scheme = scheme_
-                    , hue = hue_
-                    }
-              }
-            , Cmd.none
+            (model
+            , Storage.changeHue storage scheme_ hue_
             )
 
         ShowNav toggler_ ->
@@ -297,43 +284,18 @@ subs _ =
 -- VIEW
 
 
-listIds : List String
-listIds =
-    [ "about"
-    , "experience"
-    , "work"
-    , "other-noteworthy-projects"
-    , "contact"
-    ]
-
-
-onWheel : (Wheel.Event -> msg) -> Attribute msg
-onWheel =
-    { stopPropagation = True, preventDefault = False }
-        |> Wheel.onWithOptions
-
-
-wheelDelta : Wheel.Event -> Msg
-wheelDelta wheelEvent =
-    if wheelEvent.deltaY > 0 then
-        WheelDelta True
-
-    else
-        WheelDelta False
-
-
-view : Model -> View Msg
-view model =
+view : Storage -> Model -> View Msg
+view storage model =
     let
         sy =
             model.scroll.y
 
         theme =
-            case ( model.theme.scheme, model.theme.hue ) of
-                ( Dark, x ) ->
+            case ( storage.theme.scheme, storage.theme.hue ) of
+                ( Storage.Dark, x ) ->
                     { scheme = "", hue = String.fromInt x }
 
-                ( Light, x ) ->
+                ( Storage.Light, x ) ->
                     { scheme = "light", hue = String.fromInt x }
     in
     { title = "Revex - Home"
@@ -354,11 +316,21 @@ view model =
                         ]
                     ]
                 , headerContent = viewHeader model
-                , mainContent = viewPage model
+                , mainContent = viewPage storage model
                 , footerAttrs = (viewFooter model).attrs
                 , footerContent = (viewFooter model).content
             }
     }
+
+
+listIds : List String
+listIds =
+    [ "about"
+    , "experience"
+    , "work"
+    , "other-noteworthy-projects"
+    , "contact"
+    ]
 
 
 correctZero : Int -> String
@@ -371,6 +343,21 @@ getIds =
     Maybe.withDefault ""
         << aplR (Array.fromList listIds)
         << Array.get
+
+
+onWheel : (Wheel.Event -> msg) -> Attribute msg
+onWheel =
+    { stopPropagation = True, preventDefault = False }
+        |> Wheel.onWithOptions
+
+
+wheelDelta : Wheel.Event -> Msg
+wheelDelta wheelEvent =
+    if wheelEvent.deltaY > 0 then
+        WheelDelta True
+
+    else
+        WheelDelta False
 
 
 viewHeader : Model -> List (Html Msg)
@@ -434,8 +421,8 @@ viewHeader model =
     ]
 
 
-viewPage : Model -> List (Html Msg)
-viewPage model =
+viewPage :Storage -> Model -> List (Html Msg)
+viewPage storage model =
     let
         content =
             [ Html.address [ orientation "left", class "main-orientation left-0" ]
@@ -465,12 +452,12 @@ viewPage model =
                     ]
                     [ text "johann.gon.pereira@gmail.com" ]
                 ]
-            , viewMainContent model
+            , viewMainContent storage model
             ]
 
         media =
             if model.viewport.w <= 1024 || model.viewport.h <= 480 then
-                viewMainContent model
+                viewMainContent storage model
                     |> List.singleton
 
             else
@@ -479,11 +466,11 @@ viewPage model =
     media
 
 
-viewMainContent : Model -> Html Msg
-viewMainContent model =
+viewMainContent :Storage -> Model -> Html Msg
+viewMainContent storage model =
     article [ class "main grid gap-10 w-[min(100vw_-_2rem,var(--size-xxl))] lg:w-full mx-auto z-10" ]
         [ viewIntroduction model
-        , viewThemeConfig model
+        , viewThemeConfig storage model 
         , viewAboutMe model
         , viewWhereHaveIWorked model
         , viewThingsThatIHaveBuild model
@@ -579,19 +566,18 @@ viewIntroduction model =
         ]
 
 
-viewThemeConfig : Model -> Html Msg
-viewThemeConfig model =
+viewThemeConfig :Storage -> Model -> Html Msg
+viewThemeConfig storage model =
     let
-        theme =
-            model.theme
-
+        theme=
+            storage.theme
         themeScheme =
             case theme.scheme of
-                Dark ->
-                    { to = Light, icon = materialIcon "" "light_mode" }
+                Storage.Dark ->
+                    { to = Storage.Light, icon = materialIcon "" "light_mode" }
 
-                Light ->
-                    { to = Dark, icon = materialIcon "" "dark_mode" }
+                Storage.Light ->
+                    { to = Storage.Dark, icon = materialIcon "" "dark_mode" }
 
         hueCalc i =
             i * 30
