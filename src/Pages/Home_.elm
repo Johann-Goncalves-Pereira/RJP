@@ -3,7 +3,6 @@ module Pages.Home_ exposing (Model, Msg, page)
 import Array exposing (Array)
 import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getElement, getViewport, setViewport)
 import Browser.Events exposing (onResize)
-import Layout exposing (initLayout, rootId)
 import Components.Svg as SVG exposing (Logo(..))
 import Dict exposing (Dict)
 import Gen.Params.Home_ exposing (Params)
@@ -39,6 +38,7 @@ import Html.Attributes.Aria exposing (ariaChecked, ariaControls, ariaLabel, aria
 import Html.Events exposing (onClick)
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
+import Layout exposing (initLayout, rootId)
 import Page
 import Request
 import Round
@@ -220,7 +220,7 @@ update storage msg model =
             )
 
         ChangeTheme ( scheme_, hue_ ) ->
-            (model
+            ( model
             , Storage.changeHue storage scheme_ hue_
             )
 
@@ -421,7 +421,7 @@ viewHeader model =
     ]
 
 
-viewPage :Storage -> Model -> List (Html Msg)
+viewPage : Storage -> Model -> List (Html Msg)
 viewPage storage model =
     let
         content =
@@ -466,11 +466,11 @@ viewPage storage model =
     media
 
 
-viewMainContent :Storage -> Model -> Html Msg
+viewMainContent : Storage -> Model -> Html Msg
 viewMainContent storage model =
     article [ class "main grid gap-10 w-[min(100vw_-_2rem,var(--size-xxl))] lg:w-full mx-auto z-10" ]
         [ viewIntroduction model
-        , viewThemeConfig storage model 
+        , viewThemeConfig storage model
         , viewAboutMe model
         , viewWhereHaveIWorked model
         , viewThingsThatIHaveBuild model
@@ -566,11 +566,12 @@ viewIntroduction model =
         ]
 
 
-viewThemeConfig :Storage -> Model -> Html Msg
+viewThemeConfig : Storage -> Model -> Html Msg
 viewThemeConfig storage model =
     let
-        theme=
+        theme =
             storage.theme
+
         themeScheme =
             case theme.scheme of
                 Storage.Dark ->
