@@ -17,11 +17,6 @@
 	will-change: transform;
 	transition: transform 250ms ease-in-out;
 
-	@supports (not (-webkit-backdrop-filter: none)) and
-		(not (backdrop-filter: none)) {
-		--alpha: 0.975;
-	}
-
 	.icon {
 		display: grid;
 		place-items: center;
@@ -78,6 +73,7 @@
 	}
 
 	@media (--lg-n-above) {
+		grid-template-columns: auto 1fr;
 		&.wheel-hidden {
 			transition-duration: 500ms;
 			transform: translateY(calc(-100% - 1rem));
@@ -105,13 +101,23 @@
 
 			transition: opacity 500ms ease-out;
 		}
+
+		.list {
+			display: grid;
+			grid-auto-flow: column;
+			gap: 0.25rem;
+			align-items: center;
+
+			margin-inline-start: auto;
+
+			width: fit-content;
+		}
 	}
 
 	@media (--lg-n-below) {
+		--alpha: 0.5;
+
 		padding-block: 1rem;
-
-		background-color: transparent;
-
 		box-shadow: inset 0 2rem 1rem -0.5rem hsl(var(--clr-surface-900-hsl) / 1);
 
 		.icon {
@@ -248,18 +254,8 @@
 		}
 	}
 
-	@media (--lg-n-above) {
-		grid-template-columns: auto 1fr;
-
-		.list {
-			display: grid;
-			grid-auto-flow: column;
-			gap: 0.25rem;
-			align-items: center;
-
-			margin-inline-start: auto;
-
-			width: fit-content;
-		}
+	@supports (not (-webkit-backdrop-filter: none)) and
+		(not (backdrop-filter: none)) {
+		--alpha: 0.975;
 	}
 }
