@@ -52,6 +52,7 @@ import Utils.Models as Models
 import Utils.Scroll as Scroll
 import Utils.View exposing (button, customProp, customProps, materialIcon)
 import View exposing (View)
+import VitePluginHelper exposing (asset)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
@@ -670,23 +671,23 @@ viewAboutMe model =
              well-designed websites."""
             , br [] []
             , br [] []
-            , text "I work in some open-source projects, like "
+            , text "I had work in some open-source projects, like "
             , externalLink_ "https://cssnano.co" "CssNano"
             , text ", "
             , externalLink_ "https://elm-lang.org" "Elm"
             , text " and "
             , externalLink_ "https://open-props.style" "OpenProps"
-            , text ". The last things are my personal projects, like"
+            , text ". The last things are my personal projects, like "
             , externalLink_ "https://github.com/Johann-Goncalves-Pereira/Revex/" "Revex"
             , text "."
             ]
         , footer [ class "footer" ]
             [ ul [ class "footer__list", tabindex 0 ] <|
                 List.map
-                    (\x ->
+                    (\language ->
                         li [ class "footer__item" ]
                             [ materialIcon "footer__icon" "arrow_right"
-                            , text x
+                            , text language
                             ]
                     )
                     [ "elm"
@@ -736,7 +737,7 @@ viewWhereHaveIWorked model =
                         ]
                         [ text name ]
                 )
-                [ "Materialize", "Portfolio", "Cssnano", "Elm", "Personal" ]
+                [ "Materialize" ]
 
         workContent =
             List.indexedMap
@@ -778,7 +779,9 @@ viewWhereHaveIWorked model =
                             , List.map
                                 (\desc ->
                                     li [ class "work__paragraph" ]
-                                        [ materialIcon "list-icon" "arrow_right", text desc ]
+                                        [ materialIcon "list-icon" "arrow_right"
+                                        , p [] desc
+                                        ]
                                 )
                                 content
                                 |> ul [ class "grid gap-2", tabindex 0 ]
@@ -791,42 +794,27 @@ viewWhereHaveIWorked model =
                   , atSign = "materialize"
                   , date = "August 2021 - Present"
                   , content =
-                        [ "Materialize is a free and open-source Material Design Framework for web and mobile applications."
-                        , "It is a collection of HTML, CSS, and JavaScript components that are used to build websites and web applications."
-                        , """It is a collection of HTML,ns are certain characters which resemble, or are variations of 
-                            the alphabet and other keyword symbols. For example, if we can take the phrase 
-                            "thug life" and convert its characters into the fancy letters "𝖙𝖍𝖚𝖌 𝖑𝖎𝖋𝖊" which 
-                            are a set of unicode symbols. These different sets of fancy text letters are 
-                            scattered all throughout the unicode specification, and so to create a fancy 
-                            text translator, it's just a matter of finding these sets of letters and symbols, 
-                            and linking them to their normal alphabetical equivale CSS, and JavaScript components that are used to build websites and web applications."""
-                        , """Amongst the hundreds of thousands of symbols which are in the unicode 
-                            text specifications are certain characters which resemble, or are variations of 
-                            the alphabet and other keyword symbols. For example, if we can take the phrase 
-                            "thug life" and convert its characters into the fancy letters "𝖙𝖍𝖚𝖌 𝖑𝖎𝖋𝖊" which 
-                            are a set of unicode symbols. These different sets of fancy text letters are 
-                            scattered all throughout the unicode specification, and so to create a fancy 
-                            text translator, it's just a matter of finding these sets of letters and symbols, 
-                            and linking them to their normal alphabetical equivalents.-
-                            """
+                        [ [ text """An start-up for instant hiring solution,
+                         that connects specialists and clients around the word, to work together."""
+                          ]
+                        , [ text "They have a plataform to management the interaction between the users."
+                          , text "I build the plataform from the start, with a variety of different languages, and frameworks. "
+                          , text "Such as Elm, Css/Sass, Javascript/Typescript, html, docker, and more."
+                          ]
+                        , [ text """I make the visual of the platform on the Front-End, 
+                        and I work on the website as well. Using WordPress, Html and Css."""
+                          ]
                         ]
                   }
                 , { title = "Front-End Developer"
                   , atSign = "materialize"
                   , date = "August 2021 - Present"
                   , content =
-                        [ "Materialize is a free and open-source Material Design Framework for web and mobile applications."
-                        , "It is a collection of HTML, CSS, and JavaScript components that are used to build websites and web applications."
-                        , "It is a collection of HTML, CSS, and JavaScript components that are used to build websites and web applications."
-                        , """Amongst the hundreds of thousands of symbols which are in the unicode 
-                            text specifications are certain characters which resemble, or are variations of 
-                            the alphabet and other keyword symbols. For example, if we can take the phrase 
-                            """
-                        ]
+                        []
                   }
                 ]
     in
-    sectionBuilder "where-have-i-worked" "Where I’ve Worked" 2 <|
+    sectionBuilder "where-have-i-worked" "Where I've Worked" 2 <|
         div
             [ String.concat
                 [ "work-list "
@@ -896,7 +884,7 @@ viewThingsThatIHaveBuild model =
                             , h5 [ class " font-800 text-1xl md:text-3xl z-10", tabindex 0 ]
                                 [ text title ]
                             , div [ class "paragraph" ]
-                                [ p [ class "paragraph__text", tabindex 0 ] [ text desc ]
+                                [ p [ class "paragraph__text", tabindex 0 ] desc
                                 ]
                             , ul [ class "list", tabindex 0 ] <|
                                 List.map (\itemText -> li [] [ text itemText ])
@@ -907,13 +895,18 @@ viewThingsThatIHaveBuild model =
                                     , ( "md:justify-end", not <| isOdd i )
                                     ]
                                 ]
-                                [ a
-                                    [ class "inline-grid place-content-center"
-                                    , href repositoryUrl
-                                    , tabindex 0
-                                    , target "_blank"
-                                    ]
-                                    [ materialIcon "drop-shadow" "blur_on" ]
+                                [ case repositoryUrl of
+                                    Nothing ->
+                                        text ""
+
+                                    Just url_ ->
+                                        a
+                                            [ class "inline-grid place-content-center"
+                                            , href url_
+                                            , tabindex 0
+                                            , target "_blank"
+                                            ]
+                                            [ materialIcon "drop-shadow" "blur_on" ]
                                 , a
                                     [ class "inline-grid place-content-center"
                                     , href projectLink
@@ -961,54 +954,50 @@ thingsThatIHaveBuild :
         , altImg : String
         , italic : Maybe String
         , title : String
-        , desc : String
+        , desc : List (Html Msg)
         , list : List String
-        , repositoryUrl : String
+        , repositoryUrl : Maybe String
         , projectLink : String
         }
 thingsThatIHaveBuild =
-    [ { imgUrl = "https://picsum.photos/2000/1000/"
-      , altImg = "Materialize Plataform"
+    [ { imgUrl = asset "/assets/materialize-plataform.png"
+      , altImg = "Materialize Plataform - Photo"
       , italic = Nothing
       , title = "Materialize Plataform"
-      , desc = """
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            And a thing that I Don't understand,
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications."""
+      , desc =
+            [ text "A plataform to schedule Specialist and Clients to work together. \n"
+            , text "There are implementations such as, Teams management,\n "
+            , text "Profiles - Hating - Schedule, Chat/Call rooms to work together and opportunities."
+            ]
       , list =
             [ "Elm"
-            , "Json"
             , "Html"
-            , "Css"
+            , "Sass"
+            , "Webpack"
             ]
-      , repositoryUrl = "#"
-      , projectLink = "#"
+      , repositoryUrl = Nothing
+      , projectLink = "https://app.materialize.pro"
       }
-    , { imgUrl = "https://picsum.photos/1800/1200/"
-      , altImg = "Materialize Website"
+    , { imgUrl = asset "/assets/revex.png"
+      , altImg = "Revex - Photo"
       , italic = Nothing
-      , title = "Materialize Website"
-      , desc = """
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            And a thing that I Don't understand,
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            And a thing that I Don't understand,
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications."""
-      , list =
-            [ "Wordpress"
-            , "Translate"
-            , "Css"
-            , "SEO"
+      , title = "Revex"
+      , desc =
+            [ text "Open source boilerplate for Elm. Integrated with Vite, EsBuild, and a lot more.\n"
+            , text "I build It to do the process of build a new project with elm a lot easer. "
+            , text "I'm also the maintainer of the project, and it was build with all the new cool technologies."
             ]
-      , repositoryUrl = "#"
-      , projectLink = "#"
+      , list =
+            [ "Elm"
+            , "Elm-Spa"
+            , "Vite"
+            , "Sass"
+            , "Tailwind"
+            , "EsBuild"
+            , "Typescript"
+            ]
+      , repositoryUrl = Nothing
+      , projectLink = "https://app.materialize.pro"
       }
     ]
 
@@ -1050,6 +1039,11 @@ viewNoteworthyProjects model =
 
                         Just url_ ->
                             link_ url_ "blur_on"
+
+                delay_ =
+                    String.fromInt (modMedia i * 100)
+                        ++ "ms"
+                        |> customProp "delay"
             in
             li [ class "card-item", tabindex 0 ]
                 [ a
@@ -1057,6 +1051,7 @@ viewNoteworthyProjects model =
                     , href projectUlr
                     , ariaLabelledby head_
                     , target "_blank"
+                    , delay_
                     ]
                     [ div [ class "card__wrapper " ]
                         [ materialIcon "folder" "folder"
