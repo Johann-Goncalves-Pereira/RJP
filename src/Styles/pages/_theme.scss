@@ -1,3 +1,5 @@
+@use "sass:math" as *;
+
 .theme {
 	display: grid;
 	justify-items: center;
@@ -48,9 +50,11 @@
 		}
 
 		&__button {
+			$size_: 1.875rem;
+			$padding-calc: $size_ * 0.5;
+
 			position: relative;
-			$p-calc: 1.875rem * 0.5;
-			padding: $p-calc;
+			padding: $padding-calc;
 			border-radius: var(--rounded-full);
 
 			background-color: hsl(var(--hue, 0), 50%, 50%);
@@ -83,19 +87,22 @@
 			} */
 
 			&::before {
+				$y: div($size_ * 30, 100);
+				$x: div($size_ * 20, 100);
+
 				content: "";
 				position: absolute;
 				top: 0;
 				left: 0;
 
-				width: 200%;
-				height: 100%;
+				width: $size_ * 2;
+				height: $size_;
 
 				border-top-left-radius: 50vmax;
 				border-bottom-left-radius: 0;
 				border-bottom-right-radius: var(--rounded-full);
 
-				transform: scale(1.2) rotate(45deg) translateX(6px) translateY(30%);
+				transform: scale(1.2) rotate(45deg) translateX($x) translateY($y);
 				background-color: hsl(calc(var(--hue, 0) + 0), 50%, 50%, 50%);
 			}
 		}

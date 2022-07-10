@@ -1,10 +1,9 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
 import Array exposing (Array)
-import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getElement, getViewport, setViewport)
+import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getViewport, setViewport)
 import Browser.Events exposing (onResize)
-import Layout exposing (initLayout, rootId)
-import Components.Svg as SVG exposing (Logo(..))
+import Components.Svg as ESvg
 import Dict exposing (Dict)
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
@@ -39,6 +38,7 @@ import Html.Attributes.Aria exposing (ariaChecked, ariaControls, ariaLabel, aria
 import Html.Events exposing (onClick)
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
+import Layout exposing (initLayout, rootId)
 import Page
 import Request
 import Round
@@ -52,6 +52,7 @@ import Utils.Models as Models
 import Utils.Scroll as Scroll
 import Utils.View exposing (button, customProp, customProps, materialIcon)
 import View exposing (View)
+import VitePluginHelper exposing (asset)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
@@ -220,7 +221,7 @@ update storage msg model =
             )
 
         ChangeTheme ( scheme_, hue_ ) ->
-            (model
+            ( model
             , Storage.changeHue storage scheme_ hue_
             )
 
@@ -421,7 +422,7 @@ viewHeader model =
     ]
 
 
-viewPage :Storage -> Model -> List (Html Msg)
+viewPage : Storage -> Model -> List (Html Msg)
 viewPage storage model =
     let
         content =
@@ -430,17 +431,17 @@ viewPage storage model =
                     List.map
                         (\( icon, url ) ->
                             a
-                                [ class "up"
+                                [ class "up grid place-content-center"
                                 , href <| url
                                 , tabindex 0
                                 , target "_blank"
                                 ]
-                                [ materialIcon "text-3xl" icon ]
+                                [ icon ]
                         )
-                        [ ( "south_america", "#" )
-                        , ( "fingerprint", "#" )
-                        , ( "all_inclusive", "#" )
-                        , ( "blur_on", "#" )
+                        [ ( ESvg.linkedin "text-3xl", "https://www.linkedin.com/in/johann-pereira-a798961b3/" )
+                        , ( ESvg.instagram "text-3xl", "https://www.instagram.com/johanngon_" )
+                        , ( ESvg.medium "text-3xl", "https://medium.com/@johann.gon.pereira" )
+                        , ( ESvg.github "text-3xl ", "https://github.com/Johann-Goncalves-Pereira" )
                         ]
                 ]
             , Html.address [ orientation "right", class "main-orientation right-0" ]
@@ -466,11 +467,11 @@ viewPage storage model =
     media
 
 
-viewMainContent :Storage -> Model -> Html Msg
+viewMainContent : Storage -> Model -> Html Msg
 viewMainContent storage model =
     article [ class "main grid gap-10 w-[min(100vw_-_2rem,var(--size-xxl))] lg:w-full mx-auto z-10" ]
         [ viewIntroduction model
-        , viewThemeConfig storage model 
+        , viewThemeConfig storage
         , viewAboutMe model
         , viewWhereHaveIWorked model
         , viewThingsThatIHaveBuild model
@@ -566,11 +567,12 @@ viewIntroduction model =
         ]
 
 
-viewThemeConfig :Storage -> Model -> Html Msg
-viewThemeConfig storage model =
+viewThemeConfig : Storage -> Html Msg
+viewThemeConfig storage =
     let
-        theme=
+        theme =
             storage.theme
+
         themeScheme =
             case theme.scheme of
                 Storage.Dark ->
@@ -669,23 +671,23 @@ viewAboutMe model =
              well-designed websites."""
             , br [] []
             , br [] []
-            , text "I work in some open-source projects, like "
+            , text "I had work in some open-source projects, like "
             , externalLink_ "https://cssnano.co" "CssNano"
             , text ", "
             , externalLink_ "https://elm-lang.org" "Elm"
             , text " and "
             , externalLink_ "https://open-props.style" "OpenProps"
-            , text ". The last things are my personal projects, like"
+            , text ". The last things are my personal projects, like "
             , externalLink_ "https://github.com/Johann-Goncalves-Pereira/Revex/" "Revex"
             , text "."
             ]
         , footer [ class "footer" ]
             [ ul [ class "footer__list", tabindex 0 ] <|
                 List.map
-                    (\x ->
+                    (\language ->
                         li [ class "footer__item" ]
                             [ materialIcon "footer__icon" "arrow_right"
-                            , text x
+                            , text language
                             ]
                     )
                     [ "elm"
@@ -735,7 +737,7 @@ viewWhereHaveIWorked model =
                         ]
                         [ text name ]
                 )
-                [ "Materialize", "Portfolio", "Cssnano", "Elm", "Personal" ]
+                [ "Materialize" ]
 
         workContent =
             List.indexedMap
@@ -777,7 +779,9 @@ viewWhereHaveIWorked model =
                             , List.map
                                 (\desc ->
                                     li [ class "work__paragraph" ]
-                                        [ materialIcon "list-icon" "arrow_right", text desc ]
+                                        [ materialIcon "list-icon" "arrow_right"
+                                        , p [] desc
+                                        ]
                                 )
                                 content
                                 |> ul [ class "grid gap-2", tabindex 0 ]
@@ -790,42 +794,27 @@ viewWhereHaveIWorked model =
                   , atSign = "materialize"
                   , date = "August 2021 - Present"
                   , content =
-                        [ "Materialize is a free and open-source Material Design Framework for web and mobile applications."
-                        , "It is a collection of HTML, CSS, and JavaScript components that are used to build websites and web applications."
-                        , """It is a collection of HTML,ns are certain characters which resemble, or are variations of 
-                            the alphabet and other keyword symbols. For example, if we can take the phrase 
-                            "thug life" and convert its characters into the fancy letters "𝖙𝖍𝖚𝖌 𝖑𝖎𝖋𝖊" which 
-                            are a set of unicode symbols. These different sets of fancy text letters are 
-                            scattered all throughout the unicode specification, and so to create a fancy 
-                            text translator, it's just a matter of finding these sets of letters and symbols, 
-                            and linking them to their normal alphabetical equivale CSS, and JavaScript components that are used to build websites and web applications."""
-                        , """Amongst the hundreds of thousands of symbols which are in the unicode 
-                            text specifications are certain characters which resemble, or are variations of 
-                            the alphabet and other keyword symbols. For example, if we can take the phrase 
-                            "thug life" and convert its characters into the fancy letters "𝖙𝖍𝖚𝖌 𝖑𝖎𝖋𝖊" which 
-                            are a set of unicode symbols. These different sets of fancy text letters are 
-                            scattered all throughout the unicode specification, and so to create a fancy 
-                            text translator, it's just a matter of finding these sets of letters and symbols, 
-                            and linking them to their normal alphabetical equivalents.-
-                            """
+                        [ [ text """An start-up for instant hiring solution,
+                         that connects specialists and clients around the word, to work together."""
+                          ]
+                        , [ text "They have a plataform to management the interaction between the users."
+                          , text "I build the plataform from the start, with a variety of different languages, and frameworks. "
+                          , text "Such as Elm, Css/Sass, Javascript/Typescript, html, docker, and more."
+                          ]
+                        , [ text """I make the visual of the platform on the Front-End, 
+                        and I work on the website as well. Using WordPress, Html and Css."""
+                          ]
                         ]
                   }
                 , { title = "Front-End Developer"
                   , atSign = "materialize"
                   , date = "August 2021 - Present"
                   , content =
-                        [ "Materialize is a free and open-source Material Design Framework for web and mobile applications."
-                        , "It is a collection of HTML, CSS, and JavaScript components that are used to build websites and web applications."
-                        , "It is a collection of HTML, CSS, and JavaScript components that are used to build websites and web applications."
-                        , """Amongst the hundreds of thousands of symbols which are in the unicode 
-                            text specifications are certain characters which resemble, or are variations of 
-                            the alphabet and other keyword symbols. For example, if we can take the phrase 
-                            """
-                        ]
+                        []
                   }
                 ]
     in
-    sectionBuilder "where-have-i-worked" "Where I’ve Worked" 2 <|
+    sectionBuilder "where-have-i-worked" "Where I've Worked" 2 <|
         div
             [ String.concat
                 [ "work-list "
@@ -871,6 +860,10 @@ viewThingsThatIHaveBuild model =
         viewProjects =
             List.indexedMap
                 (\i { imgUrl, altImg, italic, title, desc, list, repositoryUrl, projectLink } ->
+                    let
+                        classLink_ =
+                            class "inline-grid place-content-center focus-visible:text-accent-600 hover:text-accent-600 transition-colors"
+                    in
                     div
                         [ classList
                             [ ( "projects", True )
@@ -895,26 +888,31 @@ viewThingsThatIHaveBuild model =
                             , h5 [ class " font-800 text-1xl md:text-3xl z-10", tabindex 0 ]
                                 [ text title ]
                             , div [ class "paragraph" ]
-                                [ p [ class "paragraph__text", tabindex 0 ] [ text desc ]
+                                [ p [ class "paragraph__text", tabindex 0 ] desc
                                 ]
                             , ul [ class "list", tabindex 0 ] <|
                                 List.map (\itemText -> li [] [ text itemText ])
                                     list
                             , div
                                 [ classList
-                                    [ ( "flex  items-center gap-4 mt-1 text-surface-100 ", True )
+                                    [ ( "flex items-center gap-4 mt-1 text-surface-100 text-2xl", True )
                                     , ( "md:justify-end", not <| isOdd i )
                                     ]
                                 ]
-                                [ a
-                                    [ class "inline-grid place-content-center"
-                                    , href repositoryUrl
-                                    , tabindex 0
-                                    , target "_blank"
-                                    ]
-                                    [ materialIcon "drop-shadow" "blur_on" ]
+                                [ case repositoryUrl of
+                                    Nothing ->
+                                        text ""
+
+                                    Just url_ ->
+                                        a
+                                            [ classLink_
+                                            , href url_
+                                            , tabindex 0
+                                            , target "_blank"
+                                            ]
+                                            [ ESvg.github "drop-shadow" ]
                                 , a
-                                    [ class "inline-grid place-content-center"
+                                    [ classLink_
                                     , href projectLink
                                     , tabindex 0
                                     , target "_blank"
@@ -960,54 +958,50 @@ thingsThatIHaveBuild :
         , altImg : String
         , italic : Maybe String
         , title : String
-        , desc : String
+        , desc : List (Html Msg)
         , list : List String
-        , repositoryUrl : String
+        , repositoryUrl : Maybe String
         , projectLink : String
         }
 thingsThatIHaveBuild =
-    [ { imgUrl = "https://picsum.photos/2000/1000/"
-      , altImg = "Materialize Plataform"
+    [ { imgUrl = asset "/assets/materialize-plataform.png"
+      , altImg = "Materialize Plataform - Photo"
       , italic = Nothing
       , title = "Materialize Plataform"
-      , desc = """
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            And a thing that I Don't understand,
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications."""
+      , desc =
+            [ text "A plataform to schedule Specialist and Clients to work together. \n"
+            , text "There are implementations such as, Teams management,\n "
+            , text "Profiles - Hating - Schedule, Chat/Call rooms to work together and opportunities."
+            ]
       , list =
             [ "Elm"
-            , "Json"
             , "Html"
-            , "Css"
+            , "Sass"
+            , "Webpack"
             ]
-      , repositoryUrl = "#"
-      , projectLink = "#"
+      , repositoryUrl = Nothing
+      , projectLink = "https://app.materialize.pro"
       }
-    , { imgUrl = "https://picsum.photos/1800/1200/"
-      , altImg = "Materialize Website"
+    , { imgUrl = asset "/assets/revex.png"
+      , altImg = "Revex - Photo"
       , italic = Nothing
-      , title = "Materialize Website"
-      , desc = """
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            And a thing that I Don't understand,
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications.
-                            And a thing that I Don't understand,
-                            Materialize is a free and open-source Material Design 
-                            Framework for web and mobile applications."""
-      , list =
-            [ "Wordpress"
-            , "Translate"
-            , "Css"
-            , "SEO"
+      , title = "Revex"
+      , desc =
+            [ text "Open source boilerplate for Elm. Integrated with Vite, EsBuild, and a lot more.\n"
+            , text "I build It to do the process of build a new project with elm a lot easer. "
+            , text "I'm also the maintainer of the project, and it was build with all the new cool technologies."
             ]
-      , repositoryUrl = "#"
-      , projectLink = "#"
+      , list =
+            [ "Elm"
+            , "Elm-Spa"
+            , "Vite"
+            , "Sass"
+            , "Tailwind"
+            , "EsBuild"
+            , "Typescript"
+            ]
+      , repositoryUrl = Just "https://github.com/Johann-Goncalves-Pereira/Revex"
+      , projectLink = "https://main--revex.netlify.app"
       }
     ]
 
@@ -1040,7 +1034,7 @@ viewNoteworthyProjects model =
                         , href url_
                         , tabindex 0
                         ]
-                        [ materialIcon "" icon_ ]
+                        [ icon_ ]
 
                 gitHub_ =
                     case gitHubUrl of
@@ -1048,7 +1042,12 @@ viewNoteworthyProjects model =
                             text ""
 
                         Just url_ ->
-                            link_ url_ "blur_on"
+                            link_ url_ <| ESvg.github ""
+
+                delay_ =
+                    String.fromInt (modMedia i * 100)
+                        ++ "ms"
+                        |> customProp "delay"
             in
             li [ class "card-item", tabindex 0 ]
                 [ a
@@ -1056,11 +1055,12 @@ viewNoteworthyProjects model =
                     , href projectUlr
                     , ariaLabelledby head_
                     , target "_blank"
+                    , delay_
                     ]
                     [ div [ class "card__wrapper " ]
                         [ materialIcon "folder" "folder"
                         , gitHub_
-                        , link_ projectUlr "open_in_new"
+                        , link_ projectUlr <| materialIcon "" "open_in_new"
                         ]
                     , h6 [ class "card__title", id head_ ] [ text title ]
                     , p [] [ text desc ]

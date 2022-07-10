@@ -718,6 +718,8 @@
 				will-change: transform;
 				transition: transform 200ms ease-in-out;
 
+				white-space: pre-wrap;
+
 				-webkit-font-smoothing: subpixel-antialiased;
 
 				@media (--md-n-above) {
@@ -742,7 +744,6 @@
 		.list {
 			display: grid;
 			grid-auto-flow: column;
-			grid-auto-columns: min-content;
 			gap: 1rem;
 
 			z-index: 10;
