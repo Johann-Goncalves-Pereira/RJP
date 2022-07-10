@@ -1,9 +1,9 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
 import Array exposing (Array)
-import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getElement, getViewport, setViewport)
+import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getViewport, setViewport)
 import Browser.Events exposing (onResize)
-import Components.Svg as SVG exposing (Logo(..))
+import Components.Svg as ESvg
 import Dict exposing (Dict)
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
@@ -431,17 +431,17 @@ viewPage storage model =
                     List.map
                         (\( icon, url ) ->
                             a
-                                [ class "up"
+                                [ class "up grid place-content-center"
                                 , href <| url
                                 , tabindex 0
                                 , target "_blank"
                                 ]
-                                [ materialIcon "text-3xl" icon ]
+                                [ icon ]
                         )
-                        [ ( "south_america", "#" )
-                        , ( "fingerprint", "#" )
-                        , ( "all_inclusive", "#" )
-                        , ( "blur_on", "#" )
+                        [ ( ESvg.linkedin "text-3xl", "https://www.linkedin.com/in/johann-pereira-a798961b3/" )
+                        , ( ESvg.instagram "text-3xl", "https://www.instagram.com/johanngon_" )
+                        , ( ESvg.medium "text-3xl", "https://medium.com/@johann.gon.pereira" )
+                        , ( ESvg.github "text-3xl ", "https://github.com/Johann-Goncalves-Pereira" )
                         ]
                 ]
             , Html.address [ orientation "right", class "main-orientation right-0" ]
@@ -471,7 +471,7 @@ viewMainContent : Storage -> Model -> Html Msg
 viewMainContent storage model =
     article [ class "main grid gap-10 w-[min(100vw_-_2rem,var(--size-xxl))] lg:w-full mx-auto z-10" ]
         [ viewIntroduction model
-        , viewThemeConfig storage model
+        , viewThemeConfig storage
         , viewAboutMe model
         , viewWhereHaveIWorked model
         , viewThingsThatIHaveBuild model
@@ -567,8 +567,8 @@ viewIntroduction model =
         ]
 
 
-viewThemeConfig : Storage -> Model -> Html Msg
-viewThemeConfig storage model =
+viewThemeConfig : Storage -> Html Msg
+viewThemeConfig storage =
     let
         theme =
             storage.theme
@@ -860,6 +860,10 @@ viewThingsThatIHaveBuild model =
         viewProjects =
             List.indexedMap
                 (\i { imgUrl, altImg, italic, title, desc, list, repositoryUrl, projectLink } ->
+                    let
+                        classLink_ =
+                            class "inline-grid place-content-center focus-visible:text-accent-600 hover:text-accent-600 transition-colors"
+                    in
                     div
                         [ classList
                             [ ( "projects", True )
@@ -891,7 +895,7 @@ viewThingsThatIHaveBuild model =
                                     list
                             , div
                                 [ classList
-                                    [ ( "flex  items-center gap-4 mt-1 text-surface-100 ", True )
+                                    [ ( "flex items-center gap-4 mt-1 text-surface-100 text-2xl", True )
                                     , ( "md:justify-end", not <| isOdd i )
                                     ]
                                 ]
@@ -901,14 +905,14 @@ viewThingsThatIHaveBuild model =
 
                                     Just url_ ->
                                         a
-                                            [ class "inline-grid place-content-center"
+                                            [ classLink_
                                             , href url_
                                             , tabindex 0
                                             , target "_blank"
                                             ]
-                                            [ materialIcon "drop-shadow" "blur_on" ]
+                                            [ ESvg.github "drop-shadow" ]
                                 , a
-                                    [ class "inline-grid place-content-center"
+                                    [ classLink_
                                     , href projectLink
                                     , tabindex 0
                                     , target "_blank"
@@ -996,8 +1000,8 @@ thingsThatIHaveBuild =
             , "EsBuild"
             , "Typescript"
             ]
-      , repositoryUrl = Nothing
-      , projectLink = "https://app.materialize.pro"
+      , repositoryUrl = Just "https://github.com/Johann-Goncalves-Pereira/Revex"
+      , projectLink = "https://main--revex.netlify.app"
       }
     ]
 
@@ -1030,7 +1034,7 @@ viewNoteworthyProjects model =
                         , href url_
                         , tabindex 0
                         ]
-                        [ materialIcon "" icon_ ]
+                        [ icon_ ]
 
                 gitHub_ =
                     case gitHubUrl of
@@ -1038,7 +1042,7 @@ viewNoteworthyProjects model =
                             text ""
 
                         Just url_ ->
-                            link_ url_ "blur_on"
+                            link_ url_ <| ESvg.github ""
 
                 delay_ =
                     String.fromInt (modMedia i * 100)
@@ -1056,7 +1060,7 @@ viewNoteworthyProjects model =
                     [ div [ class "card__wrapper " ]
                         [ materialIcon "folder" "folder"
                         , gitHub_
-                        , link_ projectUlr "open_in_new"
+                        , link_ projectUlr <| materialIcon "" "open_in_new"
                         ]
                     , h6 [ class "card__title", id head_ ] [ text title ]
                     , p [] [ text desc ]
