@@ -361,6 +361,35 @@ wheelDelta wheelEvent =
         WheelDelta False
 
 
+srcset : String -> Attribute msg
+srcset =
+    HA.attribute "srcset"
+
+
+picture : String -> String -> Html Msg
+picture url_ name_ =
+    List.map
+        (\extension_ ->
+            Html.source
+                [ url_
+                    ++ "."
+                    ++ extension_
+                    |> srcset
+                ]
+                []
+        )
+        [ "avif", "webp" ]
+        ++ [ img
+                [ url_
+                    ++ ".jpg"
+                    |> src
+                , alt name_
+                ]
+                []
+           ]
+        |> Html.node "picture" []
+
+
 viewHeader : Model -> List (Html Msg)
 viewHeader model =
     let
@@ -703,7 +732,7 @@ viewAboutMe model =
             , tabindex 0
             , ariaLabel "Profile Photo"
             ]
-            [ img [ src "https://picsum.photos/1200", alt "Profile Photo" ] [] ]
+            [ picture "/assets/profile-photo" "Profile Photo" ]
         ]
 
 
@@ -878,7 +907,10 @@ viewThingsThatIHaveBuild model =
                             , tabindex 0
                             , target "_blank"
                             ]
-                            [ img [ src imgUrl, alt altImg ] [] ]
+                            [ picture imgUrl altImg
+
+                            {- img [ src imgUrl, alt altImg ] [] -}
+                            ]
                         , div [ class "projects__info" ]
                             [ Html.i
                                 [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-600"
@@ -964,7 +996,7 @@ thingsThatIHaveBuild :
         , projectLink : String
         }
 thingsThatIHaveBuild =
-    [ { imgUrl = asset "/assets/materialize-plataform.png"
+    [ { imgUrl = "/assets/materialize-plataform"
       , altImg = "Materialize Plataform - Photo"
       , italic = Nothing
       , title = "Materialize Plataform"
@@ -982,7 +1014,7 @@ thingsThatIHaveBuild =
       , repositoryUrl = Nothing
       , projectLink = "https://app.materialize.pro"
       }
-    , { imgUrl = asset "/assets/revex.png"
+    , { imgUrl = "/assets/revex"
       , altImg = "Revex - Photo"
       , italic = Nothing
       , title = "Revex"
