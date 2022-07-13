@@ -1,8 +1,9 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
-import Array exposing (Array)
+import Array
 import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getViewport, setViewport)
 import Browser.Events exposing (onResize)
+import Components.Dialog as Dialog exposing (dialog)
 import Components.Svg as ESvg
 import Dict exposing (Dict)
 import Gen.Params.Home_ exposing (Params)
@@ -16,6 +17,7 @@ import Html
         , br
         , div
         , footer
+        , form
         , h1
         , h2
         , h3
@@ -24,21 +26,31 @@ import Html
         , h6
         , header
         , img
+        , input
         , li
         , nav
         , p
         , section
         , span
-        , strong
         , text
         , ul
         )
-import Html.Attributes as HA exposing (alt, attribute, class, classList, href, id, rel, src, tabindex, target)
+import Html.Attributes as Attr
+    exposing
+        ( alt
+        , class
+        , classList
+        , href
+        , id
+        , src
+        , tabindex
+        , target
+        )
 import Html.Attributes.Aria exposing (ariaChecked, ariaControls, ariaLabel, ariaLabelledby, ariaSelected, role)
 import Html.Events exposing (onClick)
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
-import Layout exposing (initLayout, rootId)
+import Layout exposing (initLayout)
 import Page
 import Request
 import Round
@@ -155,6 +167,7 @@ type Msg
     | ShowMore Bool
     | SelectWork Int
     | NewMousePos ( Float, Float )
+    | DialogMsg Dialog.Msg
       -- Elements
     | GetSectionSize (Result Error Element)
     | GotElementPosition String (Result Error Element)
@@ -228,6 +241,11 @@ update storage msg model =
         ShowNav toggler_ ->
             ( { model | showNav = not toggler_ }, Cmd.none )
 
+        DialogMsg msg_ ->
+            ( model
+            , Cmd.map DialogMsg <| Dialog.update msg_
+            )
+
         ShowMore toggler_ ->
             ( { model | showMore = not toggler_ }, Cmd.none )
 
@@ -285,6 +303,10 @@ subs _ =
 -- VIEW
 
 
+dialogID =
+    "open-dialog"
+
+
 view : Storage -> Model -> View Msg
 view storage model =
     let
@@ -304,6 +326,25 @@ view storage model =
         Layout.viewLayout
             { initLayout
                 | route = Route.Home_
+                , rootContent =
+                    [ Html.map DialogMsg <|
+                        dialog dialogID
+                            [ class "red" ]
+                            [ button
+                                [ Dialog.ToggleDialog dialogID
+                                    |> onClick
+                                ]
+                                [ text "Send" ]
+                            ]
+
+                    -- , button
+                    --     [ class "fixed inset-0 w-fit h-min rounded-full font-700  m-auto bg-accent-500 shadow-2xl z-50"
+                    --     , Dialog.ToggleDialog dialogID
+                    --         |> onClick
+                    --         |> Attr.map DialogMsg
+                    --     ]
+                    --     [ text "toggler the dialog" ]
+                    ]
                 , rootAttrs =
                     [ class theme.scheme
                     , customProp "page-hue" theme.hue
@@ -363,7 +404,7 @@ wheelDelta wheelEvent =
 
 srcset : String -> Attribute msg
 srcset =
-    HA.attribute "srcset"
+    Attr.attribute "srcset"
 
 
 picture : String -> String -> Html Msg
@@ -423,8 +464,8 @@ viewHeader model =
             else
                 { className = "uncheck", ariaChecked_ = "false" }
     in
-    [ a [ class "h-full", href "#", tabindex 0, onClick <| ScrollTo <| Just 0 ]
-        [ materialIcon "icon" "hive" ]
+    [ a [ class "icon h-full", href "#", tabindex 0, onClick <| ScrollTo <| Just 0 ]
+        [ img [ class "w-8 aspect-square", src <| asset "/favicon.svg", alt "Site Logo" ] [] ]
     , if model.viewport.w <= 1024 then
         button
             [ class <| "nav-toggler " ++ checkNav.className
@@ -580,7 +621,7 @@ viewIntroduction model =
                     , href "https://app.materialize.pro"
                     , tabindex 0
                     , target "_blank"
-                    , HA.title "Link to Materialize Plataform"
+                    , Attr.title "Link to Materialize Plataform"
                     ]
                     [ text "Materialize" ]
                 , text "."
@@ -589,7 +630,7 @@ viewIntroduction model =
                 [ class "btm-accent mt-8"
                 , href "https://github.com/Johann-Goncalves-Pereira"
                 , tabindex 0
-                , HA.title "Link to GitHub"
+                , Attr.title "Link to GitHub"
                 ]
                 [ text "Check my GitHub" ]
             ]
@@ -622,7 +663,7 @@ viewThemeConfig storage =
                             , tabindex 0
                             , onClick <| ChangeTheme ( theme.scheme, hueCalc i )
                             , customProp "hue" <| String.fromInt <| hueCalc i
-                            , HA.title <| "Change color to: " ++ t
+                            , Attr.title <| "Change color to: " ++ t
                             ]
                             []
                         ]
@@ -647,7 +688,7 @@ viewThemeConfig storage =
             , tabindex 0
             , onClick <|
                 ChangeTheme ( themeScheme.to, theme.hue )
-            , HA.title "Change Theme"
+            , Attr.title "Change Theme"
             ]
             [ themeScheme.icon ]
         , ul [ class "list" ] colors
@@ -673,7 +714,7 @@ viewAboutMe model =
             a
                 [ class "link-underline"
                 , customProp "n-ch" <| "-" ++ String.fromInt (String.length name_) ++ "ch"
-                , HA.title "External link"
+                , Attr.title "External link"
                 , tabindex 0
                 , href url_
                 ]
@@ -1177,7 +1218,7 @@ viewWhatsNext model =
 
 
 viewFooter : Model -> { attrs : List (Attribute msg), content : List (Html msg) }
-viewFooter model =
+viewFooter _ =
     { attrs = [ class "grid place-items-center pb-3 mt-40" ]
     , content =
         [ a
