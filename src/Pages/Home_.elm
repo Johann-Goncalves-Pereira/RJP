@@ -336,13 +336,14 @@ view storage model =
                                 ]
                                 [ text "Send" ]
                             ]
-                    , button
-                        [ class "fixed inset-0 w-fit h-min rounded-full font-700  m-auto bg-accent-500 shadow-2xl z-50"
-                        , Dialog.ToggleDialog dialogID
-                            |> onClick
-                            |> Attr.map DialogMsg
-                        ]
-                        [ text "toggler the dialog" ]
+
+                    -- , button
+                    --     [ class "fixed inset-0 w-fit h-min rounded-full font-700  m-auto bg-accent-500 shadow-2xl z-50"
+                    --     , Dialog.ToggleDialog dialogID
+                    --         |> onClick
+                    --         |> Attr.map DialogMsg
+                    --     ]
+                    --     [ text "toggler the dialog" ]
                     ]
                 , rootAttrs =
                     [ class theme.scheme
