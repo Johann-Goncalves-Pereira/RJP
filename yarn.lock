@@ -33,6 +33,11 @@
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.18.8.tgz#822146080ac9c62dac0823bb3489622e0bc1cbdf"
   integrity sha512-RSKRfYX20dyH+elbJK2uqAkVyucL+xXzhqlMD5/ZXx+dAAwpyB7HsvnHe/ZUGOF+xLr5Wx9/JoXVTj6BQE2/oA==
 
+"@babel/standalone@^7.18.8":
+  version "7.18.8"
+  resolved "https://registry.yarnpkg.com/@babel/standalone/-/standalone-7.18.8.tgz#d39a524a8a77a4f9d0798e71be5482187ea2c9f3"
+  integrity sha512-cDayR7x6IAp7k1947fYeo7OxD7QwT9/UZ+BT05Zq2pfsOzkhOJZdY19X0NvL6fYaszwnzO0zVHgp04OspPh3SA==
+
 "@bugsnag/browser@^7.17.0":
   version "7.17.0"
   resolved "https://registry.yarnpkg.com/@bugsnag/browser/-/browser-7.17.0.tgz#c777d673df6075d001a2a7eb290ea37e6b2411d2"
@@ -1031,6 +1036,17 @@
     node-gyp-build "^4.2.2"
     resolve-from "^5.0.0"
     rollup-pluginutils "^2.8.2"
+
+"@vitejs/plugin-legacy@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@vitejs/plugin-legacy/-/plugin-legacy-2.0.0.tgz#63e9a919c5b3bd8e43e18cbf497f4c270efdf1b9"
+  integrity sha512-cuc45C4BQo2VlOsHZML4fc3MPfSjOEFeezHxr+WWlOOmi+muy1rz2snnFiePtyjVc1CYGTsnxk13cXpzQvMZaw==
+  dependencies:
+    "@babel/standalone" "^7.18.8"
+    core-js "^3.23.4"
+    magic-string "^0.26.2"
+    regenerator-runtime "^0.13.9"
+    systemjs "^6.12.1"
 
 abbrev@1:
   version "1.1.1"
@@ -2248,6 +2264,11 @@ copy-template-dir@^1.4.0:
     pump "^1.0.0"
     readdirp "^2.0.0"
     run-parallel "^1.1.4"
+
+core-js@^3.23.4:
+  version "3.23.4"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.23.4.tgz#92d640faa7f48b90bbd5da239986602cfc402aa6"
+  integrity sha512-vjsKqRc1RyAJC3Ye2kYqgfdThb3zYnx9CrqoCcjMOENMtQPC7ZViBvlDxwYU/2z2NI/IPuiXw5mT4hWhddqjzQ==
 
 core-util-is@1.0.2:
   version "1.0.2"
@@ -5424,6 +5445,13 @@ macos-release@^3.0.1:
   resolved "https://registry.yarnpkg.com/macos-release/-/macos-release-3.1.0.tgz#6165bb0736ae567ed6649e36ce6a24d87cbb7aca"
   integrity sha512-/M/R0gCDgM+Cv1IuBG1XGdfTFnMEG6PZeT+KGWHO/OG+imqmaD9CH5vHBTycEM3+Kc4uG2Il+tFAuUWLqQOeUA==
 
+magic-string@^0.26.2:
+  version "0.26.2"
+  resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.26.2.tgz#5331700e4158cd6befda738bb6b0c7b93c0d4432"
+  integrity sha512-NzzlXpclt5zAbmo6h6jNc8zl2gNRGHvmsZW4IvZhTC4W7k4OlLP+S5YLussa/r3ixNT66KOQfNORlXHSOy/X4A==
+  dependencies:
+    sourcemap-codec "^1.4.8"
+
 make-dir@^1.0.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/make-dir/-/make-dir-1.3.0.tgz#79c1033b80515bd6d24ec9933e860ca75ee27f0c"
@@ -7525,6 +7553,11 @@ reduce-function-call@^1.0.1:
   dependencies:
     balanced-match "^1.0.0"
 
+regenerator-runtime@^0.13.9:
+  version "0.13.9"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.9.tgz#8925742a98ffd90814988d7566ad30ca3b263b52"
+  integrity sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA==
+
 regex-not@^1.0.0, regex-not@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/regex-not/-/regex-not-1.0.2.tgz#1f4ece27e00b0b65e0247a6810e6a85d83a5752c"
@@ -8056,6 +8089,11 @@ source-map@^0.7.3, source-map@~0.7.2:
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.7.4.tgz#a9bbe705c9d8846f4e08ff6765acf0f1b0898656"
   integrity sha512-l3BikUxvPOcn5E74dZiq5BGsTb5yEwhaTSzccU6t4sDOH8NWJCstKO5QT2CvtFoK6F0saL7p9xHAqHOlCPJygA==
 
+sourcemap-codec@^1.4.8:
+  version "1.4.8"
+  resolved "https://registry.yarnpkg.com/sourcemap-codec/-/sourcemap-codec-1.4.8.tgz#ea804bd94857402e6992d05a38ef1ae35a9ab4c4"
+  integrity sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA==
+
 spdx-correct@^3.0.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/spdx-correct/-/spdx-correct-3.1.1.tgz#dece81ac9c1e6713e5f7d1b6f17d468fa53d89a9"
@@ -8381,6 +8419,11 @@ symbol-observable@^1.1.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.2.0.tgz#c22688aed4eab3cdc2dfeacbb561660560a00804"
   integrity sha512-e900nM8RRtGhlV36KGEU9k65K3mPb1WV70OdjfxlG2EAuM1noi/E/BaW/uMhL7bPEssK8QV57vN3esixjUvcXQ==
+
+systemjs@^6.12.1:
+  version "6.12.1"
+  resolved "https://registry.yarnpkg.com/systemjs/-/systemjs-6.12.1.tgz#47cdd23a6ec9f1b01cf5b5f70562c8550da229d3"
+  integrity sha512-hqTN6kW+pN6/qro6G9OZ7ceDQOcYno020zBQKpZQLsJhYTDMCMNfXi/Y8duF5iW+4WWZr42ry0MMkcRGpbwG2A==
 
 tabtab@^3.0.2:
   version "3.0.2"
