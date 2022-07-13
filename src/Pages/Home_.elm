@@ -3,6 +3,7 @@ module Pages.Home_ exposing (Model, Msg, page)
 import Array
 import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getViewport, setViewport)
 import Browser.Events exposing (onResize)
+import Components.Dialog as Dialog exposing (dialog)
 import Components.Svg as ESvg
 import Dict exposing (Dict)
 import Gen.Params.Home_ exposing (Params)
@@ -16,6 +17,7 @@ import Html
         , br
         , div
         , footer
+        , form
         , h1
         , h2
         , h3
@@ -24,6 +26,7 @@ import Html
         , h6
         , header
         , img
+        , input
         , li
         , nav
         , p
@@ -164,6 +167,7 @@ type Msg
     | ShowMore Bool
     | SelectWork Int
     | NewMousePos ( Float, Float )
+    | DialogMsg Dialog.Msg
       -- Elements
     | GetSectionSize (Result Error Element)
     | GotElementPosition String (Result Error Element)
@@ -237,6 +241,11 @@ update storage msg model =
         ShowNav toggler_ ->
             ( { model | showNav = not toggler_ }, Cmd.none )
 
+        DialogMsg msg_ ->
+            ( model
+            , Cmd.map DialogMsg <| Dialog.update msg_
+            )
+
         ShowMore toggler_ ->
             ( { model | showMore = not toggler_ }, Cmd.none )
 
@@ -294,6 +303,10 @@ subs _ =
 -- VIEW
 
 
+dialogID =
+    "open-dialog"
+
+
 view : Storage -> Model -> View Msg
 view storage model =
     let
@@ -313,6 +326,18 @@ view storage model =
         Layout.viewLayout
             { initLayout
                 | route = Route.Home_
+                , rootContent =
+                    [ Html.map DialogMsg <|
+                        dialog dialogID [ class "red" ] [ button [] [ text "Send" ] ]
+
+                    -- , button
+                    --     [ class "fixed inset-0 w-28 h-20 rounded-full font-700  m-auto bg-accent-500 shadow-2xl z-50"
+                    --     , Dialog.ToggleDialog dialogID
+                    --         |> onClick
+                    --         |> Attr.map DialogMsg
+                    --     ]
+                    --     [ text "toggler the dialog" ]
+                    ]
                 , rootAttrs =
                     [ class theme.scheme
                     , customProp "page-hue" theme.hue
