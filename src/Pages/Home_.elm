@@ -1,6 +1,6 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
-import Array exposing (Array)
+import Array
 import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getViewport, setViewport)
 import Browser.Events exposing (onResize)
 import Components.Svg as ESvg
@@ -29,16 +29,25 @@ import Html
         , p
         , section
         , span
-        , strong
         , text
         , ul
         )
-import Html.Attributes as HA exposing (alt, attribute, class, classList, href, id, rel, src, tabindex, target)
+import Html.Attributes as Attr
+    exposing
+        ( alt
+        , class
+        , classList
+        , href
+        , id
+        , src
+        , tabindex
+        , target
+        )
 import Html.Attributes.Aria exposing (ariaChecked, ariaControls, ariaLabel, ariaLabelledby, ariaSelected, role)
 import Html.Events exposing (onClick)
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
-import Layout exposing (initLayout, rootId)
+import Layout exposing (initLayout)
 import Page
 import Request
 import Round
@@ -52,7 +61,6 @@ import Utils.Models as Models
 import Utils.Scroll as Scroll
 import Utils.View exposing (button, customProp, customProps, materialIcon)
 import View exposing (View)
-import VitePluginHelper exposing (asset)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
@@ -363,7 +371,7 @@ wheelDelta wheelEvent =
 
 srcset : String -> Attribute msg
 srcset =
-    HA.attribute "srcset"
+    Attr.attribute "srcset"
 
 
 picture : String -> String -> Html Msg
@@ -580,7 +588,7 @@ viewIntroduction model =
                     , href "https://app.materialize.pro"
                     , tabindex 0
                     , target "_blank"
-                    , HA.title "Link to Materialize Plataform"
+                    , Attr.title "Link to Materialize Plataform"
                     ]
                     [ text "Materialize" ]
                 , text "."
@@ -589,7 +597,7 @@ viewIntroduction model =
                 [ class "btm-accent mt-8"
                 , href "https://github.com/Johann-Goncalves-Pereira"
                 , tabindex 0
-                , HA.title "Link to GitHub"
+                , Attr.title "Link to GitHub"
                 ]
                 [ text "Check my GitHub" ]
             ]
@@ -622,7 +630,7 @@ viewThemeConfig storage =
                             , tabindex 0
                             , onClick <| ChangeTheme ( theme.scheme, hueCalc i )
                             , customProp "hue" <| String.fromInt <| hueCalc i
-                            , HA.title <| "Change color to: " ++ t
+                            , Attr.title <| "Change color to: " ++ t
                             ]
                             []
                         ]
@@ -647,7 +655,7 @@ viewThemeConfig storage =
             , tabindex 0
             , onClick <|
                 ChangeTheme ( themeScheme.to, theme.hue )
-            , HA.title "Change Theme"
+            , Attr.title "Change Theme"
             ]
             [ themeScheme.icon ]
         , ul [ class "list" ] colors
@@ -673,7 +681,7 @@ viewAboutMe model =
             a
                 [ class "link-underline"
                 , customProp "n-ch" <| "-" ++ String.fromInt (String.length name_) ++ "ch"
-                , HA.title "External link"
+                , Attr.title "External link"
                 , tabindex 0
                 , href url_
                 ]
