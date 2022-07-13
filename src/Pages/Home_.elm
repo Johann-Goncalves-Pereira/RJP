@@ -328,15 +328,21 @@ view storage model =
                 | route = Route.Home_
                 , rootContent =
                     [ Html.map DialogMsg <|
-                        dialog dialogID [ class "red" ] [ button [] [ text "Send" ] ]
-
-                    -- , button
-                    --     [ class "fixed inset-0 w-28 h-20 rounded-full font-700  m-auto bg-accent-500 shadow-2xl z-50"
-                    --     , Dialog.ToggleDialog dialogID
-                    --         |> onClick
-                    --         |> Attr.map DialogMsg
-                    --     ]
-                    --     [ text "toggler the dialog" ]
+                        dialog dialogID
+                            [ class "red" ]
+                            [ button
+                                [ Dialog.ToggleDialog dialogID
+                                    |> onClick
+                                ]
+                                [ text "Send" ]
+                            ]
+                    , button
+                        [ class "fixed inset-0 w-fit h-min rounded-full font-700  m-auto bg-accent-500 shadow-2xl z-50"
+                        , Dialog.ToggleDialog dialogID
+                            |> onClick
+                            |> Attr.map DialogMsg
+                        ]
+                        [ text "toggler the dialog" ]
                     ]
                 , rootAttrs =
                     [ class theme.scheme

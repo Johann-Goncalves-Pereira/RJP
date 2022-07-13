@@ -1,11 +1,13 @@
-// @ts-ignore
 import { Elm } from "./Main.elm";
+
 import "./Styles/_index.scss";
 
 //? Initialize our Elm app
+const rootNode = document.querySelector("#root");
+
 const app = Elm.Main.init({
-  // @ts-ignore
-  flags: JSON.parse(localStorage.getItem("storage")),
+  flags: JSON.parse(localStorage.getItem("storage") as string),
+  node: rootNode,
 });
 
 //? Get Scroll Position
@@ -26,13 +28,11 @@ app.ports.save.subscribe((storage: JSON) => {
 
 //? Port To get Dialog State
 app.ports.toggleDialog.subscribe((id: string) => {
-  const dialog: any = document.querySelector(`#${id}`);
+  const dialog = document.querySelector(`#${id}`) as HTMLDialogElement;
 
-  if (dialog.close) {
-    dialog.close;
-    console.log(dialog.close);
+  if (dialog.open) {
+    dialog.close?.();
   } else {
-    dialog.showModal;
-    console.log(dialog.showModal);
+    dialog.showModal?.();
   }
 });
