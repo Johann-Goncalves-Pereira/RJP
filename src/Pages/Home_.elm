@@ -61,6 +61,7 @@ import Utils.Models as Models
 import Utils.Scroll as Scroll
 import Utils.View exposing (button, customProp, customProps, materialIcon)
 import View exposing (View)
+import VitePluginHelper exposing (asset)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
@@ -431,8 +432,8 @@ viewHeader model =
             else
                 { className = "uncheck", ariaChecked_ = "false" }
     in
-    [ a [ class "h-full", href "#", tabindex 0, onClick <| ScrollTo <| Just 0 ]
-        [ materialIcon "icon" "hive" ]
+    [ a [ class "icon h-full", href "#", tabindex 0, onClick <| ScrollTo <| Just 0 ]
+        [ img [ class "w-8 aspect-square", src <| asset "/favicon.svg", alt "Site Logo" ] [] ]
     , if model.viewport.w <= 1024 then
         button
             [ class <| "nav-toggler " ++ checkNav.className
@@ -1185,7 +1186,7 @@ viewWhatsNext model =
 
 
 viewFooter : Model -> { attrs : List (Attribute msg), content : List (Html msg) }
-viewFooter model =
+viewFooter _ =
     { attrs = [ class "grid place-items-center pb-3 mt-40" ]
     , content =
         [ a
