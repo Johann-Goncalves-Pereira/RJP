@@ -25,20 +25,3 @@ module.exports = {
     "rucksack-css": {},
   },
 };
-
-//* Instructions
-//& DoIUse Config
-// doiuse: { browsers: ["ie >= 8", "> 1%"],}
-
-//& Open-Props Config
-// 'postcss-jit-props': require('open-props'),
-//*  or
-// 'postcss-jit-props': {
-//   files: [require.resolve('open-props/style'),require.resolve('open-props/normalize')],
-// },
-
-//& CssNano
-// colormin: false,
-
-//& Autoprefixer
-// autoprefixer: {},
