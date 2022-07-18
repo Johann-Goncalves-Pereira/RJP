@@ -1,0 +1,12 @@
+@mixin supports-backdrop-filter($support: false) {
+	@if $support {
+		@supports (-webkit-backdrop-filter: none) and (backdrop-filter: none) {
+			@content;
+		}
+	} @else {
+		@supports (not (-webkit-backdrop-filter: none)) and
+			(not (backdrop-filter: none)) {
+			@content;
+		}
+	}
+}

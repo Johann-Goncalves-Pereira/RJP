@@ -1,3 +1,5 @@
+@use "../abstracts" as *;
+
 .root__header {
 	position: fixed;
 	top: 0;
@@ -204,8 +206,7 @@
 			&.check > div {
 				background-color: var(--bg, hsl(var(--clr-surface-900-hsl) / 0.125));
 
-				@supports (not (-webkit-backdrop-filter: none)) and
-					(not (backdrop-filter: none)) {
+				@include supports-backdrop-filter {
 					--bg: hsl(var(--clr-surface-900-hsl) / 0.75);
 				}
 			}
@@ -254,8 +255,7 @@
 		}
 	}
 
-	@supports (not (-webkit-backdrop-filter: none)) and
-		(not (backdrop-filter: none)) {
+	@include supports-backdrop-filter {
 		--alpha: 0.975;
 	}
 }

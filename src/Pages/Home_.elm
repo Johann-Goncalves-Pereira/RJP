@@ -27,6 +27,7 @@ import Html
         , header
         , img
         , input
+        , label
         , li
         , nav
         , p
@@ -46,12 +47,15 @@ import Html.Attributes as Attr
         , tabindex
         , target
         )
-import Html.Attributes.Aria exposing (ariaChecked, ariaControls, ariaLabel, ariaLabelledby, ariaSelected, role)
-import Html.Events exposing (onClick)
+import Html.Attributes.Aria exposing (ariaChecked, ariaControls, ariaHidden, ariaLabel, ariaLabelledby, ariaSelected, role)
+import Html.Events as Events exposing (onClick)
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
+import Json.Decode as Decode
 import Layout exposing (initLayout)
 import Page
+import Process exposing (sleep)
+import Regex exposing (Regex)
 import Request
 import Round
 import Shared
@@ -243,7 +247,7 @@ update storage msg model =
 
         DialogMsg msg_ ->
             ( model
-            , Cmd.map DialogMsg <| Dialog.update msg_
+            , Cmd.map DialogMsg <| Dialog.toggler msg_
             )
 
         ShowMore toggler_ ->
@@ -303,68 +307,6 @@ subs _ =
 -- VIEW
 
 
-dialogID =
-    "open-dialog"
-
-
-view : Storage -> Model -> View Msg
-view storage model =
-    let
-        sy =
-            model.scroll.y
-
-        theme =
-            case ( storage.theme.scheme, storage.theme.hue ) of
-                ( Storage.Dark, x ) ->
-                    { scheme = "", hue = String.fromInt x }
-
-                ( Storage.Light, x ) ->
-                    { scheme = "light", hue = String.fromInt x }
-    in
-    { title = "Revex - Home"
-    , body =
-        Layout.viewLayout
-            { initLayout
-                | route = Route.Home_
-                , rootContent =
-                    [ Html.map DialogMsg <|
-                        dialog dialogID
-                            [ class "red" ]
-                            [ button
-                                [ Dialog.ToggleDialog dialogID
-                                    |> onClick
-                                ]
-                                [ text "Send" ]
-                            ]
-
-                    -- , button
-                    --     [ class "fixed inset-0 w-fit h-min rounded-full font-700  m-auto bg-accent-500 shadow-2xl z-50"
-                    --     , Dialog.ToggleDialog dialogID
-                    --         |> onClick
-                    --         |> Attr.map DialogMsg
-                    --     ]
-                    --     [ text "toggler the dialog" ]
-                    ]
-                , rootAttrs =
-                    [ class theme.scheme
-                    , customProp "page-hue" theme.hue
-                    , onWheel wheelDelta
-                    ]
-                , headerAttrs =
-                    [ classList
-                        [ ( "wheel-hidden", model.wheelDelta && sy >= 100 )
-                        , ( "before:content-none", sy <= 100 )
-                        , ( "backdrop-blur", not model.showNav || model.viewport.w >= 1024 )
-                        ]
-                    ]
-                , headerContent = viewHeader model
-                , mainContent = viewPage storage model
-                , footerAttrs = (viewFooter model).attrs
-                , footerContent = (viewFooter model).content
-            }
-    }
-
-
 listIds : List String
 listIds =
     [ "about"
@@ -373,6 +315,16 @@ listIds =
     , "other-noteworthy-projects"
     , "contact"
     ]
+
+
+dialogId : String
+dialogId =
+    "email-form"
+
+
+secOneId : String
+secOneId =
+    "introduction-id"
 
 
 correctZero : Int -> String
@@ -431,6 +383,59 @@ picture url_ name_ =
         |> Html.node "picture" []
 
 
+isOdd : Int -> Bool
+isOdd x =
+    if modBy 2 x == 0 then
+        False
+
+    else
+        True
+
+
+view : Storage -> Model -> View Msg
+view storage model =
+    let
+        sy =
+            model.scroll.y
+
+        theme =
+            case ( storage.theme.scheme, storage.theme.hue ) of
+                ( Storage.Dark, x ) ->
+                    { scheme = "", hue = String.fromInt x }
+
+                ( Storage.Light, x ) ->
+                    { scheme = "light", hue = String.fromInt x }
+    in
+    { title = "Revex - Home"
+    , body =
+        Layout.viewLayout
+            { initLayout
+                | route = Route.Home_
+                , rootContent =
+                    []
+                , rootAttrs =
+                    [ class theme.scheme
+                    , customProp "page-hue" theme.hue
+                    , onWheel wheelDelta
+
+                    --! Just for now
+                    -- , Attr.map DialogMsg <| onClick <| Dialog.ToggleDialog dialogId
+                    ]
+                , headerAttrs =
+                    [ classList
+                        [ ( "wheel-hidden", model.wheelDelta && sy >= 100 )
+                        , ( "before:content-none", sy <= 100 )
+                        , ( "backdrop-blur", not model.showNav || model.viewport.w >= 1024 )
+                        ]
+                    ]
+                , headerContent = viewHeader model
+                , mainContent = viewPage storage model
+                , footerAttrs = (viewFooter model).attrs
+                , footerContent = (viewFooter model).content
+            }
+    }
+
+
 viewHeader : Model -> List (Html Msg)
 viewHeader model =
     let
@@ -465,7 +470,7 @@ viewHeader model =
                 { className = "uncheck", ariaChecked_ = "false" }
     in
     [ a [ class "icon h-full", href "#", tabindex 0, onClick <| ScrollTo <| Just 0 ]
-        [ img [ class "w-8 aspect-square", src <| asset "/favicon.svg", alt "Site Logo" ] [] ]
+        [ ESvg.myIcon "" ]
     , if model.viewport.w <= 1024 then
         button
             [ class <| "nav-toggler " ++ checkNav.className
@@ -517,11 +522,14 @@ viewPage storage model =
             , Html.address [ orientation "right", class "main-orientation right-0" ]
                 [ a
                     [ class "email up"
-                    , href "#"
+                    , href <| "#" ++ dialogId
                     , tabindex 0
-                    , target "_blank"
+                    , Dialog.ToggleDialog dialogId
+                        |> onClick
+                        |> Attr.map DialogMsg
                     ]
                     [ text "johann.gon.pereira@gmail.com" ]
+                , dialogForm
                 ]
             , viewMainContent storage model
             ]
@@ -537,6 +545,71 @@ viewPage storage model =
     media
 
 
+dialogForm : Html Msg
+dialogForm =
+    let
+        toggleDialogEvent =
+            Decode.succeed
+                { message = Dialog.ToggleDialog dialogId
+                , stopPropagation = True
+                , preventDefault = True
+                }
+                |> Events.custom "click"
+    in
+    dialog dialogId
+        [ class "email-from"
+        ]
+        [ --
+          button
+            [ class "fixed inset-0 -z-10"
+            , ariaLabel "Exit from Email Form"
+            , toggleDialogEvent
+            ]
+            []
+        , h4 [ class "mt-1 mb-4 font-900 text-3xl" ] [ text "Get In Touch" ]
+        , form
+            [ class "form"
+            , Attr.method "dialog"
+            , Attr.novalidate True
+            ]
+            [ Html.fieldset [ class "form__send-info" ]
+                [ Html.legend [ class "legend" ] [ text "Send Information" ]
+                , div [ class "wrapper" ]
+                    [ label [ class "label", Attr.for "email-user" ]
+                        [ text "Your Email" ]
+                    , input
+                        [ class "input"
+                        , Attr.id "email-user"
+                        , Attr.type_ "email"
+                        ]
+                        []
+                    ]
+                , div [ class "wrapper" ]
+                    [ label [ class "label", Attr.for "email-subject" ]
+                        [ text "Subject" ]
+                    , input
+                        [ class "input"
+                        , Attr.id "email-subject"
+                        , Attr.type_ "text"
+                        ]
+                        []
+                    ]
+                ]
+            , Html.fieldset [ class "form__message" ]
+                [ Html.legend [ class "legend" ]
+                    [ text "Message" ]
+                , Html.textarea
+                    [ class "message"
+                    , Attr.id "email-message"
+                    ]
+                    []
+                ]
+            , input [ Attr.type_ "submit" ] [ text "Send" ]
+            ]
+        ]
+        |> Html.map DialogMsg
+
+
 viewMainContent : Storage -> Model -> Html Msg
 viewMainContent storage model =
     article [ class "main grid gap-10 w-[min(100vw_-_2rem,var(--size-xxl))] lg:w-full mx-auto z-10" ]
@@ -547,11 +620,6 @@ viewMainContent storage model =
         , viewThingsThatIHaveBuild model
         , viewWhatsNext model
         ]
-
-
-secOneId : String
-secOneId =
-    "introduction-id"
 
 
 viewIntroduction : Model -> Html Msg
@@ -909,15 +977,6 @@ sectionBuilder className title count content =
             |> ariaLabelledby
         ]
         (headersSection count title :: content)
-
-
-isOdd : Int -> Bool
-isOdd x =
-    if modBy 2 x == 0 then
-        False
-
-    else
-        True
 
 
 

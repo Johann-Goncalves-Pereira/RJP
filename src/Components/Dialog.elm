@@ -18,8 +18,8 @@ type Msg
     = ToggleDialog String
 
 
-update : Msg -> Cmd Msg
-update msg =
+toggler : Msg -> Cmd Msg
+toggler msg =
     case msg of
         ToggleDialog id_ ->
             toggleDialog id_
