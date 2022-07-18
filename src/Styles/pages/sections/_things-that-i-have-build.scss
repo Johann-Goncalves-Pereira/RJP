@@ -7,7 +7,8 @@
 	gap: var(--size-fluid-5);
 
 	margin-inline: auto;
-	padding-block: 10rem;
+	margin-block: 5rem;
+	padding-block: 5rem;
 
 	width: calc(100% - 2rem);
 	@media (--lg-n-above) {

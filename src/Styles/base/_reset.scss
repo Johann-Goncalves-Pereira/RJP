@@ -79,6 +79,7 @@ a:not([class]) {
 		var(--fv-shadow-color, currentColor)
 	);
 
+	// filter: drop-shadow(0px 0px 6px currentColor);
 	border-radius: var(--fv-rounded, var(--rounded-sm));
 }
 
@@ -117,6 +118,20 @@ a:not([class]) {
 ::selection {
 	background-color: var(--clr-accent-200);
 	color: var(--clr-surface-200);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+	transition-property: color, background-color;
+	transition-delay: 10000000s;
+	transition-duration: 10000000s;
 }
 
 /* Remove all animations, transitions and smooth scroll for people that prefer not to see them */

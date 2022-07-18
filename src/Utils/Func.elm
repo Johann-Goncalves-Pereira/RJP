@@ -1,6 +1,7 @@
-module Utils.Func exposing (aplR, regex, regexValidate)
+module Utils.Func exposing (aplR, regex, regexValidate, run)
 
 import Regex
+import Task
 
 
 aplR : a -> (a -> b) -> b
@@ -17,3 +18,8 @@ regex =
 regexValidate : String -> String -> Bool
 regexValidate pattern_ =
     Regex.contains <| regex pattern_
+
+
+run : msg -> Cmd msg
+run m =
+    Task.perform (always m) (Task.succeed ())

@@ -1,10 +1,9 @@
-module Layout exposing (Model, initLayout, rootId, viewLayout)
+module Layout exposing (Model, initLayout, rootId, viewClean, viewLayout)
 
 import Gen.Route as Route exposing (Route)
-import Html exposing (Attribute, Html, a, div, footer, header, li, main_, nav, span, text, ul)
-import Html.Attributes exposing (class, classList, href, id, tabindex)
+import Html exposing (Attribute, Html, div, footer, header, main_)
+import Html.Attributes exposing (class, classList, id)
 import Regex
-import Utils.View exposing (materialIcon)
 
 
 
@@ -97,7 +96,7 @@ viewLayout model =
         mainClass =
             class <| "root__main main--" ++ classBuilder (routeName model.route)
     in
-    [ div
+    div
         ([ id rootId
          , classList
             [ ( "root", True )
@@ -114,4 +113,22 @@ viewLayout model =
          ]
             ++ model.rootContent
         )
-    ]
+        |> List.singleton
+
+
+viewClean : Model msg -> List (Html msg)
+viewClean { rootAttrs, rootContent, route } =
+    div
+        ([ id rootId
+         , classList
+            [ ( "root", True )
+            , ( "root--"
+                    ++ classBuilder (routeName route)
+              , True
+              )
+            ]
+         ]
+            ++ rootAttrs
+        )
+        rootContent
+        |> List.singleton
