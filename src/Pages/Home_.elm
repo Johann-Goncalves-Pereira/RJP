@@ -603,7 +603,7 @@ dialogForm model =
               h4 [ class "mt-1 mb-4 font-900 text-3xl" ] [ text "Get In Touch" ]
             , form
                 [ class "form"
-                , Attr.action "https://formsubmit.co/johann.gon.pereira@protonmail.com"
+                , Attr.action "https://formsubmit.co/fa08be0985adfb900e4f77e019cd8557"
                 , Attr.method "POST"
                 , Attr.novalidate True
                 ]
