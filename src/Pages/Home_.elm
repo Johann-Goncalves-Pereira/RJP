@@ -47,15 +47,13 @@ import Html.Attributes as Attr
         , tabindex
         , target
         )
-import Html.Attributes.Aria exposing (ariaChecked, ariaControls, ariaHidden, ariaLabel, ariaLabelledby, ariaSelected, role)
-import Html.Events as Events exposing (onClick)
+import Html.Attributes.Aria exposing (ariaChecked, ariaControls, ariaLabel, ariaLabelledby, ariaSelected, role)
+import Html.Events as Events exposing (onClick, onInput)
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
 import Json.Decode as Decode
 import Layout exposing (initLayout)
 import Page
-import Process exposing (sleep)
-import Regex exposing (Regex)
 import Request
 import Round
 import Shared
@@ -63,12 +61,11 @@ import Storage exposing (Storage)
 import Svg exposing (desc)
 import Svg.Attributes exposing (orientation)
 import Task
-import Utils.Func exposing (aplR)
+import Utils.Func exposing (aplR, regexValidate)
 import Utils.Models as Models
 import Utils.Scroll as Scroll
 import Utils.View exposing (button, customProp, customProps, materialIcon)
 import View exposing (View)
-import VitePluginHelper exposing (asset)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
@@ -104,6 +101,9 @@ type alias Model =
 
     -- Models
     , thingsThatIBuild : Models.ThingsThatIBuild
+
+    -- Inputs
+    , dialog : Dialog.Model
     }
 
 
@@ -127,6 +127,9 @@ init =
 
       -- Models
       , thingsThatIBuild = Models.defaultThingsThatIBuild
+
+      -- Inputs
+      , dialog = Dialog.init
       }
     , Cmd.batch
         [ Task.perform GetViewport getViewport
@@ -135,11 +138,6 @@ init =
         , getSectionPos listIds
         ]
     )
-
-
-run : msg -> Cmd msg
-run m =
-    Task.perform (always m) (Task.succeed ())
 
 
 getSectionPos : List String -> Cmd Msg
@@ -246,8 +244,12 @@ update storage msg model =
             ( { model | showNav = not toggler_ }, Cmd.none )
 
         DialogMsg msg_ ->
-            ( model
-            , Cmd.map DialogMsg <| Dialog.toggler msg_
+            let
+                ( model_, cmd_ ) =
+                    Dialog.update msg_ model.dialog
+            in
+            ( { model | dialog = model_ }
+            , Cmd.map DialogMsg cmd_
             )
 
         ShowMore toggler_ ->
@@ -528,8 +530,7 @@ viewPage storage model =
                         |> onClick
                         |> Attr.map DialogMsg
                     ]
-                    [ text "johann.gon.pereira@gmail.com" ]
-                , dialogForm
+                    [ text "johann.gon.pereira@protonmail.com" ]
                 ]
             , viewMainContent storage model
             ]
@@ -545,8 +546,8 @@ viewPage storage model =
     media
 
 
-dialogForm : Html Msg
-dialogForm =
+dialogForm : Model -> Html Msg
+dialogForm model =
     let
         toggleDialogEvent =
             Decode.succeed
@@ -555,6 +556,51 @@ dialogForm =
                 , preventDefault = True
                 }
                 |> Events.custom "click"
+
+        model_ =
+            model.dialog.emailForm
+
+        emailValidation =
+            regexValidate "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,8}$" model_.email
+
+        emailError =
+            if empty_.email then
+                text ""
+
+            else if emailValidation then
+                text ""
+
+            else
+                Html.small [ class "error" ]
+                    [ text "Please enter a valid email address" ]
+
+        empty_ =
+            { email = String.isEmpty model_.email
+            , subject = String.isEmpty model_.subject
+            }
+
+        datalist_ =
+            List.map
+                (\x ->
+                    Html.option [] [ text x ]
+                )
+                >> Html.datalist [ id "subjects" ]
+
+        sendButton =
+            [ text "Send" ]
+                |> (if emailValidation /= True || String.isEmpty model_.message then
+                        button
+                            [ class "submit cursor-not-allowed"
+                            , Attr.title "Make sure that you has a correct email address and a message"
+                            ]
+
+                    else
+                        input
+                            [ class "submit cursor-pointer"
+                            , Attr.type_ "submit"
+                            , Attr.value "Send"
+                            ]
+                   )
     in
     dialog dialogId
         [ class "email-from"
@@ -569,42 +615,87 @@ dialogForm =
         , h4 [ class "mt-1 mb-4 font-900 text-3xl" ] [ text "Get In Touch" ]
         , form
             [ class "form"
-            , Attr.method "dialog"
+            , Attr.action "https://formsubmit.co/8bfa017fc5c11ef5748ab161c1f36d72"
+            , Attr.method "POST"
             , Attr.novalidate True
             ]
             [ Html.fieldset [ class "form__send-info" ]
                 [ Html.legend [ class "legend" ] [ text "Send Information" ]
-                , div [ class "wrapper" ]
-                    [ label [ class "label", Attr.for "email-user" ]
+                , div
+                    [ class "wrapper"
+                    ]
+                    [ label
+                        [ class "label"
+                        , Attr.for "email-user"
+                        , if empty_.email then
+                            class ""
+
+                          else
+                            Attr.style "transform" "translate(0)"
+                        ]
                         [ text "Your Email" ]
                     , input
                         [ class "input"
                         , Attr.id "email-user"
                         , Attr.type_ "email"
+                        , Attr.name "email"
+                        , onInput Dialog.EmailInput
+                        , Attr.required True
                         ]
                         []
+                    , emailError
                     ]
                 , div [ class "wrapper" ]
-                    [ label [ class "label", Attr.for "email-subject" ]
+                    [ label
+                        [ class "label"
+                        , Attr.for "email-subject"
+                        , if empty_.subject then
+                            class ""
+
+                          else
+                            Attr.style "transform" "translate(0)"
+                        ]
                         [ text "Subject" ]
                     , input
                         [ class "input"
                         , Attr.id "email-subject"
+                        , Attr.list "subjects"
+                        , Attr.name "_subject"
                         , Attr.type_ "text"
+                        , onInput Dialog.SubjectInput
                         ]
                         []
+                    , datalist_
+                        [ "Job Offer"
+                        , "Chat about my portfolio"
+                        , "Want my help on a project"
+                        , "Just get in touch"
+                        ]
                     ]
                 ]
             , Html.fieldset [ class "form__message" ]
                 [ Html.legend [ class "legend" ]
                     [ text "Message" ]
                 , Html.textarea
-                    [ class "message"
+                    [ class "message scroll-style"
                     , Attr.id "email-message"
+                    , Attr.name "message"
+                    , Attr.placeholder "Your message..."
+                    , Attr.required True
+                    , Attr.maxlength 10000
+                    , onInput Dialog.MessageInput
                     ]
                     []
                 ]
-            , input [ Attr.type_ "submit" ] [ text "Send" ]
+            , Html.input
+                [ Attr.type_ "hidden"
+                , Attr.name "_next"
+                , Attr.value "https://johann-goncalves-pereira.netlify.app/thanks"
+                ]
+                []
+            , Html.input [ Attr.type_ "hidden", Attr.name "_captcha", Attr.value "false" ] []
+            , Html.input [ Attr.type_ "text", Attr.name "_honey", class "hidden" ] []
+            , sendButton
             ]
         ]
         |> Html.map DialogMsg
@@ -619,6 +710,7 @@ viewMainContent storage model =
         , viewWhereHaveIWorked model
         , viewThingsThatIHaveBuild model
         , viewWhatsNext model
+        , dialogForm model
         ]
 
 
@@ -1252,7 +1344,7 @@ noteworthyProjectsData =
 
 
 viewWhatsNext : Model -> Html Msg
-viewWhatsNext model =
+viewWhatsNext _ =
     let
         al_ =
             "section--title--4"
@@ -1267,10 +1359,16 @@ viewWhatsNext model =
             Although I’m not currently looking for any new opportunities, 
             my inbox is always open. Whether you have a question or just 
             want to say hi, I’ll try my best to get back to you!""" ]
-        , button
+        , a
             [ class "btm-accent mt-6 mx-auto"
+            , href <| "#" ++ dialogId
             , tabindex 0
-            , onClick <| ShowMore model.showMore
+            , Dialog.ToggleDialog dialogId
+                |> onClick
+                |> Attr.map DialogMsg
+            , Dialog.ToggleDialog dialogId
+                |> onClick
+                |> Attr.map DialogMsg
             ]
             [ text "Say Hello" ]
         ]
