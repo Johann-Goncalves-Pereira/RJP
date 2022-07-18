@@ -408,20 +408,15 @@ view storage model =
                 ( Storage.Light, x ) ->
                     { scheme = "light", hue = String.fromInt x }
     in
-    { title = "Revex - Home"
+    { title = "Johann - Home"
     , body =
         Layout.viewLayout
             { initLayout
                 | route = Route.Home_
-                , rootContent =
-                    []
                 , rootAttrs =
                     [ class theme.scheme
                     , customProp "page-hue" theme.hue
                     , onWheel wheelDelta
-
-                    --! Just for now
-                    -- , Attr.map DialogMsg <| onClick <| Dialog.ToggleDialog dialogId
                     ]
                 , headerAttrs =
                     [ classList
