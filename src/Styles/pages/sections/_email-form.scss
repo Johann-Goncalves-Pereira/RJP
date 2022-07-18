@@ -1,0 +1,92 @@
+@use "../../abstracts" as *;
+
+.email-from {
+	&[open] {
+		display: grid;
+		place-items: center;
+
+		border: 0;
+		border-radius: var(--rounded-sm);
+		padding: 1rem;
+
+		width: Min(100% - 2rem, 40vw + 1rem);
+
+		color: currentColor;
+		background-color: var(--clr-surface-800);
+		box-shadow: 0 8px 18px 4px hsl(var(--clr-shadow-1000-hsl) / 0.25);
+
+		overflow: visible;
+	}
+
+	&::backdrop {
+		background-color: hsl(var(--clr-shadow-1000-hsl) / var(--alpha_, 0.25));
+
+		backdrop-filter: blur(1rem);
+
+		@include supports-backdrop-filter {
+			--alpha_: 0.875;
+		}
+	}
+
+	.form {
+		display: grid;
+		width: 100%;
+
+		&__send-info {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+			gap: 1rem;
+		}
+	}
+
+	.legend {
+		width: fit-content;
+		margin: auto;
+	}
+
+	$input-x-padding: 0.75rem;
+	$input-y-padding: 0.25rem;
+	$wrapper-gap: 0.25rem;
+
+	.wrapper {
+		display: grid;
+		gap: 0.25rem;
+		margin-top: 0.25rem;
+
+		&:focus-within {
+			.label {
+				color: var(--clr-accent-600);
+				transform: translate(0, 0);
+				opacity: 1;
+			}
+		}
+	}
+
+	.label {
+		transform: translate(
+			$input-x-padding,
+			calc(($input-y-padding * 2 + $wrapper-gap) + 0.0625rem + 2ex)
+		);
+
+		opacity: 0.75;
+		pointer-events: none;
+
+		will-change: transform, opacity;
+		transition-property: transform, opacity;
+		transition: 200ms ease-out;
+	}
+
+	.input {
+		border: 0;
+		border-radius: var(--rounded-sm);
+		padding: $input-y-padding $input-x-padding;
+
+		background-color: var(--clr-surface-700);
+		box-shadow: none;
+		cursor: pointer;
+
+		&:focus-visible {
+			outline: 2px solid var(--clr-accent-400);
+		}
+	}
+}
