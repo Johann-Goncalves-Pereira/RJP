@@ -58,7 +58,11 @@ pageAttr storage =
 viewPage : List (Html msg)
 viewPage =
     [ Html.main_ [ class "grid place-content-center h-full" ]
-        [ a [ class "hover:text-accent-600 focus-visible:text-accent-600 transition-colors", tabindex 0, href <| toHref Route.Home_ ]
+        [ a
+            [ class "hover:text-accent-600 focus-visible:text-accent-600 transition-colors"
+            , tabindex 0
+            , href <| toHref Route.Home_
+            ]
             [ h1 [ class "font-900 font-mono text-9xl " ] [ text "404" ]
             , h2 [ class "w-fit m-auto" ] [ text "Not Found" ]
             ]

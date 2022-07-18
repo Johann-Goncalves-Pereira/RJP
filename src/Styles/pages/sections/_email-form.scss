@@ -47,8 +47,8 @@
 		}
 
 		&__message {
+			--scroll-transparent: var(--clr-surface-700);
 			display: grid;
-			// margin-top: 1.5rem;
 		}
 	}
 
