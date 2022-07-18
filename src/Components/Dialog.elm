@@ -2,6 +2,7 @@ port module Components.Dialog exposing (..)
 
 import Html exposing (Html)
 import Html.Attributes as Attr
+import Utils.Func exposing (run)
 
 
 port toggleDialog : String -> Cmd msg
@@ -9,12 +10,14 @@ port toggleDialog : String -> Cmd msg
 
 type alias Model =
     { emailForm : { email : String, subject : String, message : String }
+    , wasSend : Bool
     }
 
 
 init : Model
 init =
     { emailForm = { email = "", subject = "", message = "" }
+    , wasSend = False
     }
 
 
@@ -24,6 +27,7 @@ type Msg
     | EmailInput String
     | SubjectInput String
     | MessageInput String
+    | WasSend Bool
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -37,7 +41,12 @@ update msg model =
     in
     case msg of
         ToggleDialog id_ ->
-            ( model, toggleDialog id_ )
+            ( model
+            , Cmd.batch
+                [ toggleDialog id_
+                , run <| WasSend False
+                ]
+            )
 
         EmailInput email_ ->
             ( { model
@@ -56,6 +65,14 @@ update msg model =
         MessageInput message_ ->
             ( { model
                 | emailForm = { emailInit | message = message_ }
+              }
+            , Cmd.none
+            )
+
+        WasSend wasSend_ ->
+            ( { model
+                | wasSend = wasSend_
+                , emailForm = { email = "", subject = "", message = "" }
               }
             , Cmd.none
             )

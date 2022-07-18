@@ -16,6 +16,13 @@
 		box-shadow: 0 8px 18px 4px hsl(var(--clr-shadow-1000-hsl) / 0.25);
 
 		overflow: visible;
+
+		&::before {
+			content: "";
+			position: absolute;
+			inset: 0;
+			z-index: 1;
+		}
 	}
 
 	&::backdrop {
@@ -32,13 +39,7 @@
 		display: grid;
 		gap: 1rem;
 		width: 100%;
-
-		&::before {
-			content: "";
-			position: absolute;
-			inset: 0;
-			z-index: -1;
-		}
+		z-index: 10;
 
 		&__send-info {
 			display: grid;
@@ -138,8 +139,14 @@
 		background-color: var(--clr-surface-700);
 		box-shadow: none;
 
-		&:focus-visible {
-			outline: 2px solid var(--clr-accent-400);
+		&--available {
+			&:hover {
+				color: var(--clr-accent-700);
+				outline: 2px solid var(--clr-accent-400);
+			}
+			&:focus-visible {
+				outline: 2px solid var(--clr-accent-400);
+			}
 		}
 	}
 }

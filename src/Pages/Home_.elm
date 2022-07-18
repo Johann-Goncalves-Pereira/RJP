@@ -591,108 +591,123 @@ dialogForm model =
 
                     else
                         input
-                            [ class "submit cursor-pointer"
+                            [ class "submit submit--available cursor-pointer"
                             , Attr.type_ "submit"
                             , Attr.value "Send"
+                            , onClick <| Dialog.WasSend True
                             ]
                    )
+
+        emailForm =
+            [ --
+              h4 [ class "mt-1 mb-4 font-900 text-3xl" ] [ text "Get In Touch" ]
+            , form
+                [ class "form"
+                , Attr.action "https://formsubmit.co/fa08be0985adfb900e4f77e019cd8557"
+                , Attr.method "POST"
+                , Attr.novalidate True
+                ]
+                [ Html.fieldset [ class "form__send-info" ]
+                    [ Html.legend [ class "legend" ] [ text "Send Information" ]
+                    , div
+                        [ class "wrapper"
+                        ]
+                        [ label
+                            [ class "label"
+                            , Attr.for "email-user"
+                            , if empty_.email then
+                                class ""
+
+                              else
+                                Attr.style "transform" "translate(0)"
+                            ]
+                            [ text "Your Email" ]
+                        , input
+                            [ class "input"
+                            , Attr.id "email-user"
+                            , Attr.type_ "email"
+                            , Attr.name "email"
+                            , onInput Dialog.EmailInput
+                            , Attr.required True
+                            ]
+                            []
+                        , emailError
+                        ]
+                    , div [ class "wrapper" ]
+                        [ label
+                            [ class "label"
+                            , Attr.for "email-subject"
+                            , if empty_.subject then
+                                class ""
+
+                              else
+                                Attr.style "transform" "translate(0)"
+                            ]
+                            [ text "Subject" ]
+                        , input
+                            [ class "input"
+                            , Attr.id "email-subject"
+                            , Attr.list "subjects"
+                            , Attr.name "_subject"
+                            , Attr.type_ "text"
+                            , onInput Dialog.SubjectInput
+                            ]
+                            []
+                        , datalist_
+                            [ "Job Offer"
+                            , "Chat about my portfolio"
+                            , "Want my help on a project"
+                            , "Just get in touch"
+                            ]
+                        ]
+                    ]
+                , Html.fieldset [ class "form__message" ]
+                    [ Html.legend [ class "legend" ]
+                        [ text "Message" ]
+                    , Html.textarea
+                        [ class "message scroll-style"
+                        , Attr.id "email-message"
+                        , Attr.name "message"
+                        , Attr.placeholder "Your message..."
+                        , Attr.required True
+                        , Attr.maxlength 10000
+                        , onInput Dialog.MessageInput
+                        ]
+                        []
+                    ]
+                , Html.input
+                    [ Attr.type_ "hidden"
+                    , Attr.name "_next"
+                    , Attr.value "https://johann-goncalves-pereira.netlify.app/#email-form"
+                    ]
+                    []
+                , Html.input [ Attr.type_ "hidden", Attr.name "_captcha", Attr.value "false" ] []
+                , Html.input [ Attr.type_ "text", Attr.name "_honey", class "hidden" ] []
+                , sendButton
+                ]
+            ]
+
+        emailThanks =
+            [ Html.h4 [ class "mt-1 mb-4 font-900 text-3xl" ] [ text "Thank you for getting in contact" ]
+            , p [] [ text "I will get back to you as soon as possible." ]
+            , materialIcon "mt-1 text-accent-600 text-4xl" "mark_email_unread"
+            ]
     in
     dialog dialogId
-        [ class "email-from"
-        ]
-        [ --
-          button
+        [ class "email-from" ]
+        (button
             [ class "fixed inset-0 -z-10"
             , ariaLabel "Exit from Email Form"
             , toggleDialogEvent
             ]
             []
-        , h4 [ class "mt-1 mb-4 font-900 text-3xl" ] [ text "Get In Touch" ]
-        , form
-            [ class "form"
-            , Attr.action "https://formsubmit.co/8bfa017fc5c11ef5748ab161c1f36d72"
-            , Attr.method "POST"
-            , Attr.novalidate True
-            ]
-            [ Html.fieldset [ class "form__send-info" ]
-                [ Html.legend [ class "legend" ] [ text "Send Information" ]
-                , div
-                    [ class "wrapper"
-                    ]
-                    [ label
-                        [ class "label"
-                        , Attr.for "email-user"
-                        , if empty_.email then
-                            class ""
+            :: (if model.dialog.wasSend then
+                    emailThanks
 
-                          else
-                            Attr.style "transform" "translate(0)"
-                        ]
-                        [ text "Your Email" ]
-                    , input
-                        [ class "input"
-                        , Attr.id "email-user"
-                        , Attr.type_ "email"
-                        , Attr.name "email"
-                        , onInput Dialog.EmailInput
-                        , Attr.required True
-                        ]
-                        []
-                    , emailError
-                    ]
-                , div [ class "wrapper" ]
-                    [ label
-                        [ class "label"
-                        , Attr.for "email-subject"
-                        , if empty_.subject then
-                            class ""
-
-                          else
-                            Attr.style "transform" "translate(0)"
-                        ]
-                        [ text "Subject" ]
-                    , input
-                        [ class "input"
-                        , Attr.id "email-subject"
-                        , Attr.list "subjects"
-                        , Attr.name "_subject"
-                        , Attr.type_ "text"
-                        , onInput Dialog.SubjectInput
-                        ]
-                        []
-                    , datalist_
-                        [ "Job Offer"
-                        , "Chat about my portfolio"
-                        , "Want my help on a project"
-                        , "Just get in touch"
-                        ]
-                    ]
-                ]
-            , Html.fieldset [ class "form__message" ]
-                [ Html.legend [ class "legend" ]
-                    [ text "Message" ]
-                , Html.textarea
-                    [ class "message scroll-style"
-                    , Attr.id "email-message"
-                    , Attr.name "message"
-                    , Attr.placeholder "Your message..."
-                    , Attr.required True
-                    , Attr.maxlength 10000
-                    , onInput Dialog.MessageInput
-                    ]
-                    []
-                ]
-            , Html.input
-                [ Attr.type_ "hidden"
-                , Attr.name "_next"
-                , Attr.value "https://johann-goncalves-pereira.netlify.app/thanks"
-                ]
-                []
-            , Html.input [ Attr.type_ "hidden", Attr.name "_captcha", Attr.value "false" ] []
-            , Html.input [ Attr.type_ "text", Attr.name "_honey", class "hidden" ] []
-            , sendButton
-            ]
-        ]
+                else
+                    emailForm
+               )
+        )
         |> Html.map DialogMsg
 
 
