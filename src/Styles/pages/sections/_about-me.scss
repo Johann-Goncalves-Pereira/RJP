@@ -62,6 +62,8 @@
 	}
 
 	.img {
+		--fv-shadow-inset: none;
+
 		$dislocation: var(--size-fluid-2);
 		position: relative;
 

@@ -29,7 +29,7 @@
 	background-position-x: var(--n-ch, -30ch);
 	color: var(--clr-accent-600);
 
-	transition: background-position 200ms ease-in;
+	transition: background-position 250ms ease-in 100ms;
 
 	&:enter {
 		--n-ch: 0 !important;

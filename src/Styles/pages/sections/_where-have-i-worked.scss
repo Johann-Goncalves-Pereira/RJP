@@ -48,9 +48,6 @@
 		$border-left-width: 2px;
 
 		&__btn {
-			--fv-shadow-inset: inset 0 0 6px 2px currentColor;
-			--fv-rounded: 0;
-
 			position: relative;
 
 			border-top: $border-left-width solid
