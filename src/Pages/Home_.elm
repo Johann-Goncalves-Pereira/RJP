@@ -462,7 +462,7 @@ viewHeader model =
                 { className = "uncheck", ariaChecked_ = "false" }
     in
     [ a [ class "icon h-full", href "#", tabindex 0, onClick <| ScrollTo <| Just 0 ]
-        [ ESvg.myIcon "" ]
+        [ ESvg.myIcon "h-8 w-8" ]
     , if model.viewport.w <= 1024 then
         button
             [ class <| "nav-toggler " ++ checkNav.className
@@ -905,10 +905,6 @@ sectionBuilder className title count content =
             |> ariaLabelledby
         ]
         (headersSection count title :: content)
-
-
-
--- tabPainel -> tabList -> tab
 
 
 viewThingsThatIHaveBuild : Model -> Html Msg
