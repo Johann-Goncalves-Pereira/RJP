@@ -4,6 +4,8 @@
 	padding-block: 8rem;
 
 	.card-item {
+		--fv-shadow-inset: none;
+
 		display: grid;
 		user-select: none;
 
@@ -62,6 +64,8 @@
 	}
 
 	.card {
+		--fv-shadow-inset: 0px 0px 8px currentColor;
+
 		display: grid;
 		grid-template-rows: auto auto 1fr auto;
 		gap: 0.5rem;
