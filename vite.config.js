@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   return {
-    plugins: [
+    plugins: [ 
       elm(),
       legacy({
         targets: ["defaults", "not IE 11"],
