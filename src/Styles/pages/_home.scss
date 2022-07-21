@@ -137,3 +137,18 @@
 		}
 	}
 }
+
+.view {
+	transition-property: transform, opacity;
+	transition-duration: 200ms;
+	transition-timing-function: ease-out;
+	transition-delay: 200ms;
+
+	&--in {
+	}
+
+	&--out {
+		transform: scale(0.95) translateY(0.5rem);
+		opacity: 0;
+	}
+}

@@ -3,7 +3,7 @@ module Pages.Home_ exposing (Model, Msg, page)
 import Array
 import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getViewport, setViewport)
 import Browser.Events exposing (onResize)
-import Components.Dialog as Dialog exposing (dialog)
+import Components.Dialog as Dialog
 import Components.Svg as ESvg
 import Dict exposing (Dict)
 import Gen.Params.Home_ exposing (Params)
@@ -17,7 +17,6 @@ import Html
         , br
         , div
         , footer
-        , form
         , h1
         , h2
         , h3
@@ -26,8 +25,6 @@ import Html
         , h6
         , header
         , img
-        , input
-        , label
         , li
         , nav
         , p
@@ -48,10 +45,10 @@ import Html.Attributes as Attr
         , target
         )
 import Html.Attributes.Aria exposing (ariaChecked, ariaControls, ariaLabel, ariaLabelledby, ariaSelected, role)
-import Html.Events as Events exposing (onClick, onInput)
+import Html.Events exposing (onClick)
 import Html.Events.Extra.Mouse as Mouse
 import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
-import Json.Decode as Decode
+import InView
 import Layout exposing (initLayout)
 import Page
 import Request
@@ -59,11 +56,10 @@ import Round
 import Shared
 import Storage exposing (Storage)
 import Svg exposing (desc)
-import Svg.Attributes exposing (orientation)
+import Svg.Attributes exposing (offset, orientation)
 import Task
-import Utils.Func exposing (aplR, regexValidate)
+import Utils.Func exposing (aplR)
 import Utils.Models as Models
-import Utils.Scroll as Scroll
 import Utils.View exposing (button, customProp, customProps, materialIcon)
 import View exposing (View)
 
@@ -72,8 +68,8 @@ page : Shared.Model -> Request.With Params -> Page.With Model Msg
 page shared _ =
     Page.element
         { init = init
-        , update = update shared.storage
-        , view = view shared.storage
+        , update = update shared
+        , view = view shared
         , subscriptions = subs
         }
 
@@ -85,7 +81,6 @@ page shared _ =
 type alias Model =
     { -- Page Events
       viewport : { w : Float, h : Float }
-    , scroll : Scroll.Model
     , wheelDelta : Bool
 
     -- Element States
@@ -111,7 +106,6 @@ init : ( Model, Cmd Msg )
 init =
     ( { -- Page Events
         viewport = { w = 0, h = 0 }
-      , scroll = Scroll.init
       , wheelDelta = False
 
       -- Element States
@@ -132,7 +126,8 @@ init =
       , dialog = Dialog.init
       }
     , Cmd.batch
-        [ Task.perform GetViewport getViewport
+        [ --
+          Task.perform GetViewport getViewport
         , BrowserDom.getElement secOneId
             |> Task.attempt GetSectionSize
         , getSectionPos listIds
@@ -159,7 +154,6 @@ type Msg
       NoOp
     | GetViewport Viewport
     | GetNewViewport ( Float, Float )
-    | ScrollMsg Scroll.Msg
     | ScrollTo (Maybe Float)
     | WheelDelta Bool
     | ChangeTheme ( Storage.Scheme, Int )
@@ -175,9 +169,15 @@ type Msg
     | GotElementPosition String (Result Error Element)
 
 
-update : Storage -> Msg -> Model -> ( Model, Cmd Msg )
-update storage msg model =
+update : Shared.Model -> Msg -> Model -> ( Model, Cmd Msg )
+update shared msg model =
     let
+        storage =
+            shared.storage
+
+        offset =
+            shared.inView.offset
+
         defaultViewport =
             { w = model.viewport.w
             , h = model.viewport.h
@@ -208,21 +208,13 @@ update storage msg model =
             , Cmd.none
             )
 
-        ScrollMsg msg_ ->
-            ( { model
-                | scroll =
-                    Scroll.update msg_ model.scroll
-              }
-            , Cmd.none
-            )
-
         ScrollTo y_ ->
             ( model
             , Task.attempt (\_ -> NoOp) <|
                 setViewport 0 <|
                     case y_ of
                         Nothing ->
-                            model.scroll.y
+                            offset.y
 
                         Just vpt_ ->
                             vpt_
@@ -301,7 +293,6 @@ subs : Model -> Sub Msg
 subs _ =
     Sub.batch
         [ onResize <| \w h -> GetNewViewport ( toFloat w, toFloat h )
-        , Sub.map ScrollMsg Scroll.subScroll
         ]
 
 
@@ -394,11 +385,14 @@ isOdd x =
         True
 
 
-view : Storage -> Model -> View Msg
-view storage model =
+view : Shared.Model -> Model -> View Msg
+view shared model =
     let
-        sy =
-            model.scroll.y
+        storage =
+            shared.storage
+
+        offsetY =
+            shared.inView.offset.y
 
         theme =
             case ( storage.theme.scheme, storage.theme.hue ) of
@@ -420,13 +414,13 @@ view storage model =
                     ]
                 , headerAttrs =
                     [ classList
-                        [ ( "wheel-hidden", model.wheelDelta && sy >= 100 )
-                        , ( "before:content-none", sy <= 100 )
+                        [ ( "wheel-hidden", model.wheelDelta && offsetY >= 100 )
+                        , ( "before:content-none", offsetY <= 100 )
                         , ( "backdrop-blur", not model.showNav || model.viewport.w >= 1024 )
                         ]
                     ]
                 , headerContent = viewHeader model
-                , mainContent = viewPage storage model
+                , mainContent = viewPage shared model
                 , footerAttrs = (viewFooter model).attrs
                 , footerContent = (viewFooter model).content
             }
@@ -494,8 +488,8 @@ viewHeader model =
     ]
 
 
-viewPage : Storage -> Model -> List (Html Msg)
-viewPage storage model =
+viewPage : Shared.Model -> Model -> List (Html Msg)
+viewPage shared model =
     let
         content =
             [ Html.address [ orientation "left", class "main-orientation left-0" ]
@@ -527,12 +521,12 @@ viewPage storage model =
                     ]
                     [ text "johann.gon.pereira@protonmail.com" ]
                 ]
-            , viewMainContent storage model
+            , viewMainContent shared model
             ]
 
         media =
             if model.viewport.w <= 1024 || model.viewport.h <= 480 then
-                viewMainContent storage model
+                viewMainContent shared model
                     |> List.singleton
 
             else
@@ -541,186 +535,38 @@ viewPage storage model =
     media
 
 
-dialogForm : Model -> Html Msg
-dialogForm model =
-    let
-        toggleDialogEvent =
-            Decode.succeed
-                { message = Dialog.ToggleDialog dialogId
-                , stopPropagation = True
-                , preventDefault = True
-                }
-                |> Events.custom "click"
-
-        model_ =
-            model.dialog.emailForm
-
-        emailValidation =
-            regexValidate "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,8}$" model_.email
-
-        emailError =
-            if empty_.email then
-                text ""
-
-            else if emailValidation then
-                text ""
-
-            else
-                Html.small [ class "error" ]
-                    [ text "Please enter a valid email address" ]
-
-        empty_ =
-            { email = String.isEmpty model_.email
-            , subject = String.isEmpty model_.subject
-            }
-
-        datalist_ =
-            List.map
-                (\x ->
-                    Html.option [] [ text x ]
-                )
-                >> Html.datalist [ id "subjects" ]
-
-        sendButton =
-            [ text "Send" ]
-                |> (if emailValidation /= True || String.isEmpty model_.message then
-                        button
-                            [ class "submit cursor-not-allowed"
-                            , Attr.title "Make sure that you has a correct email address and a message"
-                            ]
-
-                    else
-                        input
-                            [ class "submit submit--available cursor-pointer"
-                            , Attr.type_ "submit"
-                            , Attr.value "Send"
-                            , onClick <| Dialog.WasSend True
-                            ]
-                   )
-
-        emailForm =
-            [ --
-              h4 [ class "mt-1 mb-4 font-900 text-3xl" ] [ text "Get In Touch" ]
-            , form
-                [ class "form"
-                , Attr.action "https://formsubmit.co/fa08be0985adfb900e4f77e019cd8557"
-                , Attr.method "POST"
-                , Attr.novalidate True
-                ]
-                [ Html.fieldset [ class "form__send-info" ]
-                    [ Html.legend [ class "legend" ] [ text "Send Information" ]
-                    , div
-                        [ class "wrapper"
-                        ]
-                        [ label
-                            [ class "label"
-                            , Attr.for "email-user"
-                            , if empty_.email then
-                                class ""
-
-                              else
-                                Attr.style "transform" "translate(0)"
-                            ]
-                            [ text "Your Email" ]
-                        , input
-                            [ class "input"
-                            , Attr.id "email-user"
-                            , Attr.type_ "email"
-                            , Attr.name "email"
-                            , onInput Dialog.EmailInput
-                            , Attr.required True
-                            ]
-                            []
-                        , emailError
-                        ]
-                    , div [ class "wrapper" ]
-                        [ label
-                            [ class "label"
-                            , Attr.for "email-subject"
-                            , if empty_.subject then
-                                class ""
-
-                              else
-                                Attr.style "transform" "translate(0)"
-                            ]
-                            [ text "Subject" ]
-                        , input
-                            [ class "input"
-                            , Attr.id "email-subject"
-                            , Attr.list "subjects"
-                            , Attr.name "_subject"
-                            , Attr.type_ "text"
-                            , onInput Dialog.SubjectInput
-                            ]
-                            []
-                        , datalist_
-                            [ "Job Offer"
-                            , "Chat about my portfolio"
-                            , "Want my help on a project"
-                            , "Just get in touch"
-                            ]
-                        ]
-                    ]
-                , Html.fieldset [ class "form__message" ]
-                    [ Html.legend [ class "legend" ]
-                        [ text "Message" ]
-                    , Html.textarea
-                        [ class "message scroll-style"
-                        , Attr.id "email-message"
-                        , Attr.name "message"
-                        , Attr.placeholder "Your message..."
-                        , Attr.required True
-                        , Attr.maxlength 10000
-                        , onInput Dialog.MessageInput
-                        ]
-                        []
-                    ]
-                , Html.input
-                    [ Attr.type_ "hidden"
-                    , Attr.name "_next"
-                    , Attr.value "https://johann-goncalves-pereira.netlify.app/#email-form"
-                    ]
-                    []
-                , Html.input [ Attr.type_ "hidden", Attr.name "_captcha", Attr.value "false" ] []
-                , Html.input [ Attr.type_ "text", Attr.name "_honey", class "hidden" ] []
-                , sendButton
-                ]
-            ]
-
-        emailThanks =
-            [ Html.h4 [ class "mt-1 mb-4 font-900 text-3xl" ] [ text "Thank you for getting in contact" ]
-            , p [] [ text "I will get back to you as soon as possible." ]
-            , materialIcon "mt-1 text-accent-600 text-4xl" "mark_email_unread"
-            ]
-    in
-    dialog dialogId
-        [ class "email-from" ]
-        (button
-            [ class "fixed inset-0 -z-10"
-            , ariaLabel "Exit from Email Form"
-            , toggleDialogEvent
-            ]
-            []
-            :: (if model.dialog.wasSend then
-                    emailThanks
-
-                else
-                    emailForm
-               )
-        )
-        |> Html.map DialogMsg
-
-
-viewMainContent : Storage -> Model -> Html Msg
-viewMainContent storage model =
-    article [ class "main grid gap-10 w-[min(100vw_-_2rem,var(--size-xxl))] lg:w-full mx-auto z-10" ]
+viewMainContent : Shared.Model -> Model -> Html Msg
+viewMainContent shared model =
+    article [ class "main grid gap-10 w-[min(100vw_-_2rem,var(--size-xxl))] lg:w-full mx-auto z-10" ] <|
+        -- (Dialog.dialogForm model.dialog
+        --     |> Html.map DialogMsg
+        -- )
+        -- ::
         [ viewIntroduction model
-        , viewThemeConfig storage
-        , viewAboutMe model
-        , viewWhereHaveIWorked model
-        , viewThingsThatIHaveBuild model
-        , viewWhatsNext model
-        , dialogForm model
+        , viewThemeConfig shared.storage
+        , viewAboutMe shared model
+        , viewWhereHaveIWorked shared model
+        , viewThingsThatIHaveBuild shared model
+        , viewWhatsNext shared model
+        ]
+
+
+loadElement : InView.State -> String -> Int -> String
+loadElement state class id =
+    let
+        load_ s_ i_ =
+            case InView.isInViewWithMargin i_ (InView.Margin 200 0 100 0) s_ of
+                Just True ->
+                    "view view--in"
+
+                _ ->
+                    "view view--out"
+    in
+    String.join " "
+        [ class
+        , (id - 1)
+            |> getIds
+            >> load_ state
         ]
 
 
@@ -877,8 +723,20 @@ headersSection sectNumber title =
         ]
 
 
-viewAboutMe : Model -> Html Msg
-viewAboutMe model =
+sectionBuilder : String -> String -> Int -> List (Html Msg) -> Html Msg
+sectionBuilder className title count content =
+    section
+        [ class className
+        , id <| getIds (count - 1)
+        , "section--title--"
+            ++ String.fromInt count
+            |> ariaLabelledby
+        ]
+        (headersSection count title :: content)
+
+
+viewAboutMe : Shared.Model -> Model -> Html Msg
+viewAboutMe { inView } model =
     let
         externalLink_ url_ name_ =
             a
@@ -889,8 +747,17 @@ viewAboutMe model =
                 , href url_
                 ]
                 [ text name_ ]
+
+        elementId =
+            1
+
+        inView_ =
+            inView.inView
+
+        class_ =
+            loadElement inView_ "about-me" elementId
     in
-    sectionBuilder "about-me" "About Me" 1 <|
+    sectionBuilder class_ "About Me" elementId <|
         [ p [ class "paragraph", tabindex 0 ]
             [ text """Hi! I'm Johann a front-end developer from Brazil.
              I love to create for the web, beautiful and functional interfaces.
@@ -947,8 +814,8 @@ viewAboutMe model =
         ]
 
 
-viewWhereHaveIWorked : Model -> Html Msg
-viewWhereHaveIWorked model =
+viewWhereHaveIWorked : Shared.Model -> Model -> Html Msg
+viewWhereHaveIWorked { inView } model =
     let
         tabControls index_ =
             "header--where--" ++ String.fromInt index_ ++ "--tp"
@@ -1053,8 +920,17 @@ viewWhereHaveIWorked model =
                         []
                   }
                 ]
+
+        elementId =
+            2
+
+        inView_ =
+            inView.inView
+
+        class_ =
+            loadElement inView_ "where-have-i-worked" elementId
     in
-    sectionBuilder "where-have-i-worked" "Where I've Worked" 2 <|
+    sectionBuilder class_ "Where I've Worked" elementId <|
         div
             [ String.concat
                 [ "work-list "
@@ -1069,24 +945,8 @@ viewWhereHaveIWorked model =
             :: workContent
 
 
-sectionBuilder : String -> String -> Int -> List (Html Msg) -> Html Msg
-sectionBuilder className title count content =
-    section
-        [ class className
-        , id <| getIds (count - 1)
-        , "section--title--"
-            ++ String.fromInt count
-            |> ariaLabelledby
-        ]
-        (headersSection count title :: content)
-
-
-
--- tabPainel -> tabList -> tab
-
-
-viewThingsThatIHaveBuild : Model -> Html Msg
-viewThingsThatIHaveBuild model =
+viewThingsThatIHaveBuild : Shared.Model -> Model -> Html Msg
+viewThingsThatIHaveBuild { inView } model =
     let
         viewProjects =
             List.indexedMap
@@ -1164,8 +1024,17 @@ viewThingsThatIHaveBuild model =
 
             else
                 "More"
+
+        elementId =
+            3
+
+        inView_ =
+            inView.inView
+
+        class_ =
+            loadElement inView_ "things-that-i-have-build" elementId
     in
-    sectionBuilder "things-that-i-have-build" "Some Things I've Built" 3 <|
+    sectionBuilder class_ "Some Things I've Built" elementId <|
         viewProjects
             ++ List.singleton
                 (section [ class "other-noteworthy-projects", ariaLabelledby "header-noteworthy" ]
@@ -1353,13 +1222,22 @@ noteworthyProjectsData =
         |> List.concat
 
 
-viewWhatsNext : Model -> Html Msg
-viewWhatsNext _ =
+viewWhatsNext : Shared.Model -> Model -> Html Msg
+viewWhatsNext { inView } _ =
     let
         al_ =
             "section--title--4"
+
+        elementId =
+            4
+
+        inView_ =
+            inView.inView
+
+        class_ =
+            loadElement inView_ "whats-now" elementId
     in
-    section [ class "whats-now", ariaLabelledby al_, id <| getIds 3 ]
+    section [ class class_, ariaLabelledby al_, id <| getIds (elementId - 1) ]
         [ header [ class "flex gap-2 text-accent-600 font-mono" ]
             [ Html.i [] [ text "04. " ]
             , h3 [ id al_ ] [ text "What’s Next?" ]
