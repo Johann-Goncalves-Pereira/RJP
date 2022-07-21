@@ -10,6 +10,7 @@ module Shared exposing
 import Json.Decode as Json
 import Request exposing (Request)
 import Storage
+import Utils.Scroll as Scroll
 
 
 type alias Flags =
@@ -18,20 +19,26 @@ type alias Flags =
 
 type alias Model =
     { storage : Storage.Storage
+    , inView : Scroll.Model
     }
-
-
-type Msg
-    = StorageUpdated Storage.Storage
-
-
 
 
 init : Request -> Flags -> ( Model, Cmd Msg )
 init _ flags =
-    ( { storage = Storage.fromJson flags }
-    , Cmd.none
+    let
+        ( inView_, inViewCmd_ ) =
+            Scroll.init
+    in
+    ( { storage = Storage.fromJson flags
+      , inView = inView_
+      }
+    , Cmd.map InViewUpdate inViewCmd_
     )
+
+
+type Msg
+    = StorageUpdated Storage.Storage
+    | InViewUpdate Scroll.Msg
 
 
 update : Request -> Msg -> Model -> ( Model, Cmd Msg )
@@ -42,10 +49,20 @@ update _ msg model =
             , Cmd.none
             )
 
+        InViewUpdate msg_ ->
+            let
+                ( inView_, cmd_ ) =
+                    Scroll.update msg_ model.inView
+            in
+            ( { model | inView = inView_ }
+            , Cmd.map InViewUpdate cmd_
+            )
+
 
 subscriptions : Request -> Model -> Sub Msg
-subscriptions _ _ =
-    Storage.onChange StorageUpdated
-
-
-
+subscriptions _ model =
+    Sub.batch
+        [ Storage.onChange StorageUpdated
+        , Scroll.subs model.inView
+            |> Sub.map InViewUpdate
+        ]
