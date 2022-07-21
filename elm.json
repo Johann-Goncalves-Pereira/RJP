@@ -21,6 +21,7 @@
             "hmsk/elm-vite-plugin-helper": "1.0.1",
             "mpizenberg/elm-pointer-events": "4.0.2",
             "myrho/elm-round": "1.0.4",
+            "rl-king/elm-inview": "2.0.1",
             "ryannhg/elm-spa": "6.0.0"
         },
         "indirect": {
