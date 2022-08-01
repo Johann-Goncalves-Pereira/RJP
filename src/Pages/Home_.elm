@@ -5,6 +5,7 @@ import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getViewport
 import Browser.Events exposing (onResize)
 import Components.Dialog as Dialog
 import Components.Svg as ESvg
+import Debouncer.Basic as Debouncer exposing (Debouncer, fromSeconds, settleWhenQuietFor, toDebouncer)
 import Dict exposing (Dict)
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
@@ -80,7 +81,8 @@ page shared _ =
 
 type alias Model =
     { -- Page Events
-      viewport : { w : Float, h : Float }
+      quietForSomeTime : Debouncer Msg Msg
+    , viewport : { w : Float, h : Float }
     , wheelDelta : Bool
 
     -- Element States
@@ -105,7 +107,8 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     ( { -- Page Events
-        viewport = { w = 0, h = 0 }
+        quietForSomeTime = manualDebouncer 0.25
+      , viewport = { w = 0, h = 0 }
       , wheelDelta = False
 
       -- Element States
@@ -145,6 +148,13 @@ getSectionPos =
         >> Cmd.batch
 
 
+manualDebouncer : Float -> Debouncer Msg Msg
+manualDebouncer time_ =
+    Debouncer.manual
+        |> settleWhenQuietFor (Just <| fromSeconds time_)
+        |> toDebouncer
+
+
 
 -- UPDATE
 
@@ -152,6 +162,7 @@ getSectionPos =
 type Msg
     = -- Page Events
       NoOp
+    | MsgQuietForSomeTime (Debouncer.Msg Msg)
     | GetViewport Viewport
     | GetNewViewport ( Float, Float )
     | ScrollTo (Maybe Float)
@@ -186,6 +197,26 @@ update shared msg model =
     case msg of
         NoOp ->
             ( model, Cmd.none )
+
+        MsgQuietForSomeTime subMsg ->
+            let
+                ( model_, cmd_, msg_ ) =
+                    Debouncer.update subMsg model.quietForSomeTime
+
+                mappedCmd =
+                    Cmd.map MsgQuietForSomeTime cmd_
+
+                updatedModel =
+                    { model | quietForSomeTime = model_ }
+            in
+            case msg_ of
+                Just emitted ->
+                    update shared emitted updatedModel
+                        |> Tuple.mapSecond
+                            (\cmd -> Cmd.batch [ cmd, mappedCmd ])
+
+                Nothing ->
+                    ( updatedModel, mappedCmd )
 
         GetViewport v_ ->
             let
@@ -291,9 +322,7 @@ update shared msg model =
 
 subs : Model -> Sub Msg
 subs _ =
-    Sub.batch
-        [ onResize <| \w h -> GetNewViewport ( toFloat w, toFloat h )
-        ]
+    onResize <| \w h -> GetNewViewport ( toFloat w, toFloat h )
 
 
 
@@ -338,8 +367,8 @@ onWheel =
         |> Wheel.onWithOptions
 
 
-wheelDelta : Wheel.Event -> Msg
-wheelDelta wheelEvent =
+scrollDeltaTrigger : Wheel.Event -> Msg
+scrollDeltaTrigger wheelEvent =
     if wheelEvent.deltaY > 0 then
         WheelDelta True
 
@@ -410,7 +439,10 @@ view shared model =
                 , rootAttrs =
                     [ class theme.scheme
                     , customProp "page-hue" theme.hue
-                    , onWheel wheelDelta
+                    , scrollDeltaTrigger
+                        >> Debouncer.provideInput
+                        >> MsgQuietForSomeTime
+                        |> onWheel
                     ]
                 , headerAttrs =
                     [ classList
