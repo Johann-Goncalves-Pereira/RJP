@@ -178,6 +178,7 @@ type Msg
       -- Elements
     | GetSectionSize (Result Error Element)
     | GotElementPosition String (Result Error Element)
+    | GotElementPositionAgain
 
 
 update : Shared.Model -> Msg -> Model -> ( Model, Cmd Msg )
@@ -315,6 +316,9 @@ update shared msg model =
                 Err _ ->
                     ( model, Cmd.none )
 
+        GotElementPositionAgain ->
+            ( model, getSectionPos listIds )
+
 
 
 -- SUBSCRIPTIONS
@@ -322,7 +326,10 @@ update shared msg model =
 
 subs : Model -> Sub Msg
 subs _ =
-    onResize <| \w h -> GetNewViewport ( toFloat w, toFloat h )
+    Sub.batch
+        [ onResize <| \w h -> GetNewViewport ( toFloat w, toFloat h )
+        , onResize <| \_ _ -> GotElementPositionAgain
+        ]
 
 
 

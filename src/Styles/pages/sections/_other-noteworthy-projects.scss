@@ -37,7 +37,7 @@
 		&:focus-visible,
 		&:focus-within,
 		&:hover {
-			box-shadow: none;
+			filter: none;
 			&::before {
 				transform: scale(0.975) translateY(1rem);
 				filter: blur(1.5rem);

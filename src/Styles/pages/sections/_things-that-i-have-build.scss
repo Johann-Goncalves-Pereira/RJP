@@ -103,6 +103,8 @@
 
 			border-radius: var(--rounded-sm);
 
+			color: var(--clr-accent-500);
+
 			&::before,
 			&::after {
 				content: "";

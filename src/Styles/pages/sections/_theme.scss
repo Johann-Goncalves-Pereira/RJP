@@ -57,6 +57,7 @@
 			padding: $padding-calc;
 			border-radius: var(--rounded-full);
 
+			color: hsl(var(--hue, 0), 50%, 50%);
 			background-color: hsl(var(--hue, 0), 50%, 50%);
 
 			transform: scale(0.8);
