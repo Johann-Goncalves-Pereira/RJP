@@ -1387,7 +1387,7 @@ viewFooter { viewport } =
             text ""
         , a
             [ class "grid gap-3 whitespace-pre-wrap text-center text-xs font-mono"
-            , href "#"
+            , href "https://github.com/Johann-Goncalves-Pereira/RJP"
             , tabindex 0
             , target "_blank"
             ]

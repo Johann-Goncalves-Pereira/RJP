@@ -1,4 +1,8 @@
-This is my portfolio website, it was completely based on [Brittany Chiang](https://brittanychiang.com) website so got to her repository and give her a star.
+# My oficial Portfolio
+
+This is my portfolio website, the design was completely based on [Brittany Chiang](https://brittanychiang.com) website so got to her [repository](https://github.com/bchiang7/v4) and give her a star.
+
+But I made everything on this website besides the design. If you want to use this for your portfolio just give credit to me and brittany.
 
 ## Installation
 To start, you have two options:
@@ -13,23 +17,10 @@ yarn install
 
 _You can use `npm` if you prefer_
 
-# Run Locally
-Because of Vite, when all the dependencies are installed, it's super simple to start a local server.
+## Run Locally
 
-### Development.
-This should make a local server on the port 3000.
-```bash
-yarn dev
-```
-With the code running, go to: [http://localhost:3000](http://localhost:3000)
 
-## Production.
-This command will generate a production version of your code.
-```bash
-yarn build
-```
-
-And to check production locally. _(need to run build first)_
-```bash
-yarn preview
-```
+| Type      | Development                                    | Production          | Production Test                                |
+|-----------|------------------------------------------------|---------------------|------------------------------------------------|
+| Command   | yarn dev                                       | yarn build          | yarn build && yarn preview                     |
+| Host:Port | [http://localhost:3000](http://localhost:3000) | Deploy with Netlify | [http://localhost:8080](http://localhost:8080) |
