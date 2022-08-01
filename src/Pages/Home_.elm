@@ -521,7 +521,7 @@ viewHeader model =
           else
             text ""
         , links
-            ++ [ li [] [ a [ href "#", class "list__resume", tabindex 0 ] [ text "resume" ] ] ]
+            ++ [ li [] [ a [ href "https://www.upwork.com/freelancers/~011d31917fa3d87f28", class "list__resume", tabindex 0 ] [ text "resume" ] ] ]
             |> ul [ class "list" ]
         ]
     ]
