@@ -1,7 +1,9 @@
+This is my portfolio website, it was completely based on [Brittany Chiang](https://brittanychiang.com) website so got to her repository and give her a star.
+
 ## Installation
 To start, you have two options:
-  1. Make a fork from this repository. _not recommended_
-  2. Press the `Use this template` button and follow the GitHub instructions. _recommended_
+  1. Make a fork from this repository. _`not recommended`_
+  2. Press the **`Use this template`** button and follow the GitHub instructions. _`recommended`_
 
 
 Then, on the project `folder/directory`, run the command to install all the dependencies.
