@@ -16,6 +16,11 @@
 		box-shadow: 0 8px 18px 4px hsl(var(--clr-shadow-1000-hsl) / 0.25);
 
 		overflow: visible;
+		isolation: isolate;
+
+		@include supports-backdrop-filter() {
+			box-shadow: 0 0 0 100vmax hsl(var(--clr-surface-900-hsl) / 0.975);
+		}
 
 		&::before {
 			content: "";
@@ -26,13 +31,9 @@
 	}
 
 	&::backdrop {
-		background-color: hsl(var(--clr-shadow-1000-hsl) / var(--alpha_, 0.25));
+		background-color: hsl(var(--clr-shadow-1000-hsl) / 0.25);
 
 		backdrop-filter: blur(1rem);
-
-		@include supports-backdrop-filter {
-			--alpha_: 0.875;
-		}
 	}
 
 	.form {
@@ -109,7 +110,7 @@
 		border-radius: var(--rounded-sm);
 
 		background-color: var(--clr-surface-700);
-		box-shadow: none;
+		filter: none;
 		cursor: text;
 
 		&:focus-visible {
