@@ -520,27 +520,31 @@ viewHeader model =
     ]
 
 
+icons : List (Html msg)
+icons =
+    List.map
+        (\( icon, url ) ->
+            a
+                [ class "up grid place-content-center"
+                , href <| url
+                , tabindex 0
+                , target "_blank"
+                ]
+                [ icon ]
+        )
+        [ ( ESvg.linkedin "text-3xl", "https://www.linkedin.com/in/johann-pereira-a798961b3/" )
+        , ( ESvg.instagram "text-3xl", "https://www.instagram.com/johanngon_" )
+        , ( ESvg.medium "text-3xl", "https://medium.com/@johann.gon.pereira" )
+        , ( ESvg.github "text-3xl ", "https://github.com/Johann-Goncalves-Pereira" )
+        ]
+
+
 viewPage : Shared.Model -> Model -> List (Html Msg)
 viewPage shared model =
     let
         content =
             [ Html.address [ orientation "left", class "main-orientation left-0" ]
-                [ nav [ class "grid gap-10 select-none mt-auto" ] <|
-                    List.map
-                        (\( icon, url ) ->
-                            a
-                                [ class "up grid place-content-center"
-                                , href <| url
-                                , tabindex 0
-                                , target "_blank"
-                                ]
-                                [ icon ]
-                        )
-                        [ ( ESvg.linkedin "text-3xl", "https://www.linkedin.com/in/johann-pereira-a798961b3/" )
-                        , ( ESvg.instagram "text-3xl", "https://www.instagram.com/johanngon_" )
-                        , ( ESvg.medium "text-3xl", "https://medium.com/@johann.gon.pereira" )
-                        , ( ESvg.github "text-3xl ", "https://github.com/Johann-Goncalves-Pereira" )
-                        ]
+                [ nav [ class "grid gap-10 select-none mt-auto" ] icons
                 ]
             , Html.address [ orientation "right", class "main-orientation right-0" ]
                 [ a
@@ -570,11 +574,9 @@ viewPage shared model =
 viewMainContent : Shared.Model -> Model -> Html Msg
 viewMainContent shared model =
     article [ class "main grid gap-10 w-[min(100vw_-_2rem,var(--size-xxl))] lg:w-full mx-auto z-10" ] <|
-        -- (Dialog.dialogForm model.dialog
-        --     |> Html.map DialogMsg
-        -- )
-        -- ::
-        [ viewIntroduction model
+        [ Dialog.dialogForm model.dialog
+            |> Html.map DialogMsg
+        , viewIntroduction model
         , viewThemeConfig shared.storage
         , viewAboutMe shared model
         , viewWhereHaveIWorked shared model
@@ -1367,10 +1369,16 @@ viewWhatsNext { inView } _ =
 
 
 viewFooter : Model -> { attrs : List (Attribute msg), content : List (Html msg) }
-viewFooter _ =
-    { attrs = [ class "grid place-items-center pb-3 mt-40" ]
+viewFooter { viewport } =
+    { attrs = [ class "grid gap-5 place-items-center pb-3 mt-12" ]
     , content =
-        [ a
+        [ if viewport.w <= 1024 || viewport.h <= 480 then
+            div [ class "flex gap-5" ]
+                icons
+
+          else
+            text ""
+        , a
             [ class "grid gap-3 whitespace-pre-wrap text-center text-xs font-mono"
             , href "#"
             , tabindex 0
@@ -1378,12 +1386,13 @@ viewFooter _ =
             ]
             [ text "Design by Brittany Chiang && Johann Pereira\n"
             , text "Build by Johann Pereira"
-            , p [ class "flex items-center justify-center gap-2 font-600" ]
-                [ materialIcon "" "auto_awesome"
-                , text "23.40"
-                , materialIcon "" "fork_right"
-                , text "202.3"
-                ]
+
+            -- , p [ class "flex items-center justify-center gap-2 font-600" ]
+            --     [ materialIcon "" "auto_awesome"
+            --     , text "23.40"
+            --     , materialIcon "" "fork_right"
+            --     , text "202.3"
+            --     ]
             ]
         ]
     }

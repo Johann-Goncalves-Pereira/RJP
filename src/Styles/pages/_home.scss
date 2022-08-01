@@ -40,19 +40,6 @@
 			margin-inline: auto;
 		}
 
-		.up {
-			cursor: pointer;
-
-			backface-visibility: hidden;
-			will-change: transform, color;
-			transition: transform 200ms ease-out, color 200ms ease-in 100ms;
-
-			&:enter {
-				transform: translateY(-0.25rem);
-				color: var(--clr-accent-600);
-			}
-		}
-
 		.email {
 			display: grid;
 			place-items: center;
@@ -150,5 +137,18 @@
 	&--out {
 		transform: scale(0.95) translateY(0.5rem);
 		opacity: 0;
+	}
+}
+
+.up {
+	cursor: pointer;
+
+	backface-visibility: hidden;
+	will-change: transform, color;
+	transition: transform 200ms ease-out, color 200ms ease-in 100ms;
+
+	&:enter {
+		transform: translateY(-0.25rem);
+		color: var(--clr-accent-600);
 	}
 }

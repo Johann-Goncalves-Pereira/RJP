@@ -69,17 +69,17 @@ a:not([class]) {
 //& Personal
 // :where(:focus-visible)
 :focus-visible {
-	box-shadow://
-		var(
-		--fv-shadow-inset,
-		var(--fv-shadow-x, 0px) //
-		var(--fv-shadow-y, 0px) //
-		var(--fv-shadow-blur, 8px) //
-		var(--fv-shadow-spreed, 2px) //
-		var(--fv-shadow-color, currentColor)
-	);
+	// box-shadow://
+	// 	var(
+	// 	--fv-shadow-inset,
+	// 	var(--fv-shadow-x, 0px) //
+	// 	var(--fv-shadow-y, 0px) //
+	// 	var(--fv-shadow-blur, 8px) //
+	// 	var(--fv-shadow-spreed, 2px) //
+	// 	var(--fv-shadow-color, currentColor)
+	// );
 
-	// filter: drop-shadow(0px 0px 6px currentColor);
+	filter: drop-shadow(0px 0px 6px currentColor);
 	border-radius: var(--fv-rounded, var(--rounded-sm));
 }
 
