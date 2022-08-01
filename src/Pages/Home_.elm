@@ -1179,15 +1179,30 @@ viewNoteworthyProjects model =
                         Just url_ ->
                             link_ url_ <| ESvg.github ""
 
+                siteUrl =
+                    case projectUlr of
+                        Nothing ->
+                            text ""
+
+                        Just url_ ->
+                            link_ url_ <| materialIcon "drop-shadow" "open_in_new"
+
                 delay_ =
                     String.fromInt (modMedia i * 100)
                         ++ "ms"
                         |> customProp "delay"
+
+                generalUrl =
+                    if projectUlr == Nothing then
+                        Maybe.withDefault "" gitHubUrl
+
+                    else
+                        Maybe.withDefault "" projectUlr
             in
             li [ class "card-item", tabindex 0 ]
                 [ a
                     [ class "card"
-                    , href projectUlr
+                    , href generalUrl
                     , ariaLabelledby head_
                     , target "_blank"
                     , delay_
@@ -1195,7 +1210,7 @@ viewNoteworthyProjects model =
                     [ div [ class "card__wrapper " ]
                         [ materialIcon "folder" "folder"
                         , gitHub_
-                        , link_ projectUlr <| materialIcon "" "open_in_new"
+                        , siteUrl
                         ]
                     , h6 [ class "card__title", id head_ ] [ text title ]
                     , p [] [ text desc ]
@@ -1209,7 +1224,7 @@ viewNoteworthyProjects model =
             noteworthyProjectsData
 
          else
-            List.take (max 4 (v_ * 2)) noteworthyProjectsData
+            List.take (max 4 <| v_ * 2) noteworthyProjectsData
         )
 
 
@@ -1220,38 +1235,95 @@ viewNoteworthyProjects model =
 noteworthyProjectsData :
     List
         { gitHubUrl : Maybe String
-        , projectUlr : String
+        , projectUlr : Maybe String
         , title : String
         , desc : String
         , tags : List String
         }
 noteworthyProjectsData =
-    [ { gitHubUrl = Just "#"
-      , projectUlr = "#"
-      , title = "Out Doors website"
+    [ { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/the-greate-outdoors"
+      , projectUlr = Just "https://app.netlify.com/sites/tourmaline-conkies-5e8bc9/overview"
+      , title = "Out Doors Website"
       , desc = """A simple website for a company that sells outdoor gear.
-          It's just the home page bug is responsive and super beautiful"""
-      , tags = [ "elm", "sass", "html" ]
+          It's just the home page is responsive and super beautiful.
+          Design coped see on repository where."""
+      , tags = [ "Elm", "Sass", "Netlify" ]
       }
-    , { gitHubUrl = Nothing
-      , projectUlr = "#"
-      , title = "Out Doors website"
-      , desc = """A simple website for a company that sells outdoor gear.
-          It's just the home page bug is responsive and super beautiful
-          A simple website for a company that sells outdoor gear.
-          It's just the home page bug is responsive and super beautiful"""
-      , tags = [ "elm", "sass", "html" ]
+    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/Excel-Week"
+      , projectUlr = Nothing
+      , title = "Excel on Practice"
+      , desc = """A freelance that I worked on, It's a homepage to sell a week course, 
+      of how to use excel excel, I was super cool make a in 3 days."""
+      , tags = [ "ReactJs", "Sass", "ViteJs" ]
       }
-    , { gitHubUrl = Just "#"
-      , projectUlr = "#"
-      , title = "Out Doors website Out Doors website Out Doors websiteOut Doors website"
-      , desc = """A simple website for a company that sells outdoor gear.
-          It's just the home page bug is responsive and super beautiful"""
-      , tags = [ "elm", "sass", "html" ]
+    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/Grid-News"
+      , projectUlr = Just "https://62e8319e17cd161f972e91ae--luminous-clafoutis-c0bf0f.netlify.app"
+      , title = "Grid News"
+      , desc = """Website with a grid system that I like, so I made my version.
+      The original site is on the description of the github project. Not finished."""
+      , tags = [ "Elm", "PostCss", "Tailwind", "Sass" ]
+      }
+    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/bevy-snake"
+      , projectUlr = Nothing
+      , title = "Snake Game Build with Rust"
+      , desc = """An Game made with Bevy, a Rust Framework.
+       Just to learn how to use it."""
+      , tags = [ "Rust", "Bevy", "Cargo" ]
+      }
+    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/shell-config"
+      , projectUlr = Nothing
+      , title = "My Shell Config"
+      , desc = """The Terminal is the most personal thing of a developer,
+       in this project I made a config for my shell as me."""
+      , tags = [ "ZShel", "O-My-ZShell", "p10k" ]
+      }
+    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/Developers-Concept"
+      , projectUlr = Just "https://app.netlify.com/sites/jgp-pnco/overview"
+      , title = "Developers Concept"
+      , desc = """This was an attempt to make a portfolio that fail."""
+      , tags = [ "Elm", "Elm-spa", "Sass", "Tailwind" ]
+      }
+    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/Kelpie"
+      , projectUlr = Nothing
+      , title = "Kelpie"
+      , desc = """My first website made with Elm,
+       I was super cool to make, and super hard because Elm,
+        its super hard at start. The site is a copy of Unsplash."""
+      , tags = [ "Elm", "Webpack", "Sass", "Tailwind" ]
+      }
+    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/elm-spotify"
+      , projectUlr = Just "https://medium.com/@johann.gon.pereira/building-spotify-with-elm-00-b18b6bf815d7"
+      , title = "Elm Spotify"
+      , desc = """The elm-spotify was an attempt to make a 
+      clone of spotify width elm. Not just that, I try to document on Medium and Dev.io."""
+      , tags = [ "Elm", "Docker", "Vite", "Sass" ]
+      }
+    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/Email-Constructor"
+      , projectUlr = Nothing
+      , title = "Email Constructor"
+      , desc = """I use this project to make the html of emails"""
+      , tags = [ "Elm", "Email", "PostCss", "Sass" ]
+      }
+    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/calc-flutter"
+      , projectUlr = Nothing
+      , title = "Calc Flutter"
+      , desc = """I try to learn flutter, so I made this calculator."""
+      , tags = [ "Flutter", "Dart" ]
+      }
+    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/Timer-Countdown"
+      , projectUlr = Nothing
+      , title = "Timer Countdown"
+      , desc = """Timer Countdown is a simple timer that I made with Go(golang),
+       I don't know why huahauahua."""
+      , tags = [ "Flutter", "Dart" ]
+      }
+    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/flus"
+      , projectUlr = Nothing
+      , title = "Flus"
+      , desc = """A app made with React Native."""
+      , tags = [ "ReactNative", "Typescript" ]
       }
     ]
-        |> List.repeat 5
-        |> List.concat
 
 
 viewWhatsNext : Shared.Model -> Model -> Html Msg
