@@ -85,8 +85,7 @@
 		}
 
 		&__wrapper {
-			display: grid;
-			grid-template-columns: 1fr auto auto;
+			display: flex;
 			align-items: start;
 			gap: 1rem;
 
@@ -97,6 +96,7 @@
 			}
 
 			.folder {
+				flex-grow: 1;
 				position: relative;
 				bottom: 4px;
 				font-size: 1.5em;
