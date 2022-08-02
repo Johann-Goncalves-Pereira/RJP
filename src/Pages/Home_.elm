@@ -52,6 +52,7 @@ import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
 import InView
 import Layout exposing (initLayout)
 import Page
+import Process
 import Request
 import Round
 import Shared
@@ -309,7 +310,10 @@ update shared msg model =
                         y_ =
                             e_.element.y
                     in
-                    ( { model | elementsPosition = Dict.insert id_ y_ model.elementsPosition }
+                    ( { model
+                        | elementsPosition =
+                            Dict.insert id_ y_ model.elementsPosition
+                      }
                     , Cmd.none
                     )
 
@@ -1082,8 +1086,8 @@ viewThingsThatIHaveBuild { inView } model =
                     [ header [ class "grid place-items-center gap-5" ]
                         [ h4 [ class "text-4xl text-center font-800", tabindex 0, id "header-noteworthy" ]
                             [ text "Other Noteworthy Projects" ]
-                        , a [ class "link-underline", href "#", customProp "n-ch" "-13ch", tabindex 0, target "_blank" ]
-                            [ text "view the archive" ]
+                        , p []
+                            [ text "View the my side projects" ]
                         ]
                     , ul [ class "grid grid-cols-fit-20 auto-rows-fr gap-6" ] <| viewNoteworthyProjects model
                     , button
