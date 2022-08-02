@@ -277,7 +277,7 @@ update shared msg model =
             )
 
         ShowMore toggler_ ->
-            ( { model | showMore = not toggler_ }, Cmd.none )
+            ( { model | showMore = not toggler_ }, getSectionPos listIds )
 
         ImageOver isOver_ ->
             ( { model | imageOver = isOver_ }, Cmd.none )
@@ -1235,10 +1235,6 @@ viewNoteworthyProjects model =
          else
             List.take (max 4 <| v_ * 2) noteworthyProjectsData
         )
-
-
-
--- noteworthyProjectsData :
 
 
 noteworthyProjectsData :
