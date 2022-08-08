@@ -1,3 +1,9 @@
+@use "../abstracts/" as *;
+
+// * {
+// 	outline: 1px solid #ff000054;
+// }
+
 body {
 	color: var(--clr-surface-100, hsl(0, 0%, 90%));
 	background-color: var(--clr-surface-900, hsl(0, 0%, 10%));
