@@ -2,6 +2,7 @@
 	display: grid;
 	gap: 3rem;
 	padding-block: 8rem 4rem;
+	width: Min(100vw - 2rem, 100%);
 
 	.card-item {
 		display: grid;

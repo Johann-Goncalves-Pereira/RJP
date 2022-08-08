@@ -72,7 +72,7 @@
 		margin-inline: auto;
 		margin-top: 4rem;
 
-		width: 22rem;
+		width: Min(22rem, 100% - 2rem);
 
 		aspect-ratio: 1/1;
 		filter: none;

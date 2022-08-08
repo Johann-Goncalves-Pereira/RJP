@@ -10,7 +10,6 @@
 	margin-top: 5rem;
 	padding-top: 5rem;
 
-	width: calc(100% - 2rem);
 	@media (--lg-n-above) {
 		width: Min(100% - var(--size-fluid-8), 75ch + 25rem);
 	}
@@ -255,8 +254,8 @@
 		}
 
 		.list {
-			display: grid;
-			grid-auto-flow: column;
+			display: inline-flex;
+			flex-wrap: wrap;
 			gap: 1rem;
 
 			z-index: 10;
