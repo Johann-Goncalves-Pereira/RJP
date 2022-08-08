@@ -525,7 +525,16 @@ viewHeader model =
           else
             text ""
         , links
-            ++ [ li [] [ a [ href "https://www.upwork.com/freelancers/~011d31917fa3d87f28", class "list__resume", tabindex 0 ] [ text "resume" ] ] ]
+            ++ [ li []
+                    [ a
+                        [ class "list__resume"
+                        , href "https://www.upwork.com/freelancers/~011d31917fa3d87f28"
+                        , Attr.target "_blank"
+                        , tabindex 0
+                        ]
+                        [ text "resume" ]
+                    ]
+               ]
             |> ul [ class "list" ]
         ]
     ]
