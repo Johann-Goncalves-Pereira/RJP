@@ -1386,7 +1386,7 @@ viewWhatsNext { inView } _ =
 
 viewFooter : Model -> { attrs : List (Attribute msg), content : List (Html msg) }
 viewFooter { viewport } =
-    { attrs = [ class "grid gap-5 place-items-center pb-3 mt-12" ]
+    { attrs = [ class "grid gap-5 place-items-center pb-3 mt-12 w-min-base" ]
     , content =
         [ if viewport.w <= 1024 || viewport.h <= 480 then
             div [ class "flex gap-5" ]

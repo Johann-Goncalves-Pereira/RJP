@@ -58,6 +58,7 @@ module.exports = {
       },
       width: {
         gp: "clamp(45ch,50vw + 1rem,75ch)",
+        "min-base": "min(100%, 100vw_-_2rem)",
       },
     },
   },
