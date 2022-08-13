@@ -49,8 +49,8 @@ update msg model =
             )
 
 
-viewNoteworthy : Model -> Html Msg
-viewNoteworthy model =
+viewNoteworthy : Model -> List String -> Html Msg
+viewNoteworthy model listIds =
     let
         showMore =
             if model.showMore then
@@ -66,7 +66,7 @@ viewNoteworthy model =
             , p []
                 [ text "View the my side projects" ]
             ]
-        , viewNoteworthyProjects model
+        , viewNoteworthyProjects model listIds
             |> ul [ Attr.class "grid grid-cols-fit-20 auto-rows-fr gap-6" ]
         , button
             [ Attr.class "btm-accent mx-auto"
@@ -77,8 +77,8 @@ viewNoteworthy model =
         ]
 
 
-viewNoteworthyProjects : Model -> List (Html Msg)
-viewNoteworthyProjects model =
+viewNoteworthyProjects : Model -> List String -> List (Html Msg)
+viewNoteworthyProjects model listIds =
     let
         v_ =
             if model.viewport.width <= 1024 then
@@ -124,9 +124,9 @@ viewNoteworthyProjects model =
                             link_ url_ <| materialIcon "drop-shadow" "open_in_new"
 
                 delay_ =
-                    String.fromInt (modMedia i * 100)
+                    String.fromInt (modMedia i * 200)
                         ++ "ms"
-                        |> customProp "delay"
+                        |> customProp "in-view-delay"
 
                 generalUrl =
                     if projectUlr == Nothing then
@@ -134,14 +134,25 @@ viewNoteworthyProjects model =
 
                     else
                         Maybe.withDefault "" projectUlr
+
+                isInView_ =
+                    String.contains (noteworthyId i) (String.join " " listIds)
             in
-            li [ Attr.class "card-item", Attr.id <| noteworthyId i, Attr.tabindex 0 ]
+            li
+                [ Attr.classList
+                    [ ( "card-item view", True )
+                    , ( "view--in", isInView_ )
+                    , ( "view--out", not isInView_ )
+                    ]
+                , Attr.id <| noteworthyId i
+                , Attr.tabindex 0
+                , delay_
+                ]
                 [ a
                     [ Attr.class "card"
                     , Attr.href generalUrl
                     , ariaLabelledby head_
                     , Attr.target "_blank"
-                    , delay_
                     ]
                     [ div [ Attr.class "card__wrapper " ]
                         [ materialIcon "folder" "folder"
@@ -166,7 +177,12 @@ viewNoteworthyProjects model =
 
 noteworthyId : Int -> String
 noteworthyId idx_ =
-    "noteworthy--" ++ String.fromInt idx_
+    let
+        correctZero =
+            String.padLeft 2 '0'
+    in
+    "noteworthy--"
+        ++ correctZero (String.fromInt idx_)
 
 
 noteworthyProjectsDataIds : List String

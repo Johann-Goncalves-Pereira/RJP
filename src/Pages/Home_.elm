@@ -581,17 +581,20 @@ viewMainContent shared model =
         , viewAboutMe shared model
         , viewWhereHaveIWorked shared model
         , viewThingsThatIHaveBuild shared
-        , NoteworthyProjects.viewNoteworthy model.noteworthyProjects
+        , loadNoteworthy shared.inView.inView
+            NoteworthyProjects.noteworthyProjectsDataIds
+            |> NoteworthyProjects.viewNoteworthy
+                model.noteworthyProjects
             |> Html.map NoteworthyProjectsMsg
         , viewWhatsNext shared model
         ]
 
 
 loadElement : InView.State -> String -> Int -> String
-loadElement state class id =
+loadElement state_ class_ id_ =
     let
         load_ s_ i_ =
-            case InView.isInViewWithMargin i_ (InView.Margin 200 0 200 0) s_ of
+            case InView.isInViewWithMargin i_ (InView.Margin 100 0 300 0) s_ of
                 Just True ->
                     "view view--in"
 
@@ -599,11 +602,25 @@ loadElement state class id =
                     "view view--out"
     in
     String.join " "
-        [ class
-        , (id - 1)
+        [ class_
+        , (id_ - 1)
             |> getIds
-            >> load_ state
+            >> load_ state_
         ]
+
+
+loadNoteworthy : InView.State -> List String -> List String
+loadNoteworthy state_ ids_ =
+    List.map
+        (\loadedIds_ ->
+            case InView.isInViewWithMargin loadedIds_ (InView.Margin 100 0 300 0) state_ of
+                Just True ->
+                    loadedIds_
+
+                _ ->
+                    ""
+        )
+        ids_
 
 
 viewIntroduction : Shared.Model -> Model -> Html Msg
