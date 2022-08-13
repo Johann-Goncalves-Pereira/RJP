@@ -128,6 +128,7 @@
 			border-radius: inherit;
 			aspect-ratio: 1/1;
 			object-fit: cover;
+			object-position: 0 -2rem;
 			filter: grayscale(1);
 
 			backface-visibility: hidden;
@@ -142,7 +143,7 @@
 				transform: translate(0, 0) scale(0.98);
 			}
 			&::after {
-				--alpha: 0.875;
+				--alpha: 0.25;
 				outline-width: 5px;
 			}
 			img {
