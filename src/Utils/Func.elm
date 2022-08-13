@@ -1,6 +1,7 @@
 module Utils.Func exposing
     ( Patterns(..)
     , aplR
+    , correctZero
     , getPattern
     , regex
     , regexValidate
@@ -64,3 +65,8 @@ getPattern p =
     dictPatterns
         |> Dict.get (patterns p)
         |> Maybe.withDefault ""
+
+
+correctZero : Int -> String
+correctZero =
+    String.fromInt >> String.padLeft 2 '0'

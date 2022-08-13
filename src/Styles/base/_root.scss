@@ -30,6 +30,32 @@ body {
 			background-color: transparent;
 		}
 	}
+
+	&::before {
+		content: "";
+		position: fixed 0;
+
+		// background-color: hsl(var(--clr-surface-900-hsl), var(--alpha_, 1));
+
+		z-index: 99;
+
+		animation: fade 1000ms ease-in forwards;
+
+		@keyframes fade {
+			0% {
+				background-color: hsl(var(--clr-surface-900-hsl), 1);
+				backdrop-filter: blur(3rem);
+			}
+			99.9% {
+				transform: translateX(0);
+				background-color: hsl(var(--clr-surface-900-hsl), 0);
+				backdrop-filter: blur(0);
+			}
+			100% {
+				transform: translateX(-100vmax);
+			}
+		}
+	}
 }
 
 .scroll-style {

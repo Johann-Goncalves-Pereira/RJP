@@ -4,6 +4,7 @@
 
 	padding-block: 4rem;
 	margin-inline: auto;
+	margin-block: 10rem;
 
 	width: calc(100% - 2rem);
 
@@ -53,8 +54,7 @@
 
 			position: relative;
 
-			border-top: $border-left-width solid
-				hsl(var(--clr-surface-400-hsl) / 0.25);
+			border-top: $border-left-width solid hsl(var(--clr-surface-400-hsl) / 0.25);
 			padding-block: var(--size-3);
 			padding-inline: var(--size-6);
 
@@ -66,8 +66,7 @@
 
 			@media (--md-n-above) {
 				border-top: 0;
-				border-left: $border-left-width solid
-					hsl(var(--clr-surface-400-hsl) / 0.25);
+				border-left: $border-left-width solid hsl(var(--clr-surface-400-hsl) / 0.25);
 
 				text-align: start;
 			}

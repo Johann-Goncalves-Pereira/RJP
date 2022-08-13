@@ -1,5 +1,8 @@
 port module Utils.Scroll exposing (..)
 
+import Browser.Events exposing (onResize)
+import Components.NoteworthyProjects exposing (noteworthyProjectsDataIds)
+import Components.ThingsThatIHaveBuild as ThingsThatIHaveBuild
 import InView
 
 
@@ -74,6 +77,7 @@ listIds =
     [ "about"
     , "experience"
     , "work"
-    , "other-noteworthy-projects"
     , "contact"
     ]
+        ++ noteworthyProjectsDataIds
+        ++ ThingsThatIHaveBuild.ids

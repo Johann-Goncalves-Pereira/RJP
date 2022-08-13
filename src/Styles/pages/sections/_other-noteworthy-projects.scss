@@ -2,7 +2,11 @@
 	display: grid;
 	gap: 3rem;
 	padding-block: 8rem 4rem;
-	width: Min(100vw - 2rem, 100%);
+	margin-inline: auto;
+
+	@media (--lg-n-above) {
+		width: Min(100% - var(--size-fluid-8), 75ch + 25rem);
+	}
 
 	.card-item {
 		display: grid;
