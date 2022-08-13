@@ -1,7 +1,7 @@
 module Utils.View exposing (..)
 
 import Html exposing (Attribute, Html, span, text)
-import Html.Attributes exposing (attribute, class, type_)
+import Html.Attributes as Attr exposing (attribute, class, type_)
 import Html.Attributes.Aria exposing (ariaHidden)
 
 
@@ -34,3 +34,32 @@ materialIcon className iconName =
 button : List (Attribute msg) -> List (Html msg) -> Html msg
 button attributes content =
     Html.button (type_ "button" :: attributes) content
+
+
+srcset : String -> Attribute msg
+srcset =
+    Attr.attribute "srcset"
+
+
+picture : String -> String -> Html msg
+picture url_ name_ =
+    List.map
+        (\extension_ ->
+            Html.source
+                [ url_
+                    ++ "."
+                    ++ extension_
+                    |> srcset
+                ]
+                []
+        )
+        [ "avif", "webp" ]
+        ++ [ Html.img
+                [ url_
+                    ++ ".jpg"
+                    |> Attr.src
+                , Attr.alt name_
+                ]
+                []
+           ]
+        |> Html.node "picture" []

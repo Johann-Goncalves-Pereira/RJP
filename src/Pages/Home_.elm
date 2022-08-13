@@ -6,6 +6,7 @@ import Browser.Events exposing (onResize)
 import Components.Dialog as Dialog
 import Components.NoteworthyProjects as NoteworthyProjects
 import Components.Svg as ESvg
+import Components.ThingsThatIHaveBuild as TTIHB
 import Debouncer.Basic as Debouncer exposing (Debouncer, fromSeconds, settleWhenQuietFor, toDebouncer)
 import Dict exposing (Dict)
 import Gen.Params.Home_ exposing (Params)
@@ -61,7 +62,7 @@ import Svg.Attributes exposing (offset, orientation)
 import Task
 import Utils.Func exposing (aplR)
 import Utils.Models as Models
-import Utils.View exposing (button, customProp, customProps, materialIcon)
+import Utils.View exposing (button, customProp, customProps, materialIcon, picture)
 import View exposing (View)
 
 
@@ -325,7 +326,6 @@ listIds =
     [ "about"
     , "experience"
     , "work"
-    , "other-noteworthy-projects"
     , "contact"
     ]
 
@@ -338,11 +338,6 @@ dialogId =
 secOneId : String
 secOneId =
     "introduction-id"
-
-
-correctZero : Int -> String
-correctZero =
-    String.fromInt >> String.padLeft 2 '0'
 
 
 getIds : Int -> String
@@ -365,44 +360,6 @@ scrollDeltaTrigger wheelEvent =
 
     else
         WheelDelta False
-
-
-srcset : String -> Attribute msg
-srcset =
-    Attr.attribute "srcset"
-
-
-picture : String -> String -> Html Msg
-picture url_ name_ =
-    List.map
-        (\extension_ ->
-            Html.source
-                [ url_
-                    ++ "."
-                    ++ extension_
-                    |> srcset
-                ]
-                []
-        )
-        [ "avif", "webp" ]
-        ++ [ img
-                [ url_
-                    ++ ".jpg"
-                    |> src
-                , alt name_
-                ]
-                []
-           ]
-        |> Html.node "picture" []
-
-
-isOdd : Int -> Bool
-isOdd x =
-    if modBy 2 x == 0 then
-        False
-
-    else
-        True
 
 
 view : Shared.Model -> Model -> View Msg
@@ -469,7 +426,7 @@ viewHeader { viewport } model =
                             , tabindex 0
                             ]
                             [ span [ class "text-accent-600" ]
-                                [ text <| correctZero i ++ ". " ]
+                                [ text <| Utils.Func.correctZero i ++ ". " ]
                             , text route
                             ]
                         ]
@@ -580,7 +537,7 @@ viewMainContent shared model =
         , viewThemeConfig shared.storage
         , viewAboutMe shared model
         , viewWhereHaveIWorked shared model
-        , viewThingsThatIHaveBuild shared
+        , TTIHB.view shared.inView.inView
         , loadNoteworthy shared.inView.inView
             NoteworthyProjects.noteworthyProjectsDataIds
             |> NoteworthyProjects.viewNoteworthy
@@ -767,7 +724,7 @@ viewThemeConfig storage =
 headersSection : Int -> String -> Html Msg
 headersSection sectNumber title =
     header [ class <| "header-section", tabindex 0 ]
-        [ Html.i [ class "header-section__number" ] [ text <| correctZero sectNumber ++ "." ]
+        [ Html.i [ class "header-section__number" ] [ text <| Utils.Func.correctZero sectNumber ++ "." ]
         , h3
             [ class "header-section__title"
             , id <| "section--title--" ++ String.fromInt sectNumber
@@ -996,148 +953,6 @@ viewWhereHaveIWorked { inView } model =
             ]
             listWork
             :: workContent
-
-
-viewThingsThatIHaveBuild : Shared.Model -> Html Msg
-viewThingsThatIHaveBuild shared =
-    let
-        viewProjects =
-            List.indexedMap
-                (\i { imgUrl, altImg, italic, title, desc, list, repositoryUrl, projectLink } ->
-                    let
-                        classLink_ =
-                            class """inline-grid place-content-center 
-                            focus-visible:text-accent-600 hover:text-accent-600 
-                            transition-colors"""
-                    in
-                    div
-                        [ classList
-                            [ ( "projects", True )
-                            , ( "projects--left", isOdd i )
-                            , ( "projects--right", not <| isOdd i )
-                            ]
-                        ]
-                        [ a
-                            [ class "img"
-                            , href projectLink
-                            , ariaLabel altImg
-                            , tabindex 0
-                            , target "_blank"
-                            ]
-                            [ picture imgUrl altImg
-
-                            {- img [ src imgUrl, alt altImg ] [] -}
-                            ]
-                        , div [ class "projects__info" ]
-                            [ Html.i
-                                [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-600"
-                                , tabindex 0
-                                ]
-                                [ text <| Maybe.withDefault "Featured Project" italic ]
-                            , h5 [ class " font-800 text-1xl md:text-3xl z-10", tabindex 0 ]
-                                [ text title ]
-                            , div [ class "paragraph" ]
-                                [ p [ class "paragraph__text", tabindex 0 ] desc
-                                ]
-                            , ul [ class "list", tabindex 0 ] <|
-                                List.map (\itemText -> li [] [ text itemText ])
-                                    list
-                            , div
-                                [ classList
-                                    [ ( "flex items-center gap-4 mt-1 text-surface-100 text-2xl", True )
-                                    , ( "md:justify-end", not <| isOdd i )
-                                    ]
-                                ]
-                                [ case repositoryUrl of
-                                    Nothing ->
-                                        text ""
-
-                                    Just url_ ->
-                                        a
-                                            [ classLink_
-                                            , href url_
-                                            , tabindex 0
-                                            , target "_blank"
-                                            ]
-                                            [ ESvg.github "drop-shadow" ]
-                                , a
-                                    [ classLink_
-                                    , href projectLink
-                                    , tabindex 0
-                                    , target "_blank"
-                                    ]
-                                    [ materialIcon "drop-shadow" "open_in_new" ]
-                                ]
-                            ]
-                        ]
-                )
-                thingsThatIHaveBuild
-
-        elementId =
-            3
-
-        inView_ =
-            shared.inView.inView
-
-        class_ =
-            loadElement inView_ "things-that-i-have-build" elementId
-    in
-    sectionBuilder class_ "Some Things I've Built" elementId <|
-        viewProjects
-
-
-thingsThatIHaveBuild :
-    List
-        { imgUrl : String
-        , altImg : String
-        , italic : Maybe String
-        , title : String
-        , desc : List (Html Msg)
-        , list : List String
-        , repositoryUrl : Maybe String
-        , projectLink : String
-        }
-thingsThatIHaveBuild =
-    [ { imgUrl = "/assets/materialize-plataform"
-      , altImg = "Materialize Plataform - Photo"
-      , italic = Nothing
-      , title = "Materialize Plataform"
-      , desc =
-            [ text "A plataform to schedule Specialist and Clients to work together. \n"
-            , text "There are implementations such as, Teams management,\n "
-            , text "Profiles - Hating - Schedule, Chat/Call rooms to work together and opportunities."
-            ]
-      , list =
-            [ "Elm"
-            , "Html"
-            , "Sass"
-            , "Webpack"
-            ]
-      , repositoryUrl = Nothing
-      , projectLink = "https://app.materialize.pro"
-      }
-    , { imgUrl = "/assets/revex"
-      , altImg = "Revex - Photo"
-      , italic = Nothing
-      , title = "Revex"
-      , desc =
-            [ text "Open source boilerplate for Elm. Integrated with Vite, EsBuild, and a lot more.\n"
-            , text "I build It to do the process of build a new project with elm a lot easer. "
-            , text "I'm also the maintainer of the project, and it was build with all the new cool technologies."
-            ]
-      , list =
-            [ "Elm"
-            , "Elm-Spa"
-            , "Vite"
-            , "Sass"
-            , "Tailwind"
-            , "EsBuild"
-            , "Typescript"
-            ]
-      , repositoryUrl = Just "https://github.com/Johann-Goncalves-Pereira/Revex"
-      , projectLink = "https://main--revex.netlify.app"
-      }
-    ]
 
 
 viewWhatsNext : Shared.Model -> Model -> Html Msg
