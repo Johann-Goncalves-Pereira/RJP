@@ -1,4 +1,4 @@
-module Pages.Home_ exposing (Model, Msg, page)
+module Pages.Home_ exposing (Model, Msg, noteworthyProjectsDataIds, page)
 
 import Array
 import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getViewport, setViewport)
@@ -52,7 +52,6 @@ import Html.Events.Extra.Wheel as Wheel exposing (onWheel)
 import InView
 import Layout exposing (initLayout)
 import Page
-import Process
 import Request
 import Round
 import Shared
@@ -83,7 +82,6 @@ page shared _ =
 type alias Model =
     { -- Page Events
       quietForSomeTime : Debouncer Msg Msg
-    , viewport : { w : Float, h : Float }
     , wheelDelta : Bool
 
     -- Element States
@@ -109,7 +107,6 @@ init : ( Model, Cmd Msg )
 init =
     ( { -- Page Events
         quietForSomeTime = manualDebouncer 0.25
-      , viewport = { w = 0, h = 0 }
       , wheelDelta = False
 
       -- Element States
@@ -131,8 +128,7 @@ init =
       }
     , Cmd.batch
         [ --
-          Task.perform GetViewport getViewport
-        , BrowserDom.getElement secOneId
+          BrowserDom.getElement secOneId
             |> Task.attempt GetSectionSize
         , getSectionPos listIds
         ]
@@ -164,8 +160,6 @@ type Msg
     = -- Page Events
       NoOp
     | MsgQuietForSomeTime (Debouncer.Msg Msg)
-    | GetViewport Viewport
-    | GetNewViewport ( Float, Float )
     | ScrollTo (Maybe Float)
     | WheelDelta Bool
     | ChangeTheme ( Storage.Scheme, Int )
@@ -190,11 +184,6 @@ update shared msg model =
 
         offset =
             shared.inView.offset
-
-        defaultViewport =
-            { w = model.viewport.w
-            , h = model.viewport.h
-            }
     in
     case msg of
         NoOp ->
@@ -219,27 +208,6 @@ update shared msg model =
 
                 Nothing ->
                     ( updatedModel, mappedCmd )
-
-        GetViewport v_ ->
-            let
-                ( w_, h_ ) =
-                    ( v_.viewport.width, v_.viewport.height )
-            in
-            ( { model
-                | viewport =
-                    { defaultViewport | w = w_, h = h_ }
-              }
-            , BrowserDom.getElement secOneId
-                |> Task.attempt GetSectionSize
-            )
-
-        GetNewViewport ( w_, h_ ) ->
-            ( { model
-                | viewport =
-                    { defaultViewport | w = w_, h = h_ }
-              }
-            , Cmd.none
-            )
 
         ScrollTo y_ ->
             ( model
@@ -330,10 +298,7 @@ update shared msg model =
 
 subs : Model -> Sub Msg
 subs _ =
-    Sub.batch
-        [ onResize <| \w h -> GetNewViewport ( toFloat w, toFloat h )
-        , onResize <| \_ _ -> GotElementPositionAgain
-        ]
+    onResize <| \_ _ -> GotElementPositionAgain
 
 
 
@@ -459,19 +424,19 @@ view shared model =
                     [ classList
                         [ ( "wheel-hidden", model.wheelDelta && offsetY >= 100 )
                         , ( "before:content-none", offsetY <= 100 )
-                        , ( "backdrop-blur", not model.showNav || model.viewport.w >= 1024 )
+                        , ( "backdrop-blur", not model.showNav || shared.viewport.width >= 1024 )
                         ]
                     ]
-                , headerContent = viewHeader model
+                , headerContent = viewHeader shared model
                 , mainContent = viewPage shared model
-                , footerAttrs = (viewFooter model).attrs
-                , footerContent = (viewFooter model).content
+                , footerAttrs = (viewFooter shared).attrs
+                , footerContent = (viewFooter shared).content
             }
     }
 
 
-viewHeader : Model -> List (Html Msg)
-viewHeader model =
+viewHeader : Shared.Model -> Model -> List (Html Msg)
+viewHeader { viewport } model =
     let
         links =
             List.indexedMap
@@ -505,7 +470,7 @@ viewHeader model =
     in
     [ a [ class "icon h-full", href "#", tabindex 0, onClick <| ScrollTo <| Just 0 ]
         [ ESvg.myIcon "" ]
-    , if model.viewport.w <= 1024 then
+    , if viewport.width <= 1024 then
         button
             [ class <| "nav-toggler " ++ checkNav.className
             , role "switch"
@@ -519,7 +484,7 @@ viewHeader model =
       else
         text ""
     , nav [ class <| "nav " ++ checkNav.className ]
-        [ if model.viewport.w <= 1024 then
+        [ if viewport.width <= 1024 then
             button [ role "switch", onClick <| ShowNav model.showNav ] []
 
           else
@@ -581,7 +546,7 @@ viewPage shared model =
             ]
 
         media =
-            if model.viewport.w <= 1024 || model.viewport.h <= 480 then
+            if shared.viewport.width <= 1024 || shared.viewport.width <= 480 then
                 viewMainContent shared model
                     |> List.singleton
 
@@ -596,7 +561,7 @@ viewMainContent shared model =
     article [ class "main grid gap-10 w-[min(100vw_-_2rem,var(--size-xxl))] lg:w-full mx-auto z-10" ] <|
         [ Dialog.dialogForm model.dialog
             |> Html.map DialogMsg
-        , viewIntroduction model
+        , viewIntroduction shared model
         , viewThemeConfig shared.storage
         , viewAboutMe shared model
         , viewWhereHaveIWorked shared model
@@ -624,11 +589,11 @@ loadElement state class id =
         ]
 
 
-viewIntroduction : Model -> Html Msg
-viewIntroduction model =
+viewIntroduction : Shared.Model -> Model -> Html Msg
+viewIntroduction { viewport } model =
     let
         textSize width str =
-            if model.viewport.w >= width then
+            if viewport.width >= width then
                 str
 
             else
@@ -1000,7 +965,7 @@ viewWhereHaveIWorked { inView } model =
 
 
 viewThingsThatIHaveBuild : Shared.Model -> Model -> Html Msg
-viewThingsThatIHaveBuild { inView } model =
+viewThingsThatIHaveBuild shared model =
     let
         viewProjects =
             List.indexedMap
@@ -1083,7 +1048,7 @@ viewThingsThatIHaveBuild { inView } model =
             3
 
         inView_ =
-            inView.inView
+            shared.inView.inView
 
         class_ =
             loadElement inView_ "things-that-i-have-build" elementId
@@ -1098,7 +1063,7 @@ viewThingsThatIHaveBuild { inView } model =
                         , p []
                             [ text "View the my side projects" ]
                         ]
-                    , ul [ class "grid grid-cols-fit-20 auto-rows-fr gap-6" ] <| viewNoteworthyProjects model
+                    , ul [ class "grid grid-cols-fit-20 auto-rows-fr gap-6" ] <| viewNoteworthyProjects shared model
                     , button
                         [ class "btm-accent mx-auto"
                         , tabindex 0
@@ -1163,14 +1128,14 @@ thingsThatIHaveBuild =
     ]
 
 
-viewNoteworthyProjects : Model -> List (Html Msg)
-viewNoteworthyProjects model =
+viewNoteworthyProjects : Shared.Model -> Model -> List (Html Msg)
+viewNoteworthyProjects { viewport } model =
     let
         v_ =
-            if model.viewport.w <= 1024 then
+            if viewport.width <= 1024 then
                 1
 
-            else if model.viewport.w <= 1440 then
+            else if viewport.width <= 1440 then
                 2
 
             else
@@ -1221,7 +1186,7 @@ viewNoteworthyProjects model =
                     else
                         Maybe.withDefault "" projectUlr
             in
-            li [ class "card-item", tabindex 0 ]
+            li [ class "card-item", Attr.id <| noteworthyId i, tabindex 0 ]
                 [ a
                     [ class "card"
                     , href generalUrl
@@ -1248,6 +1213,16 @@ viewNoteworthyProjects model =
          else
             List.take (max 4 <| v_ * 2) noteworthyProjectsData
         )
+
+
+noteworthyId : Int -> String
+noteworthyId idx_ =
+    "noteworthy--" ++ String.fromInt idx_
+
+
+noteworthyProjectsDataIds : List String
+noteworthyProjectsDataIds =
+    List.indexedMap (\i _ -> noteworthyId i) noteworthyProjectsData
 
 
 noteworthyProjectsData :
@@ -1384,11 +1359,11 @@ viewWhatsNext { inView } _ =
         ]
 
 
-viewFooter : Model -> { attrs : List (Attribute msg), content : List (Html msg) }
+viewFooter : Shared.Model -> { attrs : List (Attribute msg), content : List (Html msg) }
 viewFooter { viewport } =
     { attrs = [ class "grid gap-5 place-items-center pb-3 mt-12 w-min-base" ]
     , content =
-        [ if viewport.w <= 1024 || viewport.h <= 480 then
+        [ if viewport.width <= 1024 || viewport.height <= 480 then
             div [ class "flex gap-5" ]
                 icons
 
