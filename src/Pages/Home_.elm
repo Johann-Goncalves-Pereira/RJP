@@ -62,6 +62,7 @@ import Svg.Attributes exposing (offset, orientation)
 import Task
 import Utils.Func exposing (aplR)
 import Utils.Models as Models
+import Utils.Scroll as Scroll
 import Utils.View exposing (button, customProp, customProps, materialIcon, picture)
 import View exposing (View)
 
@@ -258,7 +259,7 @@ update shared msg model =
                     NoteworthyProjects.update msg_ model.noteworthyProjects
             in
             ( { model | noteworthyProjects = model_ }
-            , Cmd.map NoteworthyProjectsMsg cmd_
+            , Cmd.batch [ Cmd.map NoteworthyProjectsMsg cmd_ ]
             )
 
         ShowMore toggler_ ->

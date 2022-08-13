@@ -127,12 +127,25 @@ view inView =
                         ]
                 )
                 thingsThatIHaveBuild
+
+        loadSection =
+            loadElement inView_ "work"
     in
     section
-        [ class "things-that-i-have-build"
+        [ class <| "things-that-i-have-build " ++ loadSection
+        , Attr.id "work"
         , ariaLabelledby "section--title--3"
         ]
-        viewProjects
+    <|
+        header [ class "header-section", Attr.tabindex 0 ]
+            [ Html.i [ class "header-section__number" ] [ text "03" ]
+            , h3
+                [ class "header-section__title"
+                , Attr.id <| "section--title--3"
+                ]
+                [ text "Some Things I've Built" ]
+            ]
+            :: viewProjects
 
 
 buildId : Int -> String
