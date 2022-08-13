@@ -1,9 +1,10 @@
-module Pages.Home_ exposing (Model, Msg, noteworthyProjectsDataIds, page)
+module Pages.Home_ exposing (Model, Msg, page)
 
 import Array
-import Browser.Dom as BrowserDom exposing (Element, Error, Viewport, getViewport, setViewport)
+import Browser.Dom as BrowserDom exposing (Element, Error, setViewport)
 import Browser.Events exposing (onResize)
 import Components.Dialog as Dialog
+import Components.NoteworthyProjects as NoteworthyProjects
 import Components.Svg as ESvg
 import Debouncer.Basic as Debouncer exposing (Debouncer, fromSeconds, settleWhenQuietFor, toDebouncer)
 import Dict exposing (Dict)
@@ -21,7 +22,6 @@ import Html
         , h1
         , h2
         , h3
-        , h4
         , h5
         , h6
         , header
@@ -90,13 +90,12 @@ type alias Model =
     , showMore : Bool
     , workSelected : Int
     , mousePos : { x : Float, y : Float }
-
-    -- Elements
     , sectionOne : { w : Float, h : Float }
     , elementsPosition : Dict String Float
 
     -- Models
     , thingsThatIBuild : Models.ThingsThatIBuild
+    , noteworthyProjects : NoteworthyProjects.Model
 
     -- Inputs
     , dialog : Dialog.Model
@@ -105,6 +104,10 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
+    let
+        ( noteworthy_, noteworthyCmd_ ) =
+            NoteworthyProjects.init
+    in
     ( { -- Page Events
         quietForSomeTime = manualDebouncer 0.25
       , wheelDelta = False
@@ -122,6 +125,7 @@ init =
 
       -- Models
       , thingsThatIBuild = Models.defaultThingsThatIBuild
+      , noteworthyProjects = noteworthy_
 
       -- Inputs
       , dialog = Dialog.init
@@ -131,6 +135,7 @@ init =
           BrowserDom.getElement secOneId
             |> Task.attempt GetSectionSize
         , getSectionPos listIds
+        , Cmd.map NoteworthyProjectsMsg noteworthyCmd_
         ]
     )
 
@@ -170,6 +175,7 @@ type Msg
     | SelectWork Int
     | NewMousePos ( Float, Float )
     | DialogMsg Dialog.Msg
+    | NoteworthyProjectsMsg NoteworthyProjects.Msg
       -- Elements
     | GetSectionSize (Result Error Element)
     | GotElementPosition String (Result Error Element)
@@ -243,6 +249,15 @@ update shared msg model =
             in
             ( { model | dialog = model_ }
             , Cmd.map DialogMsg cmd_
+            )
+
+        NoteworthyProjectsMsg msg_ ->
+            let
+                ( model_, cmd_ ) =
+                    NoteworthyProjects.update msg_ model.noteworthyProjects
+            in
+            ( { model | noteworthyProjects = model_ }
+            , Cmd.map NoteworthyProjectsMsg cmd_
             )
 
         ShowMore toggler_ ->
@@ -565,7 +580,9 @@ viewMainContent shared model =
         , viewThemeConfig shared.storage
         , viewAboutMe shared model
         , viewWhereHaveIWorked shared model
-        , viewThingsThatIHaveBuild shared model
+        , viewThingsThatIHaveBuild shared
+        , NoteworthyProjects.viewNoteworthy model.noteworthyProjects
+            |> Html.map NoteworthyProjectsMsg
         , viewWhatsNext shared model
         ]
 
@@ -964,15 +981,17 @@ viewWhereHaveIWorked { inView } model =
             :: workContent
 
 
-viewThingsThatIHaveBuild : Shared.Model -> Model -> Html Msg
-viewThingsThatIHaveBuild shared model =
+viewThingsThatIHaveBuild : Shared.Model -> Html Msg
+viewThingsThatIHaveBuild shared =
     let
         viewProjects =
             List.indexedMap
                 (\i { imgUrl, altImg, italic, title, desc, list, repositoryUrl, projectLink } ->
                     let
                         classLink_ =
-                            class "inline-grid place-content-center focus-visible:text-accent-600 hover:text-accent-600 transition-colors"
+                            class """inline-grid place-content-center 
+                            focus-visible:text-accent-600 hover:text-accent-600 
+                            transition-colors"""
                     in
                     div
                         [ classList
@@ -1037,13 +1056,6 @@ viewThingsThatIHaveBuild shared model =
                 )
                 thingsThatIHaveBuild
 
-        showMore =
-            if model.showMore then
-                "Less"
-
-            else
-                "More"
-
         elementId =
             3
 
@@ -1055,23 +1067,6 @@ viewThingsThatIHaveBuild shared model =
     in
     sectionBuilder class_ "Some Things I've Built" elementId <|
         viewProjects
-            ++ List.singleton
-                (section [ class "other-noteworthy-projects", ariaLabelledby "header-noteworthy" ]
-                    [ header [ class "grid place-items-center gap-5" ]
-                        [ h4 [ class "text-4xl text-center font-800", tabindex 0, id "header-noteworthy" ]
-                            [ text "Other Noteworthy Projects" ]
-                        , p []
-                            [ text "View the my side projects" ]
-                        ]
-                    , ul [ class "grid grid-cols-fit-20 auto-rows-fr gap-6" ] <| viewNoteworthyProjects shared model
-                    , button
-                        [ class "btm-accent mx-auto"
-                        , tabindex 0
-                        , onClick <| ShowMore model.showMore
-                        ]
-                        [ text <| String.join " " [ "View", showMore ] ]
-                    ]
-                )
 
 
 thingsThatIHaveBuild :
@@ -1124,197 +1119,6 @@ thingsThatIHaveBuild =
             ]
       , repositoryUrl = Just "https://github.com/Johann-Goncalves-Pereira/Revex"
       , projectLink = "https://main--revex.netlify.app"
-      }
-    ]
-
-
-viewNoteworthyProjects : Shared.Model -> Model -> List (Html Msg)
-viewNoteworthyProjects { viewport } model =
-    let
-        v_ =
-            if viewport.width <= 1024 then
-                1
-
-            else if viewport.width <= 1440 then
-                2
-
-            else
-                3
-
-        modMedia i =
-            modBy v_ i
-    in
-    List.indexedMap
-        (\i { gitHubUrl, projectUlr, title, desc, tags } ->
-            let
-                head_ =
-                    "header--noteworthy--" ++ String.fromInt i
-
-                link_ url_ icon_ =
-                    a
-                        [ class "link"
-                        , href url_
-                        , tabindex 0
-                        ]
-                        [ icon_ ]
-
-                gitHub_ =
-                    case gitHubUrl of
-                        Nothing ->
-                            text ""
-
-                        Just url_ ->
-                            link_ url_ <| ESvg.github ""
-
-                siteUrl =
-                    case projectUlr of
-                        Nothing ->
-                            text ""
-
-                        Just url_ ->
-                            link_ url_ <| materialIcon "drop-shadow" "open_in_new"
-
-                delay_ =
-                    String.fromInt (modMedia i * 100)
-                        ++ "ms"
-                        |> customProp "delay"
-
-                generalUrl =
-                    if projectUlr == Nothing then
-                        Maybe.withDefault "" gitHubUrl
-
-                    else
-                        Maybe.withDefault "" projectUlr
-            in
-            li [ class "card-item", Attr.id <| noteworthyId i, tabindex 0 ]
-                [ a
-                    [ class "card"
-                    , href generalUrl
-                    , ariaLabelledby head_
-                    , target "_blank"
-                    , delay_
-                    ]
-                    [ div [ class "card__wrapper " ]
-                        [ materialIcon "folder" "folder"
-                        , gitHub_
-                        , siteUrl
-                        ]
-                    , h6 [ class "card__title", id head_ ] [ text title ]
-                    , p [] [ text desc ]
-                    , ul [ class "card__list" ] <|
-                        List.map (\itemText -> li [] [ text itemText ])
-                            tags
-                    ]
-                ]
-        )
-        (if model.showMore then
-            noteworthyProjectsData
-
-         else
-            List.take (max 4 <| v_ * 2) noteworthyProjectsData
-        )
-
-
-noteworthyId : Int -> String
-noteworthyId idx_ =
-    "noteworthy--" ++ String.fromInt idx_
-
-
-noteworthyProjectsDataIds : List String
-noteworthyProjectsDataIds =
-    List.indexedMap (\i _ -> noteworthyId i) noteworthyProjectsData
-
-
-noteworthyProjectsData :
-    List
-        { gitHubUrl : Maybe String
-        , projectUlr : Maybe String
-        , title : String
-        , desc : String
-        , tags : List String
-        }
-noteworthyProjectsData =
-    [ { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/the-greate-outdoors"
-      , projectUlr = Just "https://app.netlify.com/sites/tourmaline-conkies-5e8bc9/overview"
-      , title = "Out Doors Website"
-      , desc = """A simple website for a company that sells outdoor gear.
-          It's just the home page is responsive and super beautiful.
-          Design coped see on repository where."""
-      , tags = [ "Elm", "Sass", "Netlify" ]
-      }
-    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/Excel-Week"
-      , projectUlr = Nothing
-      , title = "Excel on Practice"
-      , desc = """A freelance that I worked on, It's a homepage to sell a week course, 
-      of how to use excel excel, I was super cool make a in 3 days."""
-      , tags = [ "ReactJs", "Sass", "ViteJs" ]
-      }
-    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/Grid-News"
-      , projectUlr = Just "https://62e8319e17cd161f972e91ae--luminous-clafoutis-c0bf0f.netlify.app"
-      , title = "Grid News"
-      , desc = """Website with a grid system that I like, so I made my version.
-      The original site is on the description of the github project. Not finished."""
-      , tags = [ "Elm", "PostCss", "Tailwind", "Sass" ]
-      }
-    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/bevy-snake"
-      , projectUlr = Nothing
-      , title = "Snake Game Build with Rust"
-      , desc = """An Game made with Bevy, a Rust Framework.
-       Just to learn how to use it."""
-      , tags = [ "Rust", "Bevy", "Cargo" ]
-      }
-    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/shell-config"
-      , projectUlr = Nothing
-      , title = "My Shell Config"
-      , desc = """The Terminal is the most personal thing of a developer,
-       in this project I made a config for my shell as me."""
-      , tags = [ "ZShel", "O-My-ZShell", "p10k" ]
-      }
-    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/Developers-Concept"
-      , projectUlr = Just "https://app.netlify.com/sites/jgp-pnco/overview"
-      , title = "Developers Concept"
-      , desc = """This was an attempt to make a portfolio that fail."""
-      , tags = [ "Elm", "Elm-spa", "Sass", "Tailwind" ]
-      }
-    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/Kelpie"
-      , projectUlr = Nothing
-      , title = "Kelpie"
-      , desc = """My first website made with Elm,
-       I was super cool to make, and super hard because Elm,
-        its super hard at start. The site is a copy of Unsplash."""
-      , tags = [ "Elm", "Webpack", "Sass", "Tailwind" ]
-      }
-    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/elm-spotify"
-      , projectUlr = Just "https://medium.com/@johann.gon.pereira/building-spotify-with-elm-00-b18b6bf815d7"
-      , title = "Elm Spotify"
-      , desc = """The elm-spotify was an attempt to make a 
-      clone of spotify width elm. Not just that, I try to document on Medium and Dev.io."""
-      , tags = [ "Elm", "Docker", "Vite", "Sass" ]
-      }
-    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/Email-Constructor"
-      , projectUlr = Nothing
-      , title = "Email Constructor"
-      , desc = """I use this project to make the html of emails"""
-      , tags = [ "Elm", "Email", "PostCss", "Sass" ]
-      }
-    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/calc-flutter"
-      , projectUlr = Nothing
-      , title = "Calc Flutter"
-      , desc = """I try to learn flutter, so I made this calculator."""
-      , tags = [ "Flutter", "Dart" ]
-      }
-    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/Timer-Countdown"
-      , projectUlr = Nothing
-      , title = "Timer Countdown"
-      , desc = """Timer Countdown is a simple timer that I made with Go(golang),
-       I don't know why huahauahua."""
-      , tags = [ "Flutter", "Dart" ]
-      }
-    , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/flus"
-      , projectUlr = Nothing
-      , title = "Flus"
-      , desc = """A app made with React Native."""
-      , tags = [ "ReactNative", "Typescript" ]
       }
     ]
 

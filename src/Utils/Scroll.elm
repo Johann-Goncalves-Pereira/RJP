@@ -1,5 +1,6 @@
 port module Utils.Scroll exposing (..)
 
+import Components.NoteworthyProjects exposing (noteworthyProjectsDataIds)
 import InView
 
 
@@ -77,3 +78,4 @@ listIds =
     , "other-noteworthy-projects"
     , "contact"
     ]
+        ++ noteworthyProjectsDataIds
