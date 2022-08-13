@@ -1,20 +1,20 @@
 module Pages.NotFound exposing (page)
 
 import Gen.Params.NotFound exposing (Params)
-import Gen.Route as Route exposing (Route, toHref)
+import Gen.Route as Route exposing (toHref)
 import Html exposing (Attribute, Html, a, h1, h2, text)
-import Html.Attributes as Attr exposing (class, href, tabindex)
+import Html.Attributes exposing (class, href, tabindex)
 import Layout exposing (initLayout, viewClean)
 import Page exposing (Page)
 import Request
 import Shared
-import Storage exposing (Scheme(..), Storage, Theme)
+import Storage exposing (Scheme(..), Storage)
 import Utils.View exposing (customProp)
 import View exposing (View)
 
 
 page : Shared.Model -> Request.With Params -> Page
-page shared req =
+page shared _ =
     Page.static
         { view = view shared.storage
         }
