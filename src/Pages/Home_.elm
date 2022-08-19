@@ -26,7 +26,6 @@ import Html
         , h5
         , h6
         , header
-        , img
         , li
         , nav
         , p
@@ -37,12 +36,10 @@ import Html
         )
 import Html.Attributes as Attr
     exposing
-        ( alt
-        , class
+        ( class
         , classList
         , href
         , id
-        , src
         , tabindex
         , target
         )
@@ -62,7 +59,6 @@ import Svg.Attributes exposing (offset, orientation)
 import Task
 import Utils.Func exposing (aplR)
 import Utils.Models as Models
-import Utils.Scroll as Scroll
 import Utils.View exposing (button, customProp, customProps, materialIcon, picture)
 import View exposing (View)
 

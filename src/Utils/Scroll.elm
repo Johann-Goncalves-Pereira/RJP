@@ -3,6 +3,8 @@ port module Utils.Scroll exposing (..)
 import Browser.Events exposing (onResize)
 import Components.NoteworthyProjects exposing (noteworthyProjectsDataIds)
 import Components.ThingsThatIHaveBuild as ThingsThatIHaveBuild
+import Html exposing (Attribute)
+import Html.Events exposing (onClick)
 import InView
 
 
@@ -31,7 +33,7 @@ init =
 type Msg
     = OnScroll { x : Float, y : Float }
     | InViewMsg InView.Msg
-    | OnLoadElement String
+    | GetAgain
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -54,20 +56,19 @@ update msg model =
             , cmd_
             )
 
-        OnLoadElement id_ ->
+        GetAgain ->
             let
-                ( inView, cmd_ ) =
-                    InView.addElements InViewMsg [ id_ ] model.inView
+                ( model_, cmd_ ) =
+                    InView.addElements InViewMsg listIds model.inView
             in
-            ( { model | inView = inView }
-            , cmd_
-            )
+            ( { model | inView = model_ }, cmd_ )
 
 
 subs : Model -> Sub Msg
 subs model =
     Sub.batch
         [ InView.subscriptions InViewMsg model.inView
+        , onResize <| \_ _ -> GetAgain
         , onScroll OnScroll
         ]
 
