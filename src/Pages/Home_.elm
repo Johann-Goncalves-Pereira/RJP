@@ -637,16 +637,26 @@ viewIntroduction { viewport } model =
                 [ text """I’m a software developer specializing in
                 building (and occasionally designing) exceptional 
                 digital experiences. Currently,
-                I'm focused on building the platform for """
+                I'm working at """
                 , a
                     [ class "link-underline"
                     , customProp "c-ch" "-13ch"
-                    , href "https://app.materialize.pro"
+                    , href "https://www.materialize.pro"
                     , tabindex 0
                     , target "_blank"
                     , Attr.title "Link to Materialize Plataform"
                     ]
                     [ text "Materialize" ]
+                , text " and as a freelancer at "
+                , a
+                    [ class "link-underline"
+                    , customProp "c-ch" "-13ch"
+                    , href "https://www.upwork.com/freelancers/~011d31917fa3d87f28"
+                    , tabindex 0
+                    , target "_blank"
+                    , Attr.title "Link to Materialize Plataform"
+                    ]
+                    [ text "Upwork" ]
                 , text "."
                 ]
             , a
