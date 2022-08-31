@@ -104,6 +104,7 @@ viewNoteworthyProjects model listIds =
                         [ Attr.class "link"
                         , Attr.href url_
                         , Attr.tabindex 0
+                        , Attr.target "_blank"
                         ]
                         [ icon_ ]
 
@@ -208,7 +209,7 @@ noteworthyProjectsData =
       , tags = [ "Elm", "Sass", "Netlify" ]
       }
     , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/Excel-Week"
-      , projectUlr = Nothing
+      , projectUlr = Just ""
       , title = "Excel on Practice"
       , desc = """A freelance that I worked on, It's a homepage to sell a week course, 
       of how to use excel excel, I was super cool make a in 3 days."""
@@ -236,7 +237,7 @@ noteworthyProjectsData =
       , tags = [ "ZShel", "O-My-ZShell", "p10k" ]
       }
     , { gitHubUrl = Just "https://github.com/Johann-Goncalves-Pereira/Developers-Concept"
-      , projectUlr = Just "https://app.netlify.com/sites/jgp-pnco/overview"
+      , projectUlr = Just "https://jgp-pnco.netlify.app"
       , title = "Developers Concept"
       , desc = """This was an attempt to make a portfolio that fail."""
       , tags = [ "Elm", "Elm-spa", "Sass", "Tailwind" ]
