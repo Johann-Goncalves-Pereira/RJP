@@ -17,9 +17,9 @@ body {
 		border-radius: 5px;
 
 		&-thumb {
-			background-color: var(--clr-surface-500);
+			background-image: linear-gradient(0deg, transparent, var(--clr-surface-500), transparent);
 
-			box-shadow: 0px 0px 2rem 2rem var(--clr-surface-500);
+			// box-shadow: 0px 0px 2rem 2rem var(--clr-surface-500);
 		}
 
 		&-track {

@@ -827,7 +827,7 @@ viewAboutMe { inView } model =
             , tabindex 0
             , ariaLabel "Profile Photo"
             ]
-            [ picture "/assets/profile-photo" "Profile Photo" ]
+            [ picture { w = 3880, h = 5184 } "/assets/profile-photo" "Profile Photo" ]
         ]
 
 

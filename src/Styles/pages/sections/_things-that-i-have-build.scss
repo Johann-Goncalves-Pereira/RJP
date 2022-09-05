@@ -127,6 +127,7 @@
 			img {
 				border-radius: inherit;
 
+				height: auto; // for lazy loading to work
 				aspect-ratio: var(--ratio-portrait);
 
 				@media (--md-n-above) {
