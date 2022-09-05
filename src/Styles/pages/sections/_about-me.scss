@@ -123,17 +123,23 @@
 		}
 
 		img {
+			$properties: transform, filter, border-radius;
+
 			margin: auto;
-			width: 100%;
 			border-radius: inherit;
+
+			width: 100%;
+			height: auto; // for lazy loading to work
+
 			aspect-ratio: 1/1;
 			object-fit: cover;
 			object-position: 0 -2rem;
+
 			filter: grayscale(1);
 
 			backface-visibility: hidden;
-			will-change: transform, filter, border-radius;
-			transition-property: transform, filter, border-radius;
+			will-change: $properties;
+			transition-property: $properties;
 			transition: transform 200ms ease-out 100ms;
 		}
 

@@ -41,8 +41,8 @@ srcset =
     Attr.attribute "srcset"
 
 
-picture : String -> String -> Html msg
-picture url_ name_ =
+picture : { w : Int, h : Int } -> String -> String -> Html msg
+picture size_ url_ name_ =
     List.map
         (\extension_ ->
             Html.source
@@ -59,6 +59,9 @@ picture url_ name_ =
                     ++ ".jpg"
                     |> Attr.src
                 , Attr.alt name_
+                , Attr.width size_.w
+                , Attr.height size_.h
+                , Attr.attribute "loading" "lazy"
                 ]
                 []
            ]

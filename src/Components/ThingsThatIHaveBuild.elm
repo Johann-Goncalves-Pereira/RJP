@@ -5,7 +5,6 @@ import Html exposing (..)
 import Html.Attributes as Attr exposing (class, classList)
 import Html.Attributes.Aria exposing (ariaLabel, ariaLabelledby)
 import InView
-import Utils.Func exposing (correctZero)
 import Utils.View exposing (materialIcon, picture)
 
 
@@ -51,7 +50,7 @@ view inView =
 
         viewProjects =
             List.indexedMap
-                (\i { imgUrl, altImg, italic, title, desc, list, repositoryUrl, projectLink } ->
+                (\i { imgUrl, imgSize, altImg, italic, title, desc, list, repositoryUrl, projectLink } ->
                     let
                         classLink_ =
                             class """inline-grid place-content-center 
@@ -78,7 +77,7 @@ view inView =
                             , Attr.tabindex 0
                             , Attr.target "_blank"
                             ]
-                            [ picture imgUrl altImg ]
+                            [ picture imgSize imgUrl altImg ]
                         , div [ class "projects__info" ]
                             [ Html.i
                                 [ class "font-mono font-500 text-accent-600 text-sm z-10 sm:text-accent-600"
@@ -156,6 +155,7 @@ buildId idx_ =
 thingsThatIHaveBuild :
     List
         { imgUrl : String
+        , imgSize : { w : Int, h : Int }
         , altImg : String
         , italic : Maybe String
         , title : String
@@ -166,6 +166,7 @@ thingsThatIHaveBuild :
         }
 thingsThatIHaveBuild =
     [ { imgUrl = "/assets/materialize-plataform"
+      , imgSize = { w = 1890, h = 986 }
       , altImg = "Materialize Plataform - Photo"
       , italic = Nothing
       , title = "Materialize Plataform"
@@ -184,6 +185,7 @@ thingsThatIHaveBuild =
       , projectLink = "https://app.materialize.pro"
       }
     , { imgUrl = "/assets/revex"
+      , imgSize = { w = 1893, h = 993 }
       , altImg = "Revex - Photo"
       , italic = Nothing
       , title = "Revex"
