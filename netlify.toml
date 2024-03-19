@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm run build"
+  command = "pnpm build"
   functions = "netlify/functions"
   publish = "dist"
 
