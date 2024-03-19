@@ -137,7 +137,7 @@ view inView =
         ]
     <|
         header [ class "header-section", Attr.tabindex 0 ]
-            [ Html.i [ class "header-section__number" ] [ text "03" ]
+            [ Html.i [ class "header-section__number" ] [ text "03." ]
             , h3
                 [ class "header-section__title"
                 , Attr.id <| "section--title--3"
