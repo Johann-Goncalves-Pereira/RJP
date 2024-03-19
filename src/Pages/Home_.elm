@@ -487,7 +487,7 @@ icons =
                 [ icon ]
         )
         [ ( ESvg.linkedin "text-3xl", "https://www.linkedin.com/in/johann-pereira-a798961b3/" )
-        , ( ESvg.instagram "text-3xl", "https://www.instagram.com/johanngon_" )
+        , ( ESvg.instagram "text-3xl", "https://www.instagram.com/johanngon_/" )
         , ( ESvg.medium "text-3xl", "https://medium.com/@johann.gon.pereira" )
         , ( ESvg.github "text-3xl ", "https://github.com/Johann-Goncalves-Pereira" )
         ]
@@ -509,7 +509,7 @@ viewPage shared model =
                         |> onClick
                         |> Attr.map DialogMsg
                     ]
-                    [ text "johann.gon.pereira@protonmail.com" ]
+                    [ text "johann.work@pm.me" ]
                 ]
             , viewMainContent shared model
             ]
@@ -776,34 +776,23 @@ viewAboutMe { inView } model =
     in
     sectionBuilder class_ "About Me" elementId <|
         [ p [ class "paragraph", tabindex 0 ]
-            [ text """Hi! I'm Johann a front-end developer from Brazil.
-             I love to create for the web, beautiful and functional interfaces.
-             My interest for development started back in 2017, when I made a project with the 
-            """
-            , externalLink_ "https://www.rocketseat.com.br" "RocketSeat"
-            , text """ it was my first website, and I fall in love with Html/Css and design, 
-            from then I discovered that I wasn't so difficult to make cool websites."""
+            [ text """HHi there! I'm Johann, a 22-year-old programmer from Brazil fluent in 
+            both Portuguese and English. With over five years of programming experience, I've honed 
+            my skills in Elm, React, Css (Tailwind, Sass, Styled Components, PostCSS, etc), and HTML Accessibility."""
             , br [] []
             , br [] []
-            , text "Jumping to the present day, I'm working at a "
-            , externalLink_ "https://www.materialize.pro/for-companies"
-                "start-up for instant hiring solution"
-            , text """, as a front-end developer, I made the visual of the platform,
-             and worked on the website. I'm also working as a freelancer, 
-             on my leisure time, and I'm constantly looking for new challenges. 
-             The thing that I've the most joy making it, It is accessible and 
-             well-designed websites."""
+            , text "I began my journey in 2018 and since then, I've delved deep into coding, refining my craft at "
+            , externalLink_ "https://www.materialize.pro/en_us.html" "Materialize"
+            , text " where I specialized in Elm and Scss. Later, I spent two fulfilling years at "
+            , externalLink_ "https://resideadmissions.com/" "Reside"
+            , text " as a React developer, adept at resolving visual and accessibility bugs."
             , br [] []
             , br [] []
-            , text "I had work in some open-source projects, like "
-            , externalLink_ "https://cssnano.co" "CssNano"
-            , text ", "
-            , externalLink_ "https://elm-lang.org" "Elm"
-            , text " and "
-            , externalLink_ "https://open-props.style" "OpenProps"
-            , text ". The last things are my personal projects, like "
-            , externalLink_ "https://github.com/Johann-Goncalves-Pereira/Revex/" "Revex"
-            , text "."
+            , text """Currently, I'm exploring Qwik and React Native to further expand my skill set and delve into new technologies. 
+            Eager to collaborate? Feel free to reach out—I'm always keen to learn and embark on new ventures!"""
+            , br [] []
+            , br [] []
+            , text "Explore my portfolio website and projects on GitHub to see my work firsthand. Let's create something awesome together!"
             ]
         , footer [ class "footer" ]
             [ ul [ class "footer__list", tabindex 0 ] <|
@@ -861,11 +850,11 @@ viewWhereHaveIWorked { inView } model =
                         ]
                         [ text name ]
                 )
-                [ "Materialize" ]
+                [ "Materialize", "Reside" ]
 
         workContent =
             List.indexedMap
-                (\i { title, atSign, date, content } ->
+                (\i { title, atSign, workLink, date, content } ->
                     let
                         head_ =
                             "header--where--" ++ String.fromInt i
@@ -892,7 +881,7 @@ viewWhereHaveIWorked { inView } model =
                                     ]
                                 , a
                                     [ class "link-underline"
-                                    , href "#"
+                                    , href workLink
                                     , nCh
                                     , tabindex 0
                                     , target "_blank"
@@ -916,7 +905,8 @@ viewWhereHaveIWorked { inView } model =
                 )
                 [ { title = "Front-End Developer"
                   , atSign = "materialize"
-                  , date = "August 2021 - Present"
+                  , workLink = "https://www.materialize.pro/en_us.html"
+                  , date = "July 2021 –  Nov 2022"
                   , content =
                         [ [ text """An start-up for instant hiring solution,
                          that connects specialists and clients around the word, to work together."""
@@ -930,11 +920,22 @@ viewWhereHaveIWorked { inView } model =
                           ]
                         ]
                   }
-                , { title = "Front-End Developer"
-                  , atSign = "materialize"
-                  , date = "August 2021 - Present"
+                , { title = "Developer"
+                  , atSign = "reside admission"
+                  , workLink = "https://resideadmissions.com/"
+                  , date = "Sep 2022 – Aug 2023"
                   , content =
-                        []
+                        [ [ text """With 15 years of expertise in long-term care, RESIDE redefines admissions with 
+                            efficient software, providing transparency for families and efficacy for facilities. 
+                            Welcome to the future of admissions with RESIDE."""
+                          ]
+                        , [ text """Frustrated families. Missing paperwork. We understand how difficult the 
+                            process of transitioning a resident into a skilled nursing facility or other 
+                            long-term care setting can be. Watch the video below for a demo."""
+                          ]
+                        , [ text """An admissions software partner that really understands admissions."""
+                          ]
+                        ]
                   }
                 ]
 
@@ -947,7 +948,7 @@ viewWhereHaveIWorked { inView } model =
         class_ =
             loadElement inView_ "where-have-i-worked" elementId
     in
-    sectionBuilder class_ "Where I've Worked" elementId <|
+    sectionBuilder class_ "Companies I worked with" elementId <|
         div
             [ String.concat
                 [ "work-list "

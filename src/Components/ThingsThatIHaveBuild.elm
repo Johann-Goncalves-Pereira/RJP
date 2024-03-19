@@ -179,10 +179,36 @@ thingsThatIHaveBuild =
             [ "Elm"
             , "Html"
             , "Sass"
+            , "Tailwind"
             , "Webpack"
+            , "Vite"
+            , "Typescript"
+            , "Wordpress"
             ]
       , repositoryUrl = Nothing
       , projectLink = "https://app.materialize.pro"
+      }
+    , { imgUrl = "/assets/reside"
+      , imgSize = { w = 1893, h = 993 }
+      , altImg = "Reside - Photo"
+      , italic = Nothing
+      , title = "Reside"
+      , desc =
+            [ text "Reside streamlines senior care admissions. Facilities can automate tasks, "
+            , text "collect data for better decision-making, and gain valuable insights. Families benefit from a faster,"
+            , text " more convenient application process with secure e-signing."
+            ]
+      , list =
+            [ "React"
+            , "Typescript"
+            , "Sass"
+            , "QA"
+            , "Styled Components"
+            , "Html Accessibility"
+            , "Java"
+            ]
+      , repositoryUrl = Nothing
+      , projectLink = "https://resideadmissions.com/"
       }
     , { imgUrl = "/assets/revex"
       , imgSize = { w = 1893, h = 993 }
