@@ -5,7 +5,7 @@
   prebuild = "[[ $CI = true ]] && npx pnpm@3 install -r --store=node_modules/.pnpm-store || echo skiping pnpm install"
   command = "pnpm run build"
   functions = "netlify/functions"
-  publish = "dist"s
+  publish = "dist"
 
   ## Uncomment to use this redirect for Single Page Applications like create-react-app.
   ## Not needed for static site generators.
