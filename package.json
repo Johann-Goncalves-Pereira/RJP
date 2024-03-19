@@ -2,6 +2,7 @@
   "name": "rjp",
   "private": true,
   "version": "0.3.5",
+  "packageManager": "pnpm@6.9.0",
   "scripts": {
     "dev": "elm-spa gen && vite",
     "build": "elm-spa gen && vite build",
