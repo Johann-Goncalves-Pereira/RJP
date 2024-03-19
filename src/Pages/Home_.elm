@@ -548,7 +548,7 @@ loadElement : InView.State -> String -> Int -> String
 loadElement state_ class_ id_ =
     let
         load_ s_ i_ =
-            case InView.isInViewWithMargin i_ (InView.Margin 100 0 300 0) s_ of
+            case InView.isInViewWithMargin i_ (InView.Margin 0 0 300 0) s_ of
                 Just True ->
                     "view view--in"
 
