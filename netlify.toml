@@ -1,8 +1,4 @@
-[build.environment]
-    NPM_FLAGS="--prefix=/"
-
 [build]
-  prebuild = "test \"$CI\" = true && npx pnpm install -r --store=node_modules/.pnpm-store || echo skiping pnpm install",
   command = "pnpm run build"
   functions = "netlify/functions"
   publish = "dist"
